@@ -1,0 +1,14 @@
+<plugin name='novamail' version='0.1' grailsVersion='2.3 &gt; *'>
+  <author>Omasirichukwu Udeinya</author>
+  <authorEmail>omasiri@novadge.com</authorEmail>
+  <title>Novamail Plugin</title>
+  <description>Send emails form your application
+</description>
+  <documentation>http://grails.org/plugin/novamail</documentation>
+  <type>NovamailGrailsPlugin</type>
+  <resources>
+    <resource>com.novadge.novamail.MessageOut</resource>
+    <resource>com.novadge.novamail.MailDispatchJob</resource>
+    <resource>com.novadge.novamail.MessagingService</resource>
+  </resources>
+</plugin>

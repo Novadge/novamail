@@ -12,6 +12,8 @@ grails.project.dependency.resolution = {
     }
 
     dependencies {
+        compile 'javax.mail:javax.mail-api:1.5.1'
+        runtime 'com.sun.mail:javax.mail:1.5.1'
     }
 
     plugins {

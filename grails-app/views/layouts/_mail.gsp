@@ -5,8 +5,8 @@
           <meta name="layout" content="print">
 		<meta charset="utf-8">
 		<title>Notification</title>
-		
-		
+
+
 	</head>
         <body>
         <!--
@@ -15,22 +15,22 @@
           <div>
             <p>
               Dear ${recipient},
-              
+
             </p>
             <p>
               ${message}
             </p>
-            
+
             <br/>
             Sincerely,
             <br/>
             The <g:message code="default.appName.label"/> Team.
             <p>
             <a href="#">http://novadge.com</a>
-            </p>  
+            </p>
             <br/>
-            
+
           </div>
-		
+
 	</body>
 </html>

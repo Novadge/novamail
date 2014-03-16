@@ -1,248 +1,149 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package com.novadge.novamail
 
+import javax.activation.DataHandler
+import javax.activation.DataSource
+import javax.activation.FileDataSource
+import javax.mail.Authenticator
+import javax.mail.BodyPart
+import javax.mail.Folder
+import javax.mail.Message
+import javax.mail.Multipart
+import javax.mail.Session
+import javax.mail.Store
+import javax.mail.Transport
+import javax.mail.internet.InternetAddress
+import javax.mail.internet.MimeBodyPart
+import javax.mail.internet.MimeMessage
+import javax.mail.internet.MimeMultipart
+
 /**
- *
  * @author Omasiri
  */
+class PostMan {
 
+    private static final String TEXT_HTML = 'text/html; charset=utf-8;'
 
-import java.util.*;
-import javax.mail.*;
-import javax.mail.internet.*;
-import javax.activation.*;
+    Properties props = new Properties()
+    Authenticator auth
+    Session session
+    Store store
+    Folder inbox
+    Message[] message
 
-class PostMan{
-    Properties props;
-    Authenticator auth;
-    Session session;
-    Store store;
-    Folder inbox;
-    javax.mail.Message[] message;
-    
- 
-    public PostMan(){
-        
+    PostMan() {
     }
-     PostMan(String incomingMailServer, String store, String username, String password) {
-        //throw new UnsupportedOperationException("Not yet implemented");
-        System.out.println("Executing post man");
-        props = new Properties();
-        //this.setProperties("mail.pop3.host", incomingMailServer);
-        //this.setProperties("mail.store.protocol","pop3");
-        auth = new NovadgeAuthenticator(username,password);// not yet useful
-        session = Session.getDefaultInstance(props, auth); // instantiate the session object for javamail
-        getStore(store);// eg pop3, imap, etc
-        storeConnect(incomingMailServer,username,password);
-        //storeConnect();
-        getInbox();
+
+    PostMan(String incomingMailServer, String store, String username, String password) {
+        log.debug "Executing post man"
+        //this.setProperties("mail.pop3.host", incomingMailServer)
+        //this.setProperties("mail.store.protocol", "pop3")
+        auth = new NovadgeAuthenticator(username, password)// not yet useful
+        session = Session.getDefaultInstance(props, auth) // instantiate the session object for javamail
+        getStore(store)// eg pop3, imap, etc
+        storeConnect(incomingMailServer, username, password)
+        //storeConnect()
+        getInbox()
     }
-    
-    
-     public void storeConnect(String host,String username,String password){
-        try{
-            System.out.println("trying to connect to store......\n");
-            store.connect(host, username, password);
-        }
-        catch(Exception ex){
-            System.out.println("Unable to connect to store because" + ex.toString());
-        }
 
+    void storeConnect(String host, String username, String password) {
+        try {
+            log.debug "trying to connect to store......\n"
+            store.connect(host, username, password)
+        }
+        catch(e) {
+            log.error "Unable to connect to store because $e.message", e
+        }
     }
-     public void getStore(String string){
-        try{
-            System.out.println("trying to get store......\n");
-            store = session.getStore(string);
-        }
-        catch(Exception ex){
 
+    void getStore(String string) {
+        try {
+            log.debug "trying to get store......\n"
+            store = session.getStore(string)
         }
-
+        catch (e) {
+            log.error e.message, e
+        }
     }
-    
-    public void getInbox(){
-        try{
-            System.out.println("trying to get inbox......\n");
-            inbox = store.getFolder("INBOX");
-            inbox.open(Folder.READ_ONLY);
-            message = inbox.getMessages();
-            
-        }
-        catch(Exception ex){
-            System.out.println("Unable to get inbox because "+ ex.toString());
-        }
 
+    void getInbox() {
+        try {
+            log.debug "trying to get inbox......\n"
+            inbox = store.getFolder("INBOX")
+            inbox.open(Folder.READ_ONLY)
+            message = inbox.getMessages()
+        }
+        catch (e) {
+            log.error "Unable to get inbox because $e.message", e
+        }
     }
-    
-    /**
-     * Returns an array of message objects
-     * @return
-     */
-    public javax.mail.Message[] getMessages(){
 
+    Message[] getMessages() {
         //message[0].getS
-       // message[0].getReceivedDate();
-        return message;
-
+        // message[0].getReceivedDate()
+        return message
     }
-    
-   public void sendEmail(Map emailProps,Map props){    
-      
-        
-      // Get system properties
-      Properties properties = System.getProperties();
 
-        
-      // Setup mail server
-      props.each{key,value ->
-         properties.setProperty(key,value) 
-      }
-      //print "Inside postman props = ${props}"
+    void sendEmail(Map emailProps, Map props) {
+        doSendEmail emailProps, props, false, null
+    }
 
-      Authenticator auth = new NovadgeAuthenticator(emailProps.username,emailProps.password);// not yet useful
-      // Get the default Session object.
-      Session session = Session.getDefaultInstance(properties,auth);
+    void sendHTMLEmail(Map emailProps, Map props) {
+        // log.debug "trying to send html email with ${emailProps}"
+        doSendEmail emailProps, props, true, null
+    }
 
-      
-         // Create a default MimeMessage object.
-         MimeMessage message = new MimeMessage(session);
+    void sendEmail(Map emailProps, Map props, File file) {
+        doSendEmail emailProps, props, false, file
+    }
 
-         // Set From: header field of the header.
-         message.setFrom(new InternetAddress(emailProps.from));
+    private void doSendEmail(Map emailProps, Map props, boolean html, File file) {
 
-         // Set To: header field of the header.
-         message.addRecipient(javax.mail.Message.RecipientType.TO,
-                                  new InternetAddress(emailProps.to));
+        Properties properties = System.getProperties()
 
-         // Set Subject: header field
-         message.setSubject("${emailProps.subject}");
+        // Setup mail server
+        props.each { key, value ->
+            properties.setProperty(key,value)
+        }
 
-         // Now set the actual message
-         message.setText("${emailProps.body}");
+        Authenticator auth = new NovadgeAuthenticator(emailProps.username, emailProps.password)// not yet useful
+        Session session = Session.getDefaultInstance(properties, auth)
 
-         // Send message
-         Transport.send(message);
-         System.out.println("Sent message successfully....");
-           
-           
-   }
-  
-   
-   
-   public void sendHTMLEmail(Map emailProps,Map props){  
+        MimeMessage message = new MimeMessage(session)
+        message.setFrom(new InternetAddress(emailProps.from))
 
-     // print "trying to send html email with ${emailProps}"
+        message.addRecipient(Message.RecipientType.TO, new InternetAddress(emailProps.to))
 
-      // Get system properties
-      Properties properties = System.getProperties();
+        message.setSubject("${emailProps.subject}")
 
-        props.each{key,value ->
-         properties.setProperty(key,value) 
-      }
-     
-       Authenticator auth = new NovadgeAuthenticator(emailProps.username,emailProps.password);// not yet useful
-      // Get the default Session object.
-      //print auth
-      Session session = Session.getDefaultInstance(properties,auth);
+        if (html) {
+            // Send the actual HTML message, as big as you like
+            message.setContent(emailProps.body, TEXT_HTML)
+        }
+        else if (file != null) {
+            BodyPart messageBodyPart = new MimeBodyPart()
 
-     
-         // Create a default MimeMessage object.
-         MimeMessage message = new MimeMessage(session);
+            // messageBodyPart.setText("${emailProps.body}")
+            messageBodyPart.setContent(emailProps.body, TEXT_HTML)
 
-         // Set From: header field of the header.
-         message.setFrom(new InternetAddress(emailProps.from));
+            Multipart multipart = new MimeMultipart()
 
-         // Set To: header field of the header.
-         message.addRecipient(javax.mail.Message.RecipientType.TO,
-                                  new InternetAddress(emailProps.to));
+            multipart.addBodyPart(messageBodyPart)
 
-         // Set Subject: header field
-         message.setSubject("${emailProps.subject}");
+            // Part two is attachment
+            messageBodyPart = new MimeBodyPart()
+            //TODO: Find way to set file path
+            DataSource source = new FileDataSource(file)
+            messageBodyPart.setDataHandler(new DataHandler(source))
+            messageBodyPart.setFileName(file.name)
+            multipart.addBodyPart(messageBodyPart)
 
-         // Send the actual HTML message, as big as you like
-         //(text, "text/html; charset=utf-8");
-         message.setContent(emailProps.body,"text/html; charset=utf-8");
+            message.setContent(multipart)
+        }
+        else {
+            message.setText("${emailProps.body}")
+        }
 
-         // Send message
-        // print "Sending message ......"
-         Transport.send(message);
-         System.out.println("Sent message successfully....");
-         
-           
-   }
-   
-   
-   public void sendEmail(Map emailProps,Map props,File file)
-   {
-      
-      
-      // Get system properties
-      Properties properties = System.getProperties();
-
-      // Setup mail server
-      props.each{key,value ->
-         properties.setProperty(key,value) 
-      }
-
-
-      // Get the default Session object.
-      Authenticator auth = new NovadgeAuthenticator(emailProps.username,emailProps.password);// not yet useful
-      // Get the default Session object.
-      Session session = Session.getDefaultInstance(properties,auth);
-
-         // Create a default MimeMessage object.
-         MimeMessage message = new MimeMessage(session);
-
-        
-         // Set From: header field of the header.
-         message.setFrom(new InternetAddress(emailProps.from));
-
-         // Set To: header field of the header.
-         message.addRecipient(javax.mail.Message.RecipientType.TO,
-                                  new InternetAddress(emailProps.to));
-
-         // Set Subject: header field
-         message.setSubject("${emailProps.subject}");
-
-         // Create the message part 
-         BodyPart messageBodyPart = new MimeBodyPart();
-
-         // Fill the message
-        // messageBodyPart.setText("${emailProps.body}");
-         messageBodyPart.setContent(emailProps.body,"text/html; charset=utf-8");
-
-         // Create a multipar message
-         Multipart multipart = new MimeMultipart();
-
-         // Set text message part
-         multipart.addBodyPart(messageBodyPart);
-
-         // Part two is attachment
-         messageBodyPart = new MimeBodyPart();
-         //TODO: Find way to set file path
-         String filename = file.getName();
-         DataSource source = new FileDataSource(file);
-         messageBodyPart.setDataHandler(new DataHandler(source));
-         messageBodyPart.setFileName(filename);
-         multipart.addBodyPart(messageBodyPart);
-
-         // Send the complete message parts
-         message.setContent(multipart);
-
-         // Send message
-         Transport.send(message);
-         System.out.println("Sent message successfully....");
-        
-        
-   }
-   
-  
-
-   
-   
+        Transport.send(message)
+        log.debug "Sent message successfully...."
+    }
 }
-

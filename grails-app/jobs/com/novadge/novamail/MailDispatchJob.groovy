@@ -1,15 +1,14 @@
 package com.novadge.novamail
 
-
-
 class MailDispatchJob {
+
     def messagingService
+
     static triggers = {
-      simple repeatInterval: 50000l // execute job once in 5 seconds
+        simple repeatInterval: 50000L // execute job once in 50 seconds
     }
 
-    def execute() {
-        // execute job
+    void execute() {
         messagingService.processMailQueue()
     }
 }

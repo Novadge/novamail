@@ -1,1 +1,7 @@
-/target/
+/target
+grails-novamail-*.zip
+grails-novamail-*.zip.sha1
+*.log
+/plugin.xml
+/web-app
+.settings

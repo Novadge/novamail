@@ -1,10 +1,10 @@
 package com.novadge.novamail
 
 class MessageOut {
-    String hostname
-    String username
-    String password
-    String sender
+    String hostname // Host name eg. Gmail, Yahoo, Hotmail
+    String username // Username for the account eg john@gmail.com
+    String password // Password for the account eg *********
+    String sender //
     String recipient
     String subject
     String body

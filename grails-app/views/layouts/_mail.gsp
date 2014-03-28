@@ -26,7 +26,7 @@
             <br/>
             The <g:message code="default.appName.label"/> Team.
             <p>
-            <a href="#">http://novadge.com</a>
+            <a href="#"><g:message code="default.app.url" default="http://www.changeme.com"/> </a>
             </p>
             <br/>
 

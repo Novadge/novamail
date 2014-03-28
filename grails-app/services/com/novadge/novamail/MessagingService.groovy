@@ -1,11 +1,42 @@
 package com.novadge.novamail
 
 class MessagingService {
-
+    
+    //-----------------------------------------------------------------------
+    //-----------internal email sending -------------------------
+    /**
+     * Sends emails.
+     *
+     * @params : Map containing email attributes such as
+     * hostName: name of the host eg Gmail
+     * username: email username
+     * password: email password
+     * from:
+     * to:
+     * subject:
+     * body:
+     * file: File object (optional)
+     */
     boolean sendEmail(String hostname, String username, String password, String from, String to, String subject, String body) {
         sendEmail(hostname, username, password, from, to, subject, body, null)
     }
 
+    
+    //-----------------------------------------------------------------------
+    //-----------internal email sending -------------------------
+    /**
+     * Sends emails.
+     *
+     * @params : email attributes such as
+     * hostName: name of the host eg Gmail, Hotmail, Yahoo, etc
+     * username: email username
+     * password: email password
+     * from:
+     * to:  
+     * subject:
+     * body:
+     * file: File object (optional)
+     */
     boolean sendEmail(String hostname, String username, String password, String from, String to, String subject, String body, File attachment) {
         doSendEmail([
             from: from,
@@ -90,6 +121,11 @@ class MessagingService {
         }
     }
 
+    
+    /**
+     * Process Mail queue and Sends emails.
+     * Retrieve and send out pending and unsent mails.
+     */
     void processMailQueue() {
         //log.debug "inside message process queue"
         def pendingMsgs = MessageOut.where { status == 'Pending' || status == 'Not sent' }.list()
@@ -116,6 +152,13 @@ class MessagingService {
         }
     }
 
+    
+    
+    /**
+     * Sends text messages.
+     * Work in progress
+     * We want to integrate this with some kind of text messaging service
+     */
     def sendSms(obj) {
         log.debug "Sending SMS Reminder"
     }

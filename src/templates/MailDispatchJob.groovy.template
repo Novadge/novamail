@@ -1,6 +1,6 @@
-package com.novadge.novamail
+package ${packageName}
 
-class MailDispatchJob {
+class ${mailDispatchJobName} {
 
     def messagingService
 

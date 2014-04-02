@@ -16,12 +16,15 @@ class MessageOut {
     Date lastUpdated
 
     static constraints = {
-        subject(nullable:true, blank:true)
-        sender(nullable:true, blank:true)
-        recipient(blank:false)
-        body(blank:false)
-        attachment(nullable:true, blank:true)
-        //users(nullable:true, blank:true)
-        status(nullable:true, blank:true, inList:["Sent", "Pending", "Not sent"])
+        subject(nullable:true,blank:true)
+        sender(nullable:true,blank:true)
+        recipient(nullable:false,blank:false)
+        body(nullable:false,blank:false)
+        attachment(nullable:true,blank:true)
+        
+        status(nullable:true,blank:true,inList:["Sent","Pending","Not sent"])
+        hostname(nullable:true,blank:true)
+        username(nullable:true,blank:true)
+        password(nullable:true,blank:true)
     }
 }

@@ -106,7 +106,7 @@ class MessagingService {
        def postman = new PostMan()
 
         try {
-            if (file == null) {
+            if (attachment == null) {
                 postman.sendHTMLEmail(properties, hostProps)
             }
             else {
@@ -116,7 +116,8 @@ class MessagingService {
             return true
         }
         catch (e) {
-            log.errorEnabled e.message, e
+//            log.errorEnabled e.message, e
+            print e.message
             return false
         }
     }

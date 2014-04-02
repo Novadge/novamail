@@ -44,12 +44,14 @@ target(n2Quickstart: 'Creates artifacts for the Nova Mail plugin') {
 	updateConfig()
 
 	printMessage """
-*******************************************************
-* Created domain classes, controllers, and GSPs. Your *
-* grails-app/conf/Config.groovy has been updated with *
-* the class names of the configured domain classes;   *
-* please verify that the values are correct.          *
-*******************************************************
+*********************************************************
+* Created grails-app/domain/MessageOut.groovy,          *
+* grails-app/jobs/MailDispatchJob.groovy and            *
+* grails-app/views/layouts/_mail.gsp.                   *
+* Your grails-app/conf/Config.groovy has been updated   *
+* with config attributes.                               *
+* You may modify as needed.                             *
+******************************************************* *
 """
 }
 
@@ -122,14 +124,14 @@ private void createDomains() {
 
 	String dir = packageToDir(packageName)
 	generateFile "$templateDir/MessageOut.groovy.template", "$appDir/domain/${dir}${mgsOutClassName}.groovy"
-	//generateFile "$templateDir/MailDispatch.groovy.template", "$appDir/domain/${dir}${mailDispatchJobName}.groovy"
+	generateFile "$templateDir/MailDispatchJob.groovy.template", "$appDir/jobs/${dir}${mailDispatchJobName}.groovy"
 	
 }
 
 private void copyControllersAndViews() {
 	//ant.mkdir dir: "$appDir/views/login"
 	String dir = packageToDir(packageName)
-	copyFile "$templateDir/MailDispatchJob.groovy.template", "$appDir/jobs/${dir}${mailDispatchJobName}.groovy"
+	//copyFile "$templateDir/MailDispatchJob.groovy.template", "$appDir/jobs/${dir}${mailDispatchJobName}.groovy"
 	copyFile "$templateDir/mail.gsp.template", "$appDir/views/layouts/_mail.gsp"
 	
 }

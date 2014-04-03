@@ -7,9 +7,9 @@ Usage
 
 Inject messagingService into your class
 
-<em>def messagingService</em>
+<code>def messagingService</code>
 
-messagingService is a Grails service that provides a single method called sendEmail that takes parameters.
+<code>messagingService</code> is a Grails service that provides a single method called sendEmail that takes parameters.
 Please note that 'sendEmail()' takes the following parameters :
 
 String hostname, String username, String password, String from, String to, String subject, String body, File attachment)

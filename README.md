@@ -1,9 +1,9 @@
 novamail
 ========
-Description
+<h2>Description</h2>
 The Novamail plug-in provides e-mail sending capabilities to a Grails application. It is also capable of sending emails asynchronously by using a scheduled Job.
 
-Usage
+<h2>Usage</h2>
 
 Inject messagingService into your class
 
@@ -33,7 +33,7 @@ body: "The body of your message"
 
 file: File object (optional)
 
-
+<h2>Example</h2>
 
 An example usage can be seen below.<br>
 <code>

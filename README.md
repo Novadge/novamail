@@ -36,31 +36,19 @@ file: File object (optional)
 
 
 An example usage can be seen below.
-<code>
-Class yourControllerOrService{
-
-  def messagingService
-  
-  def yourMethod(){	
-  
-    messagingService.sendEmail(
-    
-      "Gmail",
-      
-      "john@gmail.com",
-      
-      "password",
-      
-      "john@gmail.com",
-      
-      "recipient@gmail.com",
-      
-      "email subject",
-      
-      "email body"
-      
-    )
-    
-  }
-  
-}</code>
+<code><br>
+Class yourControllerOrService{<br>
+  def messagingService<br>
+  def yourMethod(){<br>
+    messagingService.sendEmail(<br>
+      "Gmail",<br>
+      "john@gmail.com",<br>
+      "password",<br>
+      "john@gmail.com",<br>
+      "recipient@gmail.com",<br>
+      "email subject",<br>
+      "email body"<br>
+    )<br>
+  }<br>
+}<br>
+</code>

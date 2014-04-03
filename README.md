@@ -1,20 +1,27 @@
 novamail
 ========
-The novamail plugin is a grails application plugin that adds email functionality to grails applications.
+Description
+The Novamail plug-in provides e-mail sending capabilities to a Grails application. It is also capable of sending emails asynchronously by using a scheduled Job.
 
-To install this plugin add "compile ':novamail:0.1'" ( without double quotes ) to your buildConfig file and 
-execute 'grails n2-quickstart' to initialize novamail.
+Usage
 
-An easy way to start using the plugin is to Add 'def messagingService' to your controller or service and use messagingService.sendEmail().
-Please note that 'sendEmail()' takes the following parameters : String hostname, String username, String password, String from, String to, String subject, String body, File attachment).
+Inject messagingService into your class
 
+<em>def messagingService</em>
+
+messagingService is a Grails service that provides a single method called sendEmail that takes parameters.
+Please note that 'sendEmail()' takes the following parameters :
+
+String hostname, String username, String password, String from, String to, String subject, String body, File attachment)
+.
 Where ......
+
 
 hostName: name of the host eg Gmail, Hotmail, Yahoo
 
 username: email username eg John@example.com
 
-password: email password eg *********
+password: email password eg *
 
 from: eg john@gmail.com
 
@@ -25,3 +32,35 @@ subject: "Your email subject"
 body: "The body of your message"
 
 file: File object (optional)
+
+
+
+An example usage can be seen below.
+<code>
+Class yourControllerOrService{
+
+  def messagingService
+  
+  def yourMethod(){	
+  
+    messagingService.sendEmail(
+    
+      "Gmail",
+      
+      "john@gmail.com",
+      
+      "password",
+      
+      "john@gmail.com",
+      
+      "recipient@gmail.com",
+      
+      "email subject",
+      
+      "email body"
+      
+    )
+    
+  }
+  
+}</code>

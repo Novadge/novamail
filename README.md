@@ -35,8 +35,8 @@ file: File object (optional)
 
 
 
-An example usage can be seen below.
-<code><br>
+An example usage can be seen below.<br>
+<code>
 Class yourControllerOrService{<br>
   def messagingService<br>
   def yourMethod(){<br>
@@ -50,5 +50,5 @@ Class yourControllerOrService{<br>
       "email body"<br>
     )<br>
   }<br>
-}<br>
+}
 </code>

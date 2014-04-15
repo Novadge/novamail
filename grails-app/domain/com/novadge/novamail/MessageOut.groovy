@@ -1,6 +1,7 @@
 package com.novadge.novamail
 
-class MessageOut {
+class MessageOut{
+
     String hostname // Host name eg. Gmail, Yahoo, Hotmail
     String username // Username for the account eg john@gmail.com
     String password // Password for the account eg *********
@@ -21,7 +22,7 @@ class MessageOut {
         recipient(nullable:false,blank:false)
         body(nullable:false,blank:false)
         attachment(nullable:true,blank:true)
-        
+       
         status(nullable:true,blank:true,inList:["Sent","Pending","Not sent"])
         hostname(nullable:true,blank:true)
         username(nullable:true,blank:true)

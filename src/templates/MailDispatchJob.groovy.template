@@ -2,7 +2,7 @@ package ${packageName}
 
 class ${mailDispatchJobName} {
 
-    def messagingService
+    ${dependencyInjections}
 
     static triggers = {
         simple repeatInterval: 50000L // execute job once in 50 seconds

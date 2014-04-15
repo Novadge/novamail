@@ -1,6 +1,6 @@
 package ${packageName}
 
-class ${mgsOutClassName}{
+class ${messageOutClassName}{
 
     String hostname // Host name eg. Gmail, Yahoo, Hotmail
     String username // Username for the account eg john@gmail.com

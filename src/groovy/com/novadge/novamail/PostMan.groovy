@@ -6,8 +6,10 @@ import javax.activation.FileDataSource
 import javax.mail.Authenticator
 import javax.mail.BodyPart
 import javax.mail.Folder
+//import javax.mail.Flags.Flag
 import javax.mail.Message
 import javax.mail.Multipart
+import javax.mail.search.*
 import javax.mail.Session
 import javax.mail.Store
 import javax.mail.Transport
@@ -23,31 +25,58 @@ class PostMan {
 
     private static final String TEXT_HTML = 'text/html; charset=utf-8;'
 
-    Properties props = new Properties()
+    Properties properties //= new Properties()
     Authenticator auth
     Session session
     Store store
     Folder inbox
-    Message[] message
+    Message[] messages
 
     PostMan() {
     }
 
+    /*
+     *  Instantiate the Postman object with state properties 
+     *  @params : State properties for postman
+     *  host : mail.pop3.host
+     *  store : pop3, imap, etc 
+     */
     PostMan(String incomingMailServer, String store, String username, String password) {
-        log.debug "Executing post man"
-        //this.setProperties("mail.pop3.host", incomingMailServer)
-        //this.setProperties("mail.store.protocol", "pop3")
-        auth = new NovadgeAuthenticator(username, password)// not yet useful
-        session = Session.getDefaultInstance(props, auth) // instantiate the session object for javamail
-        getStore(store)// eg pop3, imap, etc
-        storeConnect(incomingMailServer, username, password)
-        //storeConnect()
-        getInbox()
+        //throw new UnsupportedOperationException("Not yet implemented");
+        System.out.println("Executing post man");
+        props = new Properties();
+        //this.setProperties("mail.pop3.host", incomingMailServer);
+        //this.setProperties("mail.store.protocol","pop3");
+        auth = new NovadgeAuthenticator(username,password);// not yet useful
+        session = Session.getDefaultInstance(props, auth); // instantiate the session object for javamail
+        getStore(store);// eg pop3, imap, etc
+        storeConnect(incomingMailServer,username,password);
+        //storeConnect();
+        getInbox();
+    }
+    
+    PostMan(Map emailProps,Map props){
+        properties = new Properties()
+        // Setup mail server
+        props.each { key, value ->
+            
+            if(key == 'Host'){           
+            }
+            else{
+               log.debug "setting ${key} to ${value}"
+               properties.setProperty(key,value) 
+            }
+            
+        }
+        auth = new NovadgeAuthenticator(emailProps.username, emailProps.password)
+        session = Session.getInstance(properties, auth)
+        getStore(props["mail.store.protocol"])// eg pop3, imap, etc
+        storeConnect(props["Host"],emailProps.username, emailProps.password)
     }
 
     void storeConnect(String host, String username, String password) {
         try {
-            log.debug "trying to connect to store......\n"
+            log.debug "trying to connect to store......at ${host}\n"
             store.connect(host, username, password)
         }
         catch(e) {
@@ -57,7 +86,7 @@ class PostMan {
 
     void getStore(String string) {
         try {
-            log.debug "trying to get store......\n"
+            log.debug "trying to get store......${string}\n"
             store = session.getStore(string)
         }
         catch (e) {
@@ -68,19 +97,54 @@ class PostMan {
     void getInbox() {
         try {
             log.debug "trying to get inbox......\n"
+            
             inbox = store.getFolder("INBOX")
             inbox.open(Folder.READ_ONLY)
-            message = inbox.getMessages()
+            messages =  inbox.getMessages()
         }
         catch (e) {
             log.error "Unable to get inbox because $e.message", e
         }
     }
+    
+    /*
+     * Used to retrive unseen emails from inbox
+    */
+    void getUnseenInbox(){
+        // search for all "unseen" messages
+        try{
+            inbox = store.getFolder("INBOX")
+            inbox.open(Folder.READ_ONLY)
+//            Flags seen = new Flags(Flags.Flag.SEEN);
+//            FlagTerm unseenFlagTerm = new FlagTerm(seen, false);
+           // messages = inbox.search(unseenFlagTerm);
+           messages =  inbox.getMessages()
+        }
+        catch(Exception e){
+           log.error "Unable to get inbox because $e.message", e 
+        }
+        
+    }
 
     Message[] getMessages() {
-        //message[0].getS
-        // message[0].getReceivedDate()
-        return message
+       
+        getInbox() 
+        return messages
+    }
+    
+    Message[] getMessages(SearchTerm term) {
+       try {
+            log.debug "trying to get inbox......\n"
+            
+            inbox = store.getFolder("INBOX")
+            inbox.open(Folder.READ_ONLY)
+            messages = inbox.search(term);
+        }
+        catch (e) {
+            log.error "Unable to get inbox because $e.message", e
+        }
+         
+        return messages
     }
 
     void sendEmail(Map emailProps, Map props) {

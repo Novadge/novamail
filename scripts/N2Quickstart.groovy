@@ -29,7 +29,7 @@ Example: grails n2-quickstart com.yourapp MessageOut MailDispatch
 includeTargets << grailsScript('_GrailsBootstrap')
 
 packageName = 'com.novadge.novamail'
-mgsOutClassName = 'MessageOut'
+messageOutClassName = 'MessageOut'
 mailDispatchJobName = 'NovaMailJob'
 requestmapClassName = ''
 
@@ -62,26 +62,26 @@ private boolean configure() {
 		return false
 	}
 
-	if (argValues.size() == 4) {
-		(packageName, mgsOutClassName, mailDispatchJobName, requestmapClassName) = argValues
-	}
-	else {
-		(packageName, mgsOutClassName, mailDispatchJobName) = argValues
-	}
+//	if (argValues.size() == 4) {
+//		(packageName, messageOutClassName, mailDispatchJobName, requestmapClassName) = argValues
+//	}
+//	else {
+//		(packageName, messageOutClassName, mailDispatchJobName) = argValues
+//	}
 
 	templateAttributes = [packageName: packageName,
-	                      mgsOutClassName: mgsOutClassName,
-	                      userClassProperty: GrailsNameUtils.getPropertyName(mgsOutClassName),
+	                      messageOutClassName: messageOutClassName,
+	                      userClassProperty: GrailsNameUtils.getPropertyName(messageOutClassName),
 	                      mailDispatchJobName: mailDispatchJobName,
-	                      roleClassProperty: GrailsNameUtils.getPropertyName(mailDispatchJobName),
-	                      requestmapClassName: requestmapClassName]
+	                      mailDispatchJobClassProperty: GrailsNameUtils.getPropertyName(mailDispatchJobName)
+                            ]
 
 	if (Metadata.current.getGrailsVersion().startsWith('1.2')) {
 		templateAttributes.dependencyInjections = '''\
-	transient springSecurityService
-	transient grailsApplication
-	transient sessionFactory
-'''
+                        transient messagingService
+                        transient grailsApplication
+                        transient sessionFactory
+                '''
 	templateAttributes.dirtyMethods = '''
 
 	private boolean isDirty(String fieldName) {
@@ -112,8 +112,8 @@ private boolean configure() {
 	}
 	else {
 		templateAttributes.dependencyInjections = '''\
-	transient springSecurityService
-'''
+                        transient messagingService
+                '''
 		templateAttributes.dirtyMethods = ''
 	}
 
@@ -123,7 +123,7 @@ private boolean configure() {
 private void createDomains() {
 
 	String dir = packageToDir(packageName)
-	generateFile "$templateDir/MessageOut.groovy.template", "$appDir/domain/${dir}${mgsOutClassName}.groovy"
+	generateFile "$templateDir/MessageOut.groovy.template", "$appDir/domain/${dir}${messageOutClassName}.groovy"
 	generateFile "$templateDir/MailDispatchJob.groovy.template", "$appDir/jobs/${dir}${mailDispatchJobName}.groovy"
 	
 }
@@ -152,9 +152,10 @@ private void updateConfig() {
 
 private parseArgs() {
 	def args = [:] //argsMap.params
-	args[0] = 'com.novadge.novamail'
-	args[1] = 'MessageOut'
-	args[2] = 'MailDispatchJob'
+        
+	args[0] = packageName
+	args[1] = messageOutClassName
+	args[2] = mailDispatchJobName
 	if (3 == args.size()) {
 		printMessage "Creating ${args[1]}, ${args[2]} in package ${args[0]}"
 		return args

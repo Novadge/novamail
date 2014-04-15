@@ -1,4 +1,6 @@
 package com.novadge.novamail
+import javax.mail.*;
+import javax.mail.search.* 
 
 class MessagingService {
     
@@ -66,43 +68,9 @@ class MessagingService {
      */
     private boolean doSendEmail(Map properties, File attachment) {
         //def tenant = utilityService.getUserTenant()
-        def hostProps
+        def hostProps = getSMTPProps(properties.hostName)
         //log.debug "Inside message service obj ${properties}"
-        switch(properties.hostName) {
-            case "Gmail":
-            //log.debug "Provider is gmail"
-                hostProps = [
-                    "mail.smtp.starttls.enable": "true",
-                    "mail.smtp.host": "smtp.gmail.com",
-                    "mail.smtp.auth": "true",
-                    "mail.smtp.socketFactory.port": "465",
-                    "mail.smtp.socketFactory.class": "javax.net.ssl.SSLSocketFactory",
-                    "mail.smtp.socketFactory.fallback": "false"]
-            break
-
-            case "Hotmail":
-             //log.debug "Provider is hotmail"
-                hostProps = [
-                    "mail.smtp.host": "smtp.live.com",
-                    "mail.smtp.starttls.enable": "true",
-                    "mail.smtp.port":"587"]
-            break
-
-            case "Yahoo" :
-             //log.debug "Provider is yahoo"
-                hostProps = [
-                    "mail.smtp.host": "smtp.correo.yahoo.es",
-                    "mail.smtp.auth": "true",
-                    "mail.smtp.socketFactory.port": "465",
-                    "mail.smtp.socketFactory.class": "javax.net.ssl.SSLSocketFactory",
-                    "mail.smtp.socketFactory.fallback":"false"]
-            break
-
-            case "Other":
-            //log.debug "Provider is other"
-                hostProps = [:]
-        }
-
+        
        def postman = new PostMan()
 
         try {
@@ -117,7 +85,7 @@ class MessagingService {
         }
         catch (e) {
 //            log.errorEnabled e.message, e
-            print e.message
+            log.debug e.message
             return false
         }
     }
@@ -163,4 +131,246 @@ class MessagingService {
     def sendSms(obj) {
         log.debug "Sending SMS Reminder"
     }
+    
+     Message[] getMessages(String provider, String store,String username,String password){
+        Map emailProps = [:]
+        emailProps.hostName = provider; emailProps.username = username; emailProps.password = password;
+        return doGetMessages(emailProps,store)
+    }
+    
+    Message[] getMessages(String provider, String store,String username,String password,Date begin,Date end){
+        Map emailProps = [:]
+        emailProps.hostName = provider; emailProps.username = username; emailProps.password = password;
+        return doGetMessages(emailProps,store)
+    }
+    
+    Message[] doGetMessages(Map emailProps, String store){
+        def host = ""
+        def hostProps = [:]
+        print "Store is ${store}"
+        switch(store){
+            case 'pop3':
+                
+                hostProps = getPOP3Props(emailProps.hostName)
+                
+                break
+                
+            case 'pop3s':
+                hostProps = getPOP3SProps(emailProps.hostName)
+                
+                break 
+                
+            case 'imap':
+                hostProps = getIMAPProps(emailProps.hostName)
+                break
+                
+            case 'imaps':
+                hostProps = getIMAPSProps(emailProps.hostName)
+                break
+            
+                
+        }
+        def postman = new PostMan(emailProps,hostProps)
+        return postman.getMessages()
+    }
+    
+   
+    
+    
+    
+    
+    /**
+     * This class checks the message against defined criteria
+     */
+    public boolean criteriaMatch(Message message,String sender){
+        
+    }
+    
+    private getSMTPProps(String hostName){
+        def hostProps =  [:]
+        switch(hostName) {
+            case "Gmail":
+            //log.debug "Provider is gmail"
+                hostProps = [
+                    "mail.smtp.starttls.enable": "true",
+                    "mail.smtp.host": "smtp.gmail.com",
+                    "mail.smtp.auth": "true",
+                    "mail.smtp.socketFactory.port": "465",
+                    "mail.smtp.socketFactory.class": "javax.net.ssl.SSLSocketFactory",
+                    "mail.smtp.socketFactory.fallback": "false"]
+            break
+
+            case "Hotmail":
+             //log.debug "Provider is hotmail"
+                hostProps = [
+                    "mail.smtp.host": "smtp.live.com",
+                    "mail.smtp.starttls.enable": "true",
+                    "mail.smtp.port":"587"]
+            break
+
+            case "Yahoo" :
+             //log.debug "Provider is yahoo"
+                hostProps = [
+                    "mail.smtp.host": "smtp.correo.yahoo.es",
+                    "mail.smtp.auth": "true",
+                    "mail.smtp.socketFactory.port": "465",
+                    "mail.smtp.socketFactory.class": "javax.net.ssl.SSLSocketFactory",
+                    "mail.smtp.socketFactory.fallback":"false"]
+            break
+
+            case "Other":
+            break
+        }
+        return hostProps
+    }
+    
+    
+    private getPOP3Props(String hostName){
+        def hostProps =  [:]
+        switch(hostName) { 
+            case "Gmail":
+            print "Provider is gmail"
+                hostProps = [
+                    "Host":"pop3.gmail.com",
+                    "mail.store.protocol": "pops",
+                    "mail.pop3s.auth":"true",
+                    "mail.pop3s.port":"995"
+            ]
+            break
+
+            case "Hotmail":
+             //log.debug "Provider is hotmail"
+                hostProps = [
+                    "mail.host": "pop3.live.com",
+                    //"mail.smtp.starttls.enable": "true",
+                    "mail.pop3s.port":"995"]
+            break
+
+            case "Yahoo" :
+             //log.debug "Provider is yahoo"
+                hostProps = [
+                    "mail.smtp.host": "smtp.correo.yahoo.es",
+                    "mail.smtp.auth": "true",
+                    "mail.smtp.socketFactory.port": "465",
+                    "mail.smtp.socketFactory.class": "javax.net.ssl.SSLSocketFactory",
+                    "mail.smtp.socketFactory.fallback":"false"]
+            break
+
+            case "Other":
+                
+            break
+        }
+        return hostProps
+    }
+    
+    private getPOP3SProps(String hostName){
+        String SSL_FACTORY = "javax.net.ssl.SSLSocketFactory";
+        def hostProps =  [:]
+        switch(hostName) {
+            case "Gmail":
+            //log.debug "Provider is gmail"
+                hostProps = [
+                    "Host":"pop3.gmail.com",
+                    "mail.pop3.host":"pop3.gmail.com",
+                    "mail.store.protocol": "pop3s"//,
+                    
+            ]
+            break
+
+            case "Hotmail":
+             //log.debug "Provider is hotmail"
+                hostProps = [:]
+            break
+
+            case "Yahoo" :
+             //log.debug "Provider is yahoo"
+                hostProps = [:]
+            break
+
+            case "Other":
+            break
+        }
+        return hostProps
+    }
+    
+    private getIMAPSProps(String hostName){
+        String SSL_FACTORY = "javax.net.ssl.SSLSocketFactory";
+        def hostProps =  [:]
+        switch(hostName) {
+            case "Gmail":
+            //log.debug "Provider is gmail"
+                hostProps = [
+                    "Host":"imap.gmail.com",
+                    "mail.imap.host":"imap.gmail.com",
+                    "mail.store.protocol": "imaps",
+                    "mail.imap.socketFactory.class":SSL_FACTORY,
+                    "mail.imap.socketFactory.fallback": "false"
+                    ]
+            break
+
+            case "Hotmail":
+             //log.debug "Provider is hotmail"
+                hostProps = [
+                    "mail.smtp.host": "smtp.live.com",
+                    "mail.smtp.starttls.enable": "true",
+                    "mail.smtp.port":"587"]
+            break
+
+            case "Yahoo" :
+             //log.debug "Provider is yahoo"
+                hostProps = [
+                    "mail.smtp.host": "smtp.correo.yahoo.es",
+                    "mail.smtp.auth": "true",
+                    "mail.smtp.socketFactory.port": "465",
+                    "mail.smtp.socketFactory.class": "javax.net.ssl.SSLSocketFactory",
+                    "mail.smtp.socketFactory.fallback":"false"]
+            break
+
+            case "Other":
+            break
+        }
+        return hostProps
+    }
+    
+    private getIMAPProps(String hostName){
+        def hostProps =  [:]
+        switch(hostName) {
+            case "Gmail":
+            //log.debug "Provider is gmail"
+                hostProps = [
+                    "Host":"imap.gmail.com",
+                    "mail.imap.host":"imap.gmail.com",
+                    "mail.store.protocol": "imaps"//,
+                    
+                    
+                    ]
+            break
+
+            case "Hotmail":
+             //log.debug "Provider is hotmail"
+                hostProps = [
+                    "mail.smtp.host": "smtp.live.com",
+                    "mail.smtp.starttls.enable": "true",
+                    "mail.smtp.port":"587"]
+            break
+
+            case "Yahoo" :
+             //log.debug "Provider is yahoo"
+                hostProps = [
+                    "mail.smtp.host": "smtp.correo.yahoo.es",
+                    "mail.smtp.auth": "true",
+                    "mail.smtp.socketFactory.port": "465",
+                    "mail.smtp.socketFactory.class": "javax.net.ssl.SSLSocketFactory",
+                    "mail.smtp.socketFactory.fallback":"false"]
+            break
+
+            case "Other":
+            break
+        }
+        return hostProps
+    }
+    
+        
+    
+    
 }

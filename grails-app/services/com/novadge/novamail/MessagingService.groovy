@@ -233,27 +233,30 @@ class MessagingService {
                 hostProps = [
                     "Host":"pop3.gmail.com",
                     "mail.store.protocol": "pops",
-                    "mail.pop3s.auth":"true",
-                    "mail.pop3s.port":"995"
+                    "mail.pop3.auth":"true",
+                    "mail.pop3.port":"995"
             ]
             break
 
             case "Hotmail":
              //log.debug "Provider is hotmail"
                 hostProps = [
-                    "mail.host": "pop3.live.com",
-                    //"mail.smtp.starttls.enable": "true",
-                    "mail.pop3s.port":"995"]
+                    "Host": "pop-mail.outlook.com",
+                    "mail.store.protocol": "pops",
+                    "mail.pop3.auth":"true",
+                    "mail.pop3.port":"995"
+            ]
             break
 
             case "Yahoo" :
              //log.debug "Provider is yahoo"
                 hostProps = [
-                    "mail.smtp.host": "smtp.correo.yahoo.es",
-                    "mail.smtp.auth": "true",
-                    "mail.smtp.socketFactory.port": "465",
-                    "mail.smtp.socketFactory.class": "javax.net.ssl.SSLSocketFactory",
-                    "mail.smtp.socketFactory.fallback":"false"]
+                    "Host": "plus.pop.mail.yahoo.com",
+                    "mail.store.protocol": "pops",
+                    "mail.pop3.auth":"true",
+                    "mail.pop3.port":"995"
+                    
+            ]
             break
 
             case "Other":
@@ -311,19 +314,17 @@ class MessagingService {
             case "Hotmail":
              //log.debug "Provider is hotmail"
                 hostProps = [
-                    "mail.smtp.host": "smtp.live.com",
-                    "mail.smtp.starttls.enable": "true",
-                    "mail.smtp.port":"587"]
+                    "Host":" imap-mail.outlook.com",
+                    "mail.imap.host":" imap-mail.outlook.com",
+                    "mail.store.protocol": "imaps",
+                    "mail.imap.socketFactory.class":SSL_FACTORY,
+                    "mail.imap.socketFactory.fallback": "false"
+                ]
             break
 
             case "Yahoo" :
              //log.debug "Provider is yahoo"
-                hostProps = [
-                    "mail.smtp.host": "smtp.correo.yahoo.es",
-                    "mail.smtp.auth": "true",
-                    "mail.smtp.socketFactory.port": "465",
-                    "mail.smtp.socketFactory.class": "javax.net.ssl.SSLSocketFactory",
-                    "mail.smtp.socketFactory.fallback":"false"]
+                hostProps = [:]
             break
 
             case "Other":
@@ -349,19 +350,17 @@ class MessagingService {
             case "Hotmail":
              //log.debug "Provider is hotmail"
                 hostProps = [
-                    "mail.smtp.host": "smtp.live.com",
-                    "mail.smtp.starttls.enable": "true",
-                    "mail.smtp.port":"587"]
+                    
+                ]
             break
 
             case "Yahoo" :
              //log.debug "Provider is yahoo"
                 hostProps = [
-                    "mail.smtp.host": "smtp.correo.yahoo.es",
-                    "mail.smtp.auth": "true",
-                    "mail.smtp.socketFactory.port": "465",
-                    "mail.smtp.socketFactory.class": "javax.net.ssl.SSLSocketFactory",
-                    "mail.smtp.socketFactory.fallback":"false"]
+                    "Host":"imap.mail.yahoo.com",
+                    "mail.imap.host":"imap.mail.yahoo.com",
+                    "mail.store.protocol": "imaps"//,
+                ]
             break
 
             case "Other":

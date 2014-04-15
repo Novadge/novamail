@@ -10,4 +10,5 @@ class NovamailGrailsPlugin {
     ]
     def issueManagement = [system: 'GITHUB', url: 'https://github.com/Omasiri/novamail/issues']
     def scm = [url: 'https://github.com/Omasiri/novamail']
+    def organization = [name: 'Novadge', url: 'http://www.novadge.com/']
 }

@@ -38,8 +38,10 @@ class PostMan {
     /*
      *  Instantiate the Postman object with state properties 
      *  @params : State properties for postman
-     *  host : mail.pop3.host
+     *  incomingMailServer : eg imap.gmail.com
      *  store : pop3, imap, etc 
+     *  username: account username eg john@doe.com
+     *  password: account password eg **********
      */
     PostMan(String incomingMailServer, String store, String username, String password) {
         //throw new UnsupportedOperationException("Not yet implemented");
@@ -55,12 +57,21 @@ class PostMan {
         getInbox();
     }
     
+    /*
+     * Instantiate the postman with state properties 
+     * @Params: maps containing email body, email host properties
+     * props: map of email properties: eg
+     * emailProps: Map containing email credentials eg 
+     * [from:'',subject:'',to:'',body:'',username:'',password:'*****']
+     * 
+     */
     PostMan(Map emailProps,Map props){
         properties = new Properties()
         // Setup mail server
         props.each { key, value ->
             
-            if(key == 'Host'){           
+            if(key == 'Host'){ 
+                //do nothing :(
             }
             else{
                log.debug "setting ${key} to ${value}"
@@ -74,6 +85,14 @@ class PostMan {
         storeConnect(props["Host"],emailProps.username, emailProps.password)
     }
 
+    
+    /*
+     * Connect to email server store 
+     * @params : host , username and password
+     * host: email server host property
+     * username: username for email account eg john@doe.com
+     * password: password to access email account eg *******
+     **/
     void storeConnect(String host, String username, String password) {
         try {
             log.debug "trying to connect to store......at ${host}\n"
@@ -84,6 +103,11 @@ class PostMan {
         }
     }
 
+    /*
+     * Retrieve email store from email server
+     * @params :store type
+     * string: imap,pop
+     **/
     void getStore(String string) {
         try {
             log.debug "trying to get store......${string}\n"
@@ -94,6 +118,10 @@ class PostMan {
         }
     }
 
+    /*
+     * Retrieve messages from email server
+     * and store them in the message array
+     **/
     void getInbox() {
         try {
             log.debug "trying to get inbox......\n"
@@ -107,37 +135,28 @@ class PostMan {
         }
     }
     
-    /*
-     * Used to retrive unseen emails from inbox
-    */
-    void getUnseenInbox(){
-        // search for all "unseen" messages
-        try{
-            inbox = store.getFolder("INBOX")
-            inbox.open(Folder.READ_ONLY)
-//            Flags seen = new Flags(Flags.Flag.SEEN);
-//            FlagTerm unseenFlagTerm = new FlagTerm(seen, false);
-           // messages = inbox.search(unseenFlagTerm);
-           messages =  inbox.getMessages()
-        }
-        catch(Exception e){
-           log.error "Unable to get inbox because $e.message", e 
-        }
-        
-    }
-
-    Message[] getMessages() {
-       
-        getInbox() 
-        return messages
-    }
     
-    Message[] getMessages(SearchTerm term) {
-       try {
+
+    /*
+     * Get messages from inbox
+     * @params: search term and folder flag
+     * term: search criteria for retrieving messages
+     * folder_rw: used to specify whethere message objects would be readable 
+     * or writable --1 or 2 for Folder.READ_ONLY and Folder.READ_WRITE respectively
+     * 
+     */
+    Message[] getInbox(SearchTerm term, int folder_rw) {
+        try {
             log.debug "trying to get inbox......\n"
             
             inbox = store.getFolder("INBOX")
-            inbox.open(Folder.READ_ONLY)
+            if(folder_rw == 0){
+                inbox.open(Folder.READ_ONLY) 
+            }
+            else{
+                inbox.open(folder_rw)
+            }
+            
             messages = inbox.search(term);
         }
         catch (e) {
@@ -146,20 +165,75 @@ class PostMan {
          
         return messages
     }
+    
+    /*
+     * Get messages from inbox
+     * @params: search term
+     * term: search criteria for retrieving messages
+     * see javax.mail.search documentation for more information 
+     */
+    Message[] getInbox(SearchTerm term) {
+         return getInbox(term, 0)      
+    }
+    
+    /*
+     * Get messages from inbox
+     * 
+     * see javax.mail.search documentation for more information 
+     */
+    Message[] getAllInbox() {
+         getInbox()
+         return messages
+    }
 
+
+    /*
+     * Send email as text
+     * @Params: maps containing email credentials, email server properties
+     * props: map of email properties: eg
+     * emailProps: Map containing email credentials eg 
+     * [from:'',subject:'',to:'',body:'',username:'',password:'*****']
+     * 
+     */
     void sendEmail(Map emailProps, Map props) {
         doSendEmail emailProps, props, false, null
     }
 
+    /*
+     * Send email as html 
+     * @Params: maps containing email credentials, email properties and file
+     * props: map of email properties: eg
+     * emailProps: Map containing email credentials eg 
+     * [from:'',subject:'',to:'',body:'',username:'',password:'*****']
+     * 
+     */
     void sendHTMLEmail(Map emailProps, Map props) {
         // log.debug "trying to send html email with ${emailProps}"
         doSendEmail emailProps, props, true, null
     }
 
+    /*
+     * Send email 
+     * @Params: maps containing email credentials, email properties and file
+     * props: map of email properties: eg
+     * emailProps: Map containing email credentials eg 
+     * [from:'',subject:'',to:'',body:'',username:'',password:'*****']
+     * file: file object to send as attachment
+     */    
     void sendEmail(Map emailProps, Map props, File file) {
         doSendEmail emailProps, props, false, file
     }
 
+    
+    /*
+     * Send email 
+     * @Params: maps containing email credentials, email properties and file
+     * props: map of email properties: eg
+     * emailProps: Map containing email credentials eg 
+     * [from:'',subject:'',to:'',body:'',username:'',password:'*****']
+     * html: true or false
+     * file: file object to send as attachment
+     */
     private void doSendEmail(Map emailProps, Map props, boolean html, File file) {
 
         Properties properties = System.getProperties()

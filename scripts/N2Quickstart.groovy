@@ -30,6 +30,7 @@ includeTargets << grailsScript('_GrailsBootstrap')
 
 packageName = 'com.novadge.novamail'
 messageOutClassName = 'MessageOut'
+messageInClassName = 'MessageIn'
 mailDispatchJobName = 'NovaMailJob'
 requestmapClassName = ''
 
@@ -46,6 +47,7 @@ target(n2Quickstart: 'Creates artifacts for the Nova Mail plugin') {
 	printMessage """
 *********************************************************
 * Created grails-app/domain/MessageOut.groovy,          *
+* Created grails-app/domain/MessageIn.groovy,           *
 * grails-app/jobs/MailDispatchJob.groovy and            *
 * grails-app/views/layouts/_mail.gsp.                   *
 * Your grails-app/conf/Config.groovy has been updated   *
@@ -72,6 +74,8 @@ private boolean configure() {
 	templateAttributes = [packageName: packageName,
 	                      messageOutClassName: messageOutClassName,
 	                      userClassProperty: GrailsNameUtils.getPropertyName(messageOutClassName),
+                              messageInClassName: messageInClassName,
+	                      userClassProperty: GrailsNameUtils.getPropertyName(messageInClassName),
 	                      mailDispatchJobName: mailDispatchJobName,
 	                      mailDispatchJobClassProperty: GrailsNameUtils.getPropertyName(mailDispatchJobName)
                             ]
@@ -124,6 +128,7 @@ private void createDomains() {
 
 	String dir = packageToDir(packageName)
 	generateFile "$templateDir/MessageOut.groovy.template", "$appDir/domain/${dir}${messageOutClassName}.groovy"
+        generateFile "$templateDir/MessageIn.groovy.template", "$appDir/domain/${dir}${messageInClassName}.groovy"
 	generateFile "$templateDir/MailDispatchJob.groovy.template", "$appDir/jobs/${dir}${mailDispatchJobName}.groovy"
 	
 }
@@ -155,9 +160,10 @@ private parseArgs() {
         
 	args[0] = packageName
 	args[1] = messageOutClassName
-	args[2] = mailDispatchJobName
-	if (3 == args.size()) {
-		printMessage "Creating ${args[1]}, ${args[2]} in package ${args[0]}"
+        args[2] = messageInClassName
+	args[3] = mailDispatchJobName
+	if (4 == args.size()) {
+		printMessage "Creating ${args[1]}, ${args[2]}, ${args[3]} in package ${args[0]}"
 		return args
 	}
 

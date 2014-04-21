@@ -20,7 +20,7 @@ class MessageOut{
         subject(nullable:true,blank:true)
         sender(nullable:true,blank:true)
         recipient(nullable:false,blank:false)
-        body(nullable:false,blank:false)
+        body(nullable:false,blank:false,maxSize:8192)
         attachment(nullable:true,blank:true)
        
         status(nullable:true,blank:true,inList:["Sent","Pending","Not sent"])

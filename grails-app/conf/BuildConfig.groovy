@@ -12,7 +12,7 @@ grails.project.dependency.resolution = {
     }
 
     dependencies {
-        //runtime 'mysql:mysql-connector-java:5.1.27'
+        runtime 'mysql:mysql-connector-java:5.1.27'
         compile 'javax.mail:javax.mail-api:1.5.1'
         runtime 'com.sun.mail:javax.mail:1.5.1'
     }
@@ -24,14 +24,14 @@ grails.project.dependency.resolution = {
 //       
 //       
 //        // plugins for the compile step -- remember to remove
-//        build ":tomcat:7.0.50.1"
-//        compile ":scaffolding:2.0.2"
-//        compile ':cache:1.1.1'
+        build ":tomcat:7.0.50.1"
+        compile ":scaffolding:2.0.3"
+        compile ':cache:1.1.1'
 //        
 //        // plugins needed at runtime but not for compilation
-//        runtime ":hibernate:3.6.10.8" // or ":hibernate4:4.3.1.1"
-//        runtime ":database-migration:1.3.8"
+        runtime ":hibernate:3.6.10.8" // or ":hibernate4:4.3.1.1"
+        runtime ":database-migration:1.3.8"
 //        
-//        runtime ":resources:1.2.1"
+        runtime ":resources:1.2.1"
     }
 }

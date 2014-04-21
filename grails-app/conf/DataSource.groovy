@@ -1,10 +1,12 @@
 dataSource {
     pooled = true
-    driverClassName = 'org.h2.Driver'
-    username = 'sa'
-    password = ''
+    driverClassName ="com.mysql.jdbc.Driver"// "org.h2.Driver"
+    username = "novadge"
+    password = "\$Money38"
+    dialect = org.hibernate.dialect.MySQL5InnoDBDialect
     dbCreate = 'update'
-    url = 'jdbc:h2:mem:testDb'
+   // url = 'jdbc:h2:mem:testDb'
+    url = "jdbc:mysql://localhost:3306/novamail"
 }
 
 hibernate {

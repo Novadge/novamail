@@ -225,6 +225,56 @@ class MessagingService {
         
     }
     
+    /*
+     * Get message body in a prefered format 
+     * @params messageIn object and prefered format
+     * message: message from which to extract body
+     * prefFormat: format in which to return message body
+     * note: many messages will contain text/plain and text/html formats
+     * where both are available this method will return the first in the list
+     */
+    String getMessageBody(MessageIn message,String prefFormat){
+        if(!prefFormat){
+           return message?.body[0]?.content 
+        }
+        int num = message.body?.size() // get number of items in message body
+        if(num >1){
+            message.body.each{
+                if(it.contentType =~ prefFormat){
+                    return it.content
+                }
+            }
+           // return messageIn.body[0].content // return available content
+        }
+        return message.body[0].content// return the first available content
+    }
+    
+    /*
+     * Get message body 
+     * @params message object
+     * message: message from which to extract body
+     * note: many messages will contain text/plain and text/html formats
+     * where both are available this method will return the first in the list
+     */
+    String getMessageBody(MessageIn message){
+        return getMessageBody(message,null)
+    }
+    
+    
+    /*
+     * Get message attachments in a prefered format 
+     * @params messageIn object
+     * message: message from which to extract attachments     
+     */
+    List<byte[]> getMessageAttachments(MessageIn message){
+        List<byte[]> bytes = []
+        message.attachments.each{
+            bytes.add(it.data)
+        }
+        return bytes        
+    }
+    
+    
     /**
      * Persist an array of messages to the database
      * @Params: An array of messages

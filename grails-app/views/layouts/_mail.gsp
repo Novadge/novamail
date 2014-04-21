@@ -14,7 +14,7 @@
         -->
           <div>
             <p>
-              Dear ${recipient},
+              ${greeting},
 
             </p>
             <p>

@@ -1,28 +1,32 @@
 package ${packageName}
-
+import javax.mail.internet.MimeMultipart
+import javax.mail.Multipart
+import javax.mail.Address
 class ${messageInClassName}{
 
-    
-    String sender
-    String recipient
-    String subject
-    String body
-
-    byte[] attachment
-    
+    static hasMany = [body:Body,attachments:Attachment]
+    String senders/**/
+    //Subclasses: InternetAddress, NewsAddress 
+    String recipients/**/
+    String subject 
+    //Collection bodyStrings
     String status = 'Unread'
+    String contentType
     Date dateSent
+    Date dateReceived
     Date dateCreated
     Date lastUpdated
 
     static constraints = {
         
-        sender(nullable:true,blank:true)
-        recipient(nullable:false,blank:false)
+        senders(nullable:true,blank:true,maxSize:1024 * 100 * 10)
+        recipients(nullable:true,blank:true,maxSize:1024 * 100 * 10)
         subject(nullable:true,blank:true)
-        body(nullable:false,blank:false,maxSize:8192)
-        attachment(nullable:true,blank:true)
+        body(nullable:true,blank:true)
+        attachments(nullable:true,blank:true)
         status(nullable:true,blank:true,inList:["Read","Unread"])
         dateSent(nullable:true,blank:true)
+        dateReceived(nullable:true,blank:true)
+        contentType(nullable:true,blank:true)
     }
 }

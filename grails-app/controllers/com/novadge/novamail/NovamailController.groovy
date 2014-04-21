@@ -31,17 +31,7 @@ def messagingService
     }
     
     def show(MessageIn messageIn){
-        
-        int num = messageIn.body?.size()
-        if(num >1){
-            messageIn.body.each{
-                if(it.contentType =~ "TEXT/HTML"){
-                    return it.content
-                }
-            }
-           [content:messageIn.body[0].content]
-        }
-        [content:messageIn.body[0].content]
+        def content = messagingService.getMessageBody(messageIn)
     }
     
     def compose(){

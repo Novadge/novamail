@@ -28,6 +28,39 @@ class MessagingService {
     boolean sendEmail(String hostname, String username, String password, String from, String to, String subject, String body) {
         sendEmail(hostname, username, password, from, to, subject, body, null)
     }
+    /**
+     * Sends emails.
+     *
+     * @params : Map containing email attributes such as
+     * hostName: name of the host eg Gmail
+     * username: email username
+     * password: email password
+     * from:
+     * to:
+     * subject:
+     * body:
+     * file: File object (optional)
+     */
+    boolean sendHTMLEmail(String hostname, String username, String password, String from, String to, String subject, String body) {
+        sendEmail(hostname, username, password, from, to, subject, body,true, null)
+    }
+    
+    /**
+     * Sends emails.
+     *
+     * @params : Map containing email attributes such as
+     * hostName: name of the host eg Gmail
+     * username: email username
+     * password: email password
+     * from:
+     * to:
+     * subject:
+     * body:
+     * file: File object (optional)
+     */
+    boolean sendHTMLEmail(String hostname, String username, String password, String from, String to, String subject, String body, List<File> attachments) {
+        sendEmail(hostname, username, password, from, to, subject, body,true, null)
+    }
 
     
     //-----------------------------------------------------------------------
@@ -45,7 +78,7 @@ class MessagingService {
      * body:
      * file: File object (optional)
      */
-    boolean sendEmail(String hostname, String username, String password, String from, String to, String subject, String body, List<File> attachments) {
+    boolean sendEmail(String hostname, String username, String password, String from, String to, String subject, String body,boolean html, List<File> attachments) {
         doSendEmail([
             from: from,
             to: to,
@@ -54,7 +87,7 @@ class MessagingService {
             hostName: hostname,
             username: username,
             password: password,
-        ], attachments)
+        ],html, attachments)
     }
 
     //-----------------------------------------------------------------------

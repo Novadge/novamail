@@ -72,7 +72,7 @@ class MessagingService {
      * body:
      * file: File object (optional)
      */
-    private boolean doSendEmail(Map properties, List<File> attachments) {
+    private boolean doSendEmail(Map properties, boolean html, List<File> attachments) {
         //def tenant = utilityService.getUserTenant()
         def hostProps = getSMTPProps(properties.hostName)
         //log.debug "Inside message service obj ${properties}"
@@ -81,10 +81,22 @@ class MessagingService {
 
         try {
             if (attachments == null) {
-                postman.sendEmail(properties, hostProps)
+                if(html){
+                    postman.sendHTMLEmail(properties, hostProps,attachments)
+                }
+                else{
+                   postman.sendEmail(properties, hostProps) 
+                }
+                
             }
             else {
-                postman.sendEmail(properties, hostProps, attachments)
+                if(html){
+                    postman.sendHTMLEmail(properties, hostProps, attachments)
+                }
+                else{
+                   postman.sendEmail(properties, hostProps, attachments) 
+                }
+                
             }
 
             return true

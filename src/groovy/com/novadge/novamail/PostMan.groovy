@@ -212,9 +212,22 @@ class PostMan {
      * [from:'',subject:'',to:'',body:'',username:'',password:'*****']
      * 
      */
-    void sendHTMLEmail(Map emailProps, Map props,files) {
+    void sendHTMLEmail(Map emailProps, Map props, List<File> files) {
         // log.debug "trying to send html email with ${emailProps}"
         doSendEmail emailProps, props, true, files
+    }
+    
+    /*
+     * Send email as html 
+     * @Params: maps containing email credentials
+     * props: map of email properties: eg
+     * emailProps: Map containing email credentials eg 
+     * [from:'',subject:'',to:'',body:'',username:'',password:'*****']
+     * 
+     */
+    void sendHTMLEmail(Map emailProps, Map props) {
+        // log.debug "trying to send html email with ${emailProps}"
+        doSendEmail emailProps, props, true, null
     }
 
     /*

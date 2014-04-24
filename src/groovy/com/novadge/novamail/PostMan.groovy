@@ -45,7 +45,7 @@ class PostMan {
      */
     PostMan(String incomingMailServer, String store, String username, String password) {
         //throw new UnsupportedOperationException("Not yet implemented");
-        System.out.println("Executing post man");
+        System.out.log.debugln("Executing post man");
         props = new Properties();
         //this.setProperties("mail.pop3.host", incomingMailServer);
         //this.setProperties("mail.store.protocol","pop3");
@@ -148,16 +148,21 @@ class PostMan {
     Message[] getInbox(SearchTerm term, int folder_rw) {
         try {
             log.debug "trying to get inbox......\n"
-            
             inbox = store.getFolder("INBOX")
-            if(folder_rw == 0){
-                inbox.open(Folder.READ_ONLY) 
+            if(folder_rw == Folder.READ_ONLY || folder_rw == Folder.READ_WRITE){
+                inbox.open(folder_rw)
             }
             else{
                 inbox.open(folder_rw)
             }
             
-            messages = inbox.search(term);
+            if(term){
+               messages = inbox.search(term); 
+            }
+            else{
+               messages =  inbox.getMessages() 
+            }
+            
         }
         catch (e) {
             log.error "Unable to get inbox because $e.message", e
@@ -173,7 +178,7 @@ class PostMan {
      * see javax.mail.search documentation for more information 
      */
     Message[] getInbox(SearchTerm term) {
-         return getInbox(term, 0)      
+         return getInbox(term,Folder.READ_ONLY)      
     }
     
     /*
@@ -207,9 +212,9 @@ class PostMan {
      * [from:'',subject:'',to:'',body:'',username:'',password:'*****']
      * 
      */
-    void sendHTMLEmail(Map emailProps, Map props) {
+    void sendHTMLEmail(Map emailProps, Map props,files) {
         // log.debug "trying to send html email with ${emailProps}"
-        doSendEmail emailProps, props, true, null
+        doSendEmail emailProps, props, true, files
     }
 
     /*
@@ -220,8 +225,8 @@ class PostMan {
      * [from:'',subject:'',to:'',body:'',username:'',password:'*****']
      * file: file object to send as attachment
      */    
-    void sendEmail(Map emailProps, Map props, File file) {
-        doSendEmail emailProps, props, false, file
+    void sendEmail(Map emailProps, Map props, List<File> files) {
+        doSendEmail emailProps, props, false, files
     }
 
     
@@ -234,47 +239,52 @@ class PostMan {
      * html: true or false
      * file: file object to send as attachment
      */
-    private void doSendEmail(Map emailProps, Map props, boolean html, File file) {
-
+    private void doSendEmail(Map emailProps, Map props, boolean html, List<File> files) {
+        log.debug "inside postman with ${files}"
         Properties properties = System.getProperties()
-
+        log.debug "setting properties"
         // Setup mail server
         props.each { key, value ->
+            "Setting ${key} to ${value}"
             properties.setProperty(key,value)
         }
-
+        log.debug "creating auth"
         Authenticator auth = new NovadgeAuthenticator(emailProps.username, emailProps.password)// not yet useful
         Session session = Session.getDefaultInstance(properties, auth)
-
+        log.debug "created session"
         MimeMessage message = new MimeMessage(session)
         message.setFrom(new InternetAddress(emailProps.from))
 
         message.addRecipient(Message.RecipientType.TO, new InternetAddress(emailProps.to))
 
         message.setSubject("${emailProps.subject}")
-
+        
         if (html) {
             // Send the actual HTML message, as big as you like
             message.setContent(emailProps.body, TEXT_HTML)
         }
-        else if (file != null) {
+        else if (files) {
             BodyPart messageBodyPart = new MimeBodyPart()
-
-            // messageBodyPart.setText("${emailProps.body}")
+            log.debug "adding attachments"
+            
             messageBodyPart.setContent(emailProps.body, TEXT_HTML)
 
             Multipart multipart = new MimeMultipart()
 
             multipart.addBodyPart(messageBodyPart)
-
+            log.debug "mail has attachments"
             // Part two is attachment
-            messageBodyPart = new MimeBodyPart()
-            //TODO: Find way to set file path
-            DataSource source = new FileDataSource(file)
-            messageBodyPart.setDataHandler(new DataHandler(source))
-            messageBodyPart.setFileName(file.name)
-            multipart.addBodyPart(messageBodyPart)
-
+            files.each({file ->
+                log.debug "attaching inside postman"
+                messageBodyPart = new MimeBodyPart()
+                //TODO: Find way to set file path
+                DataSource source = new FileDataSource(file)
+                messageBodyPart.setDataHandler(new DataHandler(source))
+                messageBodyPart.setFileName(file.name)
+                multipart.addBodyPart(messageBodyPart)
+                
+            })
+            
             message.setContent(multipart)
         }
         else {
@@ -284,4 +294,7 @@ class PostMan {
         Transport.send(message)
         log.debug "Sent message successfully...."
     }
+    
+    
+    
 }

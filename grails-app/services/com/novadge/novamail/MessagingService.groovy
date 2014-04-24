@@ -45,7 +45,7 @@ class MessagingService {
      * body:
      * file: File object (optional)
      */
-    boolean sendEmail(String hostname, String username, String password, String from, String to, String subject, String body, File attachment) {
+    boolean sendEmail(String hostname, String username, String password, String from, String to, String subject, String body, List<File> attachments) {
         doSendEmail([
             from: from,
             to: to,
@@ -54,7 +54,7 @@ class MessagingService {
             hostName: hostname,
             username: username,
             password: password,
-        ], attachment)
+        ], attachments)
     }
 
     //-----------------------------------------------------------------------
@@ -72,7 +72,7 @@ class MessagingService {
      * body:
      * file: File object (optional)
      */
-    private boolean doSendEmail(Map properties, File attachment) {
+    private boolean doSendEmail(Map properties, List<File> attachments) {
         //def tenant = utilityService.getUserTenant()
         def hostProps = getSMTPProps(properties.hostName)
         //log.debug "Inside message service obj ${properties}"
@@ -80,11 +80,11 @@ class MessagingService {
        def postman = new PostMan()
 
         try {
-            if (attachment == null) {
-                postman.sendHTMLEmail(properties, hostProps)
+            if (attachments == null) {
+                postman.sendEmail(properties, hostProps)
             }
             else {
-                postman.sendEmail(properties, hostProps, attachment)
+                postman.sendEmail(properties, hostProps, attachments)
             }
 
             return true
@@ -102,28 +102,47 @@ class MessagingService {
      * from db message_out.
      */
     void processMailQueue() {
-        //log.debug "inside message process queue"
+        log.debug "inside message process queue"
         def pendingMsgs = MessageOut.where { status == 'Pending' || status == 'Not sent' }.list()
-
+        log.debug "got ${pendingMsgs}"
         pendingMsgs.each {
 
             String subject = "${it.subject}"
-            String to = "${it?.recipient}"
+            String to = "${it?.recipients}"
 
-            if (it?.attachment != null) {
-                if (sendEmail(it?.hostname, it?.username, it?.password, it?.sender, it?.recipient, it?.subject, it?.body, it?.attachment)) {
-                    it.status = "Sent"
-                    it.save()
+            if (it?.attachments != null) {
+                FileOutputStream fout = null
+                int num = it?.attachments.size()
+                List<File> files = []
+                
+                it.attachments.each{att -> // all attachments
+                    log.debug "creating files"
+                   File f = new File("${att?.name}")
+                   fout = new FileOutputStream(f)
+                   fout.write(att.data)
+                   files.add(f) // extract data
+                   
                 }
+               
+                if(sendEmail(it?.hostname, it?.username, it?.password, it?.senders, it?.recipients, it?.subject, it?.body, files)){
+                    it.status = "Sent"
+                    it.dateSent = new Date()
+                    it.save(flush:true)  
+                }
+                 
             }
             else{
                // log.debug "Sending Message....complete..."
-
-                if (sendEmail(it?.hostname, it?.username, it?.password, it?.sender, it?.recipient, it?.subject, it?.body)) {
+               
+               if(sendEmail(it?.hostname, it?.username, it?.password, it?.senders, it?.recipients, it?.subject, it?.body)){
                     it.status = "Sent"
-                    it.save()
-                }
+                    it.dateSent = new Date()
+                    it.save(flush:true)
+               }
+               
+                 
             }
+            
         }
     }
 
@@ -150,7 +169,7 @@ class MessagingService {
      Message[] getMessages(String provider, String store,String username,String password){
         Map emailProps = [:]
         emailProps.hostName = provider; emailProps.username = username; emailProps.password = password;
-        return doGetMessages(emailProps,store,null)
+        return doGetMessages(emailProps,store,null,Folder.READ_ONLY)
     }
     
     
@@ -167,7 +186,24 @@ class MessagingService {
     Message[] getMessages(String provider, String store,String username,String password,SearchTerm term){
         Map emailProps = [:]
         emailProps.hostName = provider; emailProps.username = username; emailProps.password = password;
-        return doGetMessages(emailProps,store,term)
+        return doGetMessages(emailProps,store,term,Folder.READ_ONLY)
+    }
+    
+    /**
+     * Receive emails.
+     *
+     * @params : 
+     * provider: name of the host eg Gmail,yahoo,hotmail,etc
+     * store: IMAP,POP
+     * username: john@yahoo.com
+     * password: *************
+     * term: search term used to specify which messages to retrieve 
+     * folder_rw. Folder.READ_ONLY, Folder.READ_WRITE    
+     */
+    Message[] getMessages(String provider, String store,String username,String password,SearchTerm term,int folder_rw){
+        Map emailProps = [:]
+        emailProps.hostName = provider; emailProps.username = username; emailProps.password = password;
+        return doGetMessages(emailProps,store,term,folder_rw)
     }
     
     
@@ -186,7 +222,7 @@ class MessagingService {
      * TO, CC and BCC for Message.RecipientType
      * 
      **/
-    Message[] doGetMessages(Map emailProps, String store,SearchTerm term){
+    Message[] doGetMessages(Map emailProps, String store,SearchTerm term,int folder_rw){
         def host = ""
         def hostProps = [:]
         log.debug "Store is ${store}"
@@ -213,16 +249,28 @@ class MessagingService {
                 
         }
         def postman = new PostMan(emailProps,hostProps)
-           
-        if(term != null){
-            log.debug "search term is set as ${term}"
-           return postman.getInbox(term) 
+        if(term){ // if search term is specified and folder flag is set...
+           log.debug "search term is set as ${term}"
+           return postman.getInbox(term,folder_rw)
         }
         else{
             log.debug "No search term is set"
             return postman.getAllInbox()
         }
         
+    }
+    
+    /*
+     * Get message body 
+     * @params messageOut object
+     * note: many messages will contain text/plain and text/html formats
+     * where both are available this method will return the first in the list
+     */
+    String getMessageBody(MessageOut message){
+       // log.debug "message = ${message}"
+       if(!message.body){return "NO CONTENT"}
+        
+        return message.body// return the first available content
     }
     
     /*
@@ -234,20 +282,26 @@ class MessagingService {
      * where both are available this method will return the first in the list
      */
     String getMessageBody(MessageIn message,String prefFormat){
-        if(!prefFormat){
+       // log.debug "message = ${message}"
+       if(!message.body){return "NO CONTENT"}
+        if(prefFormat == null){
            return message?.body[0]?.content 
         }
-        int num = message.body?.size() // get number of items in message body
+        //log.debug message.body
+        int num = message?.body?.size() // get number of items in message body
         if(num >1){
+           // log.debug "message has more than one body"
             message.body.each{
                 if(it.contentType =~ prefFormat){
-                    return it.content
+                    return it?.content
                 }
             }
            // return messageIn.body[0].content // return available content
         }
-        return message.body[0].content// return the first available content
+        return message.body[0]?.content// return the first available content
     }
+    
+    
     
     /*
      * Get message body 
@@ -268,8 +322,8 @@ class MessagingService {
      */
     List<byte[]> getMessageAttachments(MessageIn message){
         List<byte[]> bytes = []
-        message.attachments.each{
-            bytes.add(it.data)
+        message?.attachments.each{
+            bytes.add(it?.data)
         }
         return bytes        
     }
@@ -280,23 +334,53 @@ class MessagingService {
      * @Params: An array of messages
      */
     def saveMessages(Message[] messages){
-        def body, senders, recipients,subject,dateSent
-        def msg
+                
+       messages.each({ // iterate over all messages
+           saveMessage(it)            
+       })
+        
+    }
+    
+    
+    /**
+     * Persist a message to the database
+     * @Params: A message
+     */
+    def saveMessage(Message message){
+        
+        MessageIn msg = null;
+        Map props = [:]
+        msg = new MessageIn() // create a new message object
+        Message it = message // reference handle... too lazy to do anything more... ;)
+        props =[contentType:it.getContentType(),senders:it.getFrom()[0].toString(),recipients:it.getRecipients(RecipientType.TO).toString(),subject:it.getSubject(),dateSent:it.getSentDate(),dateReceived:it.getReceivedDate(),status:"Unread"]
+        msg.properties = props // assign properties to the message object
+        msg = setParts(msg,it) // set the body and attachment parts of the message
+        MessageIn.withNewSession{ // save message with new session because ... 
+                //for some strange reason it does not save with current session (probably because of download delay...;)
+            msg.save(flush:true) 
+        }
+        
+    }
+    
+    
+    /**
+     * Persist a message to the database
+     * @Params: A message and a domain class
+     * message: incoming javamail message
+     * messageIn: local database store object
+     */
+    def saveMessage(Message message,MessageIn msg){
+        
         Map props = [:]
         
-        messages.each({ // iterate over all messages
-            
-            msg = new MessageIn() // create a new message object
-            props =[contentType:it.getContentType(),senders:it.getFrom()[0].toString(),recipients:it.getRecipients(RecipientType.TO).toString(),subject:it.getSubject(),dateSent:it.getSentDate(),dateReceived:it.getReceivedDate(),status:"Unread"]
-            msg.properties = props // assign properties to the message object
-            msg = setParts(msg,it) // set the body and attachment parts of the message
-            log.debug msg.getErrors()
-            MessageIn.withNewSession{ // save message with new session because ... 
+        Message it = message // reference handle... too lazy to do anything more... ;)
+        props =[contentType:it.getContentType(),senders:it.getFrom()[0].toString(),recipients:it.getRecipients(RecipientType.TO).toString(),subject:it.getSubject(),dateSent:it.getSentDate(),dateReceived:it.getReceivedDate(),status:"Unread"]
+        msg.properties = props // assign properties to the message object
+        msg = setParts(msg,it) // set the body and attachment parts of the message
+        MessageIn.withNewSession{ // save message with new session because ... 
                 //for some strange reason it does not save with current session (probably because of download delay...;)
-               msg.save(flush:true) 
-            }
-            
-        })
+            msg.save(flush:true) 
+        }
         
     }
     

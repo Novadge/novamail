@@ -2,30 +2,37 @@ package ${packageName}
 
 class ${messageOutClassName}{
 
+    static hasMany = [attachments:Attachment]
     String hostname // Host name eg. Gmail, Yahoo, Hotmail
     String username // Username for the account eg john@gmail.com
     String password // Password for the account eg *********
-    String sender //
-    String recipient
+    String senders //
+    String recipients
     String subject
     String body
 
-    byte[] attachment
+    //byte[] attachment
     // Users users // who made the transmission
     String status = 'Pending'
+    Date dateSent
     Date dateCreated
     Date lastUpdated
 
     static constraints = {
         subject(nullable:true,blank:true)
-        sender(nullable:true,blank:true)
-        recipient(nullable:false,blank:false)
-        body(nullable:false,blank:false)
-        attachment(nullable:true,blank:true)
+        senders(nullable:true,blank:true)
+        recipients(nullable:false,blank:false)
+        body(nullable:false,blank:false,maxSize:1024 * 10 * 10)
+        attachments(nullable:true,blank:true)
        
         status(nullable:true,blank:true,inList:["Sent","Pending","Not sent"])
         hostname(nullable:true,blank:true)
         username(nullable:true,blank:true)
         password(nullable:true,blank:true)
+        dateSent(nullable:true,blank:true)
+    }
+
+    static mapping = {
+        sort dateSent: 'desc'
     }
 }

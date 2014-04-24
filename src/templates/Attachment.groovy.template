@@ -1,6 +1,6 @@
-package com.novadge.novamail
+package ${packageName}
 
-class Attachment {
+class ${attachmentClassName}{ 
     static belongsTo = [messageIn:MessageIn,messageOut:MessageOut]
     String name
     byte[] data

@@ -32,7 +32,8 @@ packageName = 'com.novadge.novamail'
 messageOutClassName = 'MessageOut'
 messageInClassName = 'MessageIn'
 mailDispatchJobName = 'NovaMailJob'
-requestmapClassName = ''
+bodyClassName = 'Body'
+attachmentClassName = 'Attachment'
 
 target(n2Quickstart: 'Creates artifacts for the Nova Mail plugin') {
 	depends(checkVersion, configureProxy, packageApp, classpath)
@@ -48,6 +49,8 @@ target(n2Quickstart: 'Creates artifacts for the Nova Mail plugin') {
 *********************************************************
 * Created grails-app/domain/MessageOut.groovy,          *
 * Created grails-app/domain/MessageIn.groovy,           *
+* Created grails-app/domain/Body.groovy,                *
+* Created grails-app/domain/Attachment.groovy,          *
 * grails-app/jobs/MailDispatchJob.groovy and            *
 * grails-app/views/layouts/_mail.gsp.                   *
 * Your grails-app/conf/Config.groovy has been updated   *
@@ -76,6 +79,10 @@ private boolean configure() {
 	                      userClassProperty: GrailsNameUtils.getPropertyName(messageOutClassName),
                               messageInClassName: messageInClassName,
 	                      userClassProperty: GrailsNameUtils.getPropertyName(messageInClassName),
+                              bodyClassName: bodyClassName,
+	                      userClassProperty: GrailsNameUtils.getPropertyName(bodyClassName),
+                              attachmentClassName: attachmentClassName,
+	                      userClassProperty: GrailsNameUtils.getPropertyName(attachmentClassName),
 	                      mailDispatchJobName: mailDispatchJobName,
 	                      mailDispatchJobClassProperty: GrailsNameUtils.getPropertyName(mailDispatchJobName)
                             ]
@@ -86,33 +93,7 @@ private boolean configure() {
                         transient grailsApplication
                         transient sessionFactory
                 '''
-	templateAttributes.dirtyMethods = '''
-
-	private boolean isDirty(String fieldName) {
-		def session = sessionFactory.currentSession
-		def entry = findEntityEntry(session)
-		if (!entry) {
-			return false
-		}
-
-		Object[] values = entry.persister.getPropertyValues(this, session.entityMode)
-		int[] dirtyProperties = entry.persister.findDirty(values, entry.loadedState, this, session)
-		int fieldIndex = entry.persister.propertyNames.findIndexOf { fieldName == it }
-		return fieldIndex in dirtyProperties
-	}
-
-	private findEntityEntry(session) {
-		def entry = session.persistenceContext.getEntry(this)
-		if (!entry) {
-			return null
-		}
-
-		if (!entry.requiresDirtyCheck(this) && entry.loadedState) {
-			return null
-		}
-
-		entry
-	}'''
+	templateAttributes.dirtyMethods = ''
 	}
 	else {
 		templateAttributes.dependencyInjections = '''\
@@ -129,6 +110,8 @@ private void createDomains() {
 	String dir = packageToDir(packageName)
 	generateFile "$templateDir/MessageOut.groovy.template", "$appDir/domain/${dir}${messageOutClassName}.groovy"
         generateFile "$templateDir/MessageIn.groovy.template", "$appDir/domain/${dir}${messageInClassName}.groovy"
+        generateFile "$templateDir/Body.groovy.template", "$appDir/domain/${dir}${bodyClassName}.groovy"
+        generateFile "$templateDir/Attachment.groovy.template", "$appDir/domain/${dir}${attachmentClassName}.groovy"
 	generateFile "$templateDir/MailDispatchJob.groovy.template", "$appDir/jobs/${dir}${mailDispatchJobName}.groovy"
 	
 }
@@ -161,9 +144,11 @@ private parseArgs() {
 	args[0] = packageName
 	args[1] = messageOutClassName
         args[2] = messageInClassName
-	args[3] = mailDispatchJobName
-	if (4 == args.size()) {
-		printMessage "Creating ${args[1]}, ${args[2]}, ${args[3]} in package ${args[0]}"
+        args[3] = bodyClassName
+        args[4] = attachmentClassName
+	args[5] = mailDispatchJobName
+	if (6 == args.size()) {
+		printMessage "Creating ${args[1]}, ${args[2]}, ${args[3]}, ${args[4]}, ${args[5]} in package ${args[0]}"
 		return args
 	}
 

@@ -3,10 +3,8 @@
   To change this template file, choose Tools | Templates
   and open the template in the editor.
 -->
-<%@ page import="com.novadge.novamail.MessageIn" %>
-<%@ page contentType="text/html;charset=UTF-8" %>
-<!DOCTYPE html>
 
+<%@ page contentType="text/html;charset=UTF-8" %>
 
 <html>
     <head>
@@ -15,30 +13,52 @@
         <title>Novamail</title>
     </head>
     <body>
-        <h1>Novamail</h1>
-        <div style="width: 100%;">
-            <div style="width: 98%; margin:1%; padding:5px; background: lightblue;">
-                <g:link action="refresh">Refresh</g:link>
-                <g:link action="index">mail index</g:link> 
-                 
-            </div>
+        <div class="navj collapse in" role="navigation">
+      <ul>
+	<li><g:link controller="dashboard" action="index" class="dashboard" title="Dashboard"><g:message code="dashboard.label" default="Dashboard"/></g:link></li>
         
-            <div style="width: 20%; float: left; margin: 1%; padding:5px; background: lightblue;">
-                <g:link action="compose">Compose</g:link>
-                <ul id="panel">
-                    <li><g:link action="inbox">Inbox</g:link></li>
-                    <li><g:link action="sent">Sent</g:link></li>
-                </ul>
-            </div> 
-            
-            <div style="width: 63%; float: left; margin: 1% auto 1% auto; padding:5px; background: whitesmoke;">
-                
-                    <iframe seamless srcdoc="${content}" sandbox style="width:100%; height:400px;">
-                        
-                    </iframe>
+        <li><g:link class="email" action="index">Mail</g:link> </li>
+      </ul>
+    </div>
+        
+        
+        <div class="row">
                    
+            <div class="col-sm-3">
+                <g:render template="../novamail/panel"/>
+                
+                
+            </div> 
+            <div class="col-sm-7">
+            <g:if test="${flash.message}">
+		<div class="alert alert-info" role="status">${flash.message}</div>
+            </g:if>
+               
+            <div class="panel panel-default">
+                <div class="panel-heading">${fieldValue(bean: messageIn, field: "senders")}</div>
+                <div class="panel-body">
+                    
+                    <iframe seamless="true" sandbox="" width="100%" height="400" src="${createLink(controller:'novamail', action:'display',id:messageIn?.id)}">
+                      Your browser does not support iframes. 
+                    </iframe>
+                    <ul class="list-unstyled list-inline">
+                        <g:each in="${messageIn?.attachments}" var="att">
+                         <li><g:link controller="novamail" action="download" id="${att.id}"><span class="glyphicon glyphicon-paperclip"> </span> ${att?.name}</g:link></li>
+
+                        </g:each>
+                    </ul>
+                    <div>
+                        <g:form action="delete" method="DELETE">
+                            <g:hiddenField name="id" value="${messageIn?.id}"/>
+                            <button class="btn btn-danger">
+                                <span class="glypicon glyphicon-remove"></span> Delete
+                            </button>
+                        </g:form>
+                    </div>    
+                </div>
             </div>
-            <div style="width: 10%; float: right; margin: 1%; padding:5px; background: lightblue;">
+          </div>
+            <div class="col-sm-2">
                 
             </div>
         </div>

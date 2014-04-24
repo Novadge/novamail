@@ -29,4 +29,9 @@ class ${messageInClassName}{
         dateReceived(nullable:true,blank:true)
         contentType(nullable:true,blank:true)
     }
+    
+    static mapping = {
+        sort dateReceived: 'desc'
+    }
+    
 }

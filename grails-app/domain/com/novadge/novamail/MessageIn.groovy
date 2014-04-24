@@ -30,6 +30,10 @@ class MessageIn {
         contentType(nullable:true,blank:true)
     }
     
+    static mapping = {
+        sort dateReceived: 'desc'
+    }
+    
     
     
     

@@ -28,6 +28,8 @@ class MessagingService {
     boolean sendEmail(String hostname, String username, String password, String from, String to, String subject, String body) {
         sendEmail(hostname, username, password, from, to, subject, body,false, null)
     }
+    
+    
     /**
      * Sends emails.
      *
@@ -39,7 +41,27 @@ class MessagingService {
      * to:
      * subject:
      * body:
-     * file: File object (optional)
+     * attachments: A list of File objects (optional)
+     */
+    boolean sendEmail(String hostname, String username, String password, String from, String to, String subject, String body,List<File> attachments) {
+        sendEmail(hostname, username, password, from, to, subject, body,false, attachments)
+    }
+    
+    
+    
+    
+    /**
+     * Sends emails.
+     *
+     * @params : Map containing email attributes such as
+     * hostName: name of the host eg Gmail
+     * username: email username
+     * password: email password
+     * from:
+     * to:
+     * subject:
+     * body:
+     * 
      */
     boolean sendHTMLEmail(String hostname, String username, String password, String from, String to, String subject, String body) {
         sendEmail(hostname, username, password, from, to, subject, body,true, null)
@@ -56,7 +78,7 @@ class MessagingService {
      * to:
      * subject:
      * body:
-     * file: File object (optional)
+     * attachments: A list of File object (optional)
      */
     boolean sendHTMLEmail(String hostname, String username, String password, String from, String to, String subject, String body, List<File> attachments) {
         sendEmail(hostname, username, password, from, to, subject, body,true, attachments)
@@ -76,7 +98,7 @@ class MessagingService {
      * to:  
      * subject:
      * body:
-     * file: File object (optional)
+     * attachments: a list of File objects (optional)
      */
     boolean sendEmail(String hostname, String username, String password, String from, String to, String subject, String body,boolean html, List<File> attachments) {
         doSendEmail([
@@ -168,21 +190,21 @@ class MessagingService {
                    files.add(f) // extract data
                    
                 }
-               
-                if(sendEmail(it?.hostname, it?.username, it?.password, it?.senders, it?.recipients, it?.subject, it?.body, files)){
+               //(String hostname, String username, String password, String from, String to, String subject, String body)
+                if(sendHTMLEmail(it?.hostname, it?.username, it?.password, it?.senders, it?.recipients, it?.subject, it?.body, files)){
                     it.status = "Sent"
                     it.dateSent = new Date()
-                    it.save(flush:true)  
+                    it.save()  
                 }
                  
             }
             else{
                // log.debug "Sending Message....complete..."
-               
-               if(sendEmail(it?.hostname, it?.username, it?.password, it?.senders, it?.recipients, it?.subject, it?.body)){
+               //(String hostname, String username, String password, String from, String to, String subject, String body)
+               if(sendHTMLEmail(it?.hostname, it?.username, it?.password, it?.senders, it?.recipients, it?.subject, it?.body)){
                     it.status = "Sent"
                     it.dateSent = new Date()
-                    it.save(flush:true)
+                    it.save()
                }
                
                  

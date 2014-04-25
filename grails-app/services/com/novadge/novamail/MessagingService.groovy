@@ -26,7 +26,7 @@ class MessagingService {
      * file: File object (optional)
      */
     boolean sendEmail(String hostname, String username, String password, String from, String to, String subject, String body) {
-        sendEmail(hostname, username, password, from, to, subject, body, null)
+        sendEmail(hostname, username, password, from, to, subject, body,false, null)
     }
     /**
      * Sends emails.
@@ -59,7 +59,7 @@ class MessagingService {
      * file: File object (optional)
      */
     boolean sendHTMLEmail(String hostname, String username, String password, String from, String to, String subject, String body, List<File> attachments) {
-        sendEmail(hostname, username, password, from, to, subject, body,true, null)
+        sendEmail(hostname, username, password, from, to, subject, body,true, attachments)
     }
 
     

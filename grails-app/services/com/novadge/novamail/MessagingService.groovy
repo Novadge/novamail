@@ -47,6 +47,55 @@ class MessagingService {
         sendEmail(hostname, username, password, from, to, subject, body,false, attachments)
     }
     
+    /**
+     * Sends emails with quarts job.
+     *
+     * @params : Map containing email attributes such as
+     * hostName: name of the host eg Gmail
+     * username: email username
+     * password: email password
+     * from:
+     * to:
+     * subject:
+     * body:
+     * attachments: A list of File objects (optional)
+     */
+    def queueEmail(String hostname, String username, String password, String from, String to, String subject, String body,List<File> attachments){
+        
+        def messageOut = new MessageOut(hostname:hostname,username:username,password:password,senders:from,recipients:to,subject:subject,body:body.toString())
+        if (messageOut.hasErrors()) {
+            return false
+        }
+        Attachment attachment = null
+        FileInputStream fis = null
+        attachments?.each{
+            fis = new FileInputStream(it)
+            byte[] bytes = new byte[(int) it.length()];
+            fis.read(bytes)
+            attachment = new Attachment(name:it.getName(),data:bytes)
+            messageOut.addToAttachments(attachment)
+            // delete the file
+        }
+        messageOut.save(flush:true)
+        
+    }
+    
+    /**
+     * Sends emails with quarts job.
+     *
+     * @params : Map containing email attributes such as
+     * hostName: name of the host eg Gmail
+     * username: email username
+     * password: email password
+     * from:
+     * to:
+     * subject:
+     * body:
+     */
+    def queueEmail(String hostname, String username, String password, String from, String to, String subject, String body){
+        queueEmail(hostname,username,password,from,to,subject,body,null)        
+    }
+    
     
     
     

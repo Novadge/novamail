@@ -22,7 +22,7 @@ class MessageOut{
         subject(nullable:true,blank:true)
         senders(nullable:false,blank:false)
         recipients(nullable:false,blank:false,email:true)
-        body(nullable:false,blank:false,maxSize:1024 * 10 * 10)
+        body(nullable:false,blank:false,maxSize:1024 * 1000 * 1000)
         attachments(nullable:true,blank:true)
        
         status(nullable:true,blank:true,inList:["Sent","Pending","Not sent"])

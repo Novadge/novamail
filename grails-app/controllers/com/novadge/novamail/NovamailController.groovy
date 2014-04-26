@@ -81,14 +81,13 @@ def messagingService
             respond messageOut.errors, view:'compose',model:[entity:provider]
             return
         }
-        Attachment attachment
+        File[] attachments
         if(params?.attachment){
             def file = request.getFile("attachment")
-            attachment = new Attachment(name:file.getOriginalFilename(),data:file.getBytes())
-            messageOut.addToAttachments(attachment)
+            attachments.add(file)
         }
+        messagingService.queueEmail(mailProvider,mailUsername,mailPassword,mailUsername,email,params?.subject, params.body,attachments)
         
-        messageOut.save(flush:true)
         redirect action:'outbox'
     }
     

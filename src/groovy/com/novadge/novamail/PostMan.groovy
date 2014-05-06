@@ -276,7 +276,11 @@ class PostMan {
             // Send the actual HTML message, as big as you like
             message.setContent(emailProps.body, TEXT_HTML)
         }
-        else if (files) {
+        else {
+            message.setText("${emailProps.body}")
+        }
+        
+        if (files) {
             BodyPart messageBodyPart = new MimeBodyPart()
             log.debug "adding attachments"
             
@@ -300,9 +304,7 @@ class PostMan {
             
             message.setContent(multipart)
         }
-        else {
-            message.setText("${emailProps.body}")
-        }
+        
 
         Transport.send(message)
         log.debug "Sent message successfully...."

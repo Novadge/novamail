@@ -69,10 +69,7 @@ class MessagingService {
         Attachment attachment = null
         FileInputStream fis = null
         attachments?.each{
-            fis = new FileInputStream(it)
-            byte[] bytes = new byte[(int) it.length()];
-            fis.read(bytes)
-            attachment = new Attachment(name:it.getName(),data:bytes)
+            attachment = new Attachment(name:it.getName(),data:it.getBytes())
             messageOut.addToAttachments(attachment)
             // delete the file
         }
@@ -227,14 +224,14 @@ class MessagingService {
             String to = "${it?.recipients}"
 
             if (it?.attachments != null) {
-                FileOutputStream fout = null
+                
                 int num = it?.attachments.size()
                 List<File> files = []
                 
                 it.attachments.each{att -> // all attachments
-                    log.debug "creating files"
+                   log.debug "creating files"
                    File f = new File("${att?.name}")
-                   fout = new FileOutputStream(f)
+                   def fout = new FileOutputStream(f)
                    fout.write(att.data)
                    files.add(f) // extract data
                    

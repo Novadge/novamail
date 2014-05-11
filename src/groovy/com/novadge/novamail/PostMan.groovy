@@ -149,13 +149,10 @@ class PostMan {
         try {
             log.debug "trying to get inbox......\n"
             inbox = store.getFolder("INBOX")
-            if(folder_rw == Folder.READ_ONLY || folder_rw == Folder.READ_WRITE){
+            if(folder_rw){
                 inbox.open(folder_rw)
             }
-            else{
-                inbox.open(folder_rw)
-            }
-            
+                        
             if(term){
                messages = inbox.search(term); 
             }
@@ -187,8 +184,7 @@ class PostMan {
      * see javax.mail.search documentation for more information 
      */
     Message[] getAllInbox() {
-         getInbox()
-         return messages
+         return getInbox(null,Folder.READ_ONLY) 
     }
 
 
@@ -258,7 +254,7 @@ class PostMan {
         log.debug "setting properties"
         // Setup mail server
         props.each { key, value ->
-            "Setting ${key} to ${value}"
+            
             properties.setProperty(key,value)
         }
         log.debug "creating auth"

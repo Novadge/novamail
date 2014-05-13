@@ -1,8 +1,8 @@
 //dataSource {
 //    pooled = true
 //    driverClassName ="com.mysql.jdbc.Driver"// "org.h2.Driver"
-//    username = ""
-//    password = ""
+//    username = "root"
+//    password = "password"
 //    dialect = org.hibernate.dialect.MySQL5InnoDBDialect
 //    //dialect = "org.hibernate.dialect.MySQL5InnoDBDialect"
 //}

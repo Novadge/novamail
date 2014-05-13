@@ -110,8 +110,8 @@ def messagingService
         
        
         String mailProvider = "Gmail"
-        String mailUsername = "omasiri@gmail.com"
-        String mailPassword = "\$Money3.8"
+        String mailUsername = ""
+        String mailPassword = ""
         def email = "support@novadge.com"
         def props = [hostname:mailProvider,senders:mailUsername,username:mailUsername,password:mailPassword,recipients:email]
         messageOut.properties = props
@@ -132,13 +132,14 @@ def messagingService
             attachments.add(file)
         }
        
-        messagingService.sendEmail(mailProvider,mailUsername,mailPassword,mailUsername,email,params?.subject, params.body?.toString(),attachments)
-        //print "sent email"
+        messagingService.sendEmail(email,params?.subject, params.body?.toString())
+        print "sent email"
         request.withFormat {
             
             form {
                
                flash.message = "${message(code:'message.queued.label',default:'Message queued for delivery')}" //message(code: 'default.created.message', args: [message(code: 'messageOut.label', default: 'Message out'), messageOut.id])
+                print "redirecting to outbox"
                 redirect action:'outbox'
             }
             multipartForm {

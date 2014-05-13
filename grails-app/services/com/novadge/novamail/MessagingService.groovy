@@ -9,9 +9,18 @@ import javax.activation.DataHandler
 
 import javax.mail.Message.RecipientType
 class MessagingService {
-    
+   def grailsApplication 
     //-----------------------------------------------------------------------
     //-----------internal email sending -------------------------
+    
+    Map getAccountDetails(){
+        Map map = [:]
+        map.hostname = grailsApplication.config.novamail.hostname.toString() 
+        map.username = grailsApplication.config.novamail.username.toString()
+        map.password = grailsApplication.config.novamail.password.toString()
+        map.from = grailsApplication.config.novamail.username.toString()
+        return map
+    }
     /**
      * Sends emails.
      *
@@ -27,6 +36,37 @@ class MessagingService {
      */
     boolean sendEmail(String hostname, String username, String password, String from, String to, String subject, String body) {
         sendEmail(hostname, username, password, from, to, subject, body,false, null)
+    }
+    
+    /**
+     * Sends emails.
+     *
+     * @params : Map containing email attributes such as
+     * from:
+     * to:
+     * subject:
+     * body:
+     * file: File object (optional)
+     */
+    boolean sendEmail(String to, String subject, String body) {
+        def map = getAccountDetails()
+        sendEmail(map.hostname, map.username, map.password, map.from, to, subject, body,false, null)
+    }
+    
+    
+    /**
+     * Sends emails.
+     *
+     * @params : Map containing email attributes such as
+     * from:
+     * to:
+     * subject:
+     * body:
+     * attachments: A list of File objects (optional)
+     */
+    boolean sendEmail(String to, String subject, String body,List<File> attachments) {
+        def map = getAccountDetails()
+        sendEmail(map.hostname, map.username, map.password, map.from, to, subject, body,false, attachments)
     }
     
     
@@ -60,6 +100,36 @@ class MessagingService {
      * body:
      * attachments: A list of File objects (optional)
      */
+    def queueEmail(String to, String subject, String body,List<File> attachments){
+        def map = getAccountDetails()
+        def messageOut = new MessageOut(hostname:map.hostname,username:map.username,password:map.password,senders:map.from,recipients:to,subject:subject,body:body.toString())
+        if (messageOut.hasErrors()) {
+            return false
+        }
+        Attachment attachment = null
+        FileInputStream fis = null
+        attachments?.each{
+            attachment = new Attachment(name:it.getName(),data:it.getBytes())
+            messageOut.addToAttachments(attachment)
+            // delete the file
+        }
+        messageOut.save(flush:true)
+        
+    }
+    
+    /**
+     * Sends emails with quarts job.
+     *
+     * @params : Map containing email attributes such as
+     * hostName: name of the host eg Gmail
+     * username: email username
+     * password: email password
+     * from:
+     * to:
+     * subject:
+     * body:
+     * attachments: A list of File objects (optional)
+     */
     def queueEmail(String hostname, String username, String password, String from, String to, String subject, String body,List<File> attachments){
         
         def messageOut = new MessageOut(hostname:hostname,username:username,password:password,senders:from,recipients:to,subject:subject,body:body.toString())
@@ -76,6 +146,21 @@ class MessagingService {
         messageOut.save(flush:true)
         
     }
+    
+    /**
+     * Sends emails with quarts job.
+     *
+     * @params : Map containing email attributes such as
+     * from:
+     * to:
+     * subject:
+     * body:
+     */
+    def queueEmail(String to, String subject, String body){
+        def map = getAccountDetails()
+        def messageOut = new MessageOut(hostname:map.hostname,username:map.username,password:map.password,senders:map.from,to,subject,body,null)        
+    }
+    
     
     /**
      * Sends emails with quarts job.
@@ -180,33 +265,31 @@ class MessagingService {
         
        def postman = new PostMan()
 
-        try {
             if (attachments == null) {
                 if(html){
+                    log.debug "sending html email without attachments"
                     postman.sendHTMLEmail(properties, hostProps,attachments)
                 }
                 else{
+                    log.debug "sending email without attachments"
                    postman.sendEmail(properties, hostProps) 
                 }
                 
             }
             else {
                 if(html){
+                    log.debug "sending html email with attachments"
                     postman.sendHTMLEmail(properties, hostProps, attachments)
                 }
                 else{
+                    log.debug "sending email with attachmentss"
                    postman.sendEmail(properties, hostProps, attachments) 
                 }
                 
             }
 
             return true
-    }
-        catch (e) {
-//            log.errorEnabled e.message, e
-            log.debug e.message
-            return false
-        }
+    
     }
 
     

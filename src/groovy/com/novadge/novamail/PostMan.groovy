@@ -303,7 +303,7 @@ class PostMan {
         
 
         Transport.send(message)
-        log.debug "Sent message successfully...."
+        print "Sent message successfully...."
     }
     
     

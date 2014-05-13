@@ -173,7 +173,7 @@ class MessagingService {
      * body:
      * file: File object (optional)
      */
-    private boolean doSendEmail(Map properties, boolean html, List<File> attachments) {
+    private boolean doSendEmail(Map properties, boolean html, List<File> attachments){
         //def tenant = utilityService.getUserTenant()
         def hostProps = getSMTPProps(properties.hostName)
         //log.debug "Inside message service obj ${properties}"
@@ -201,7 +201,7 @@ class MessagingService {
             }
 
             return true
-        }
+    }
         catch (e) {
 //            log.errorEnabled e.message, e
             log.debug e.message

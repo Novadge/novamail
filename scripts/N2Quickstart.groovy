@@ -130,9 +130,14 @@ private void updateConfig() {
 	if (configFile.exists()) {
 		configFile.withWriterAppend {
 			it.writeLine '\n// Added by the Novamail plugin:'
-                        it.writeLine "grails.plugins.novamail.hostname = 'your email host name eg. Gmail'"
-			it.writeLine "grails.plugins.novamail.username = 'your username here eg. john@hotmail.com'"
-			it.writeLine "grails.plugins.novamail.password = 'your password here'"
+                        it.writeLine """\n\
+                                    novamail{\n\\n\
+                                        hostname ='your hostname'\n\
+                                        username ='your username'\n\
+                                        password ='your password'\n\
+                                    }
+                                    
+                        """
 			
 		}
 	}

@@ -1,5 +1,5 @@
 package com.novadge.novamail
-
+import com.novadge.*
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 import javax.mail.*
@@ -10,9 +10,10 @@ import javax.mail.search.*
 import static org.springframework.http.HttpStatus.*
 import grails.converters.JSON
 import grails.transaction.Transactional
+import com.novadge.vaultcore.*
 @Transactional//(readOnly = true)
 class NovamailController {
-
+def utilityService
 def messagingService
 
     static allowedMethods = [save: "POST", update: "PUT", delete: "DELETE"]
@@ -28,10 +29,22 @@ def messagingService
     
     //String incomingMailServer, String store, String username, String password
     def refresh(){
-       
-       String mailProvider = "Gmail"//tenant.mailProvider
-       String mailUsername = "Omasiri@gmail.com"//tenant.mailUsername
-       String mailPassword = '$Money3.8'//tenant.mailPassword
+       def tenant = utilityService.getUserTenant()
+       if(!tenant){
+           flash.message = "tenant not found"
+           redirect(controller:'dashboard')
+       }
+       String mailProvider = tenant.mailProvider
+       String mailUsername = tenant.mailUsername
+       String mailPassword = tenant.mailPassword
+       def date = null
+       if(!tenant?.mailLastChecked){
+           date = new Date()-1// today
+       }
+       else{
+           date = tenant.mailLastChecked
+       }
+       //print date
        //SubjectTerm(java.lang.String pattern)
        //ReceivedDateTerm(int comparison, java.util.Date date) 
        //FromTerm(Address address)//InternetAddress(java.lang.String address) 
@@ -40,64 +53,39 @@ def messagingService
        //public SentDateTerm(int comparison,java.util.Date date)
        //ReceivedDateTerm(int comparison, java.util.Date date)
       // def flagTerm = new FlagTerm(new Flags(Flags.Flag.SEEN), false)
-       def term = new ReceivedDateTerm(ComparisonTerm.GE,new Date()-2) // yesterday and today
+       def term = new ReceivedDateTerm(ComparisonTerm.GE,date) // yesterday and today
        
        def m = messagingService?.getMessages(mailProvider,"imap",mailUsername,mailPassword,term,Folder.READ_WRITE)
        MessageIn msg = null
        m.each({
-          msg = new MessageIn()
+          msg = new MessageIn(tenant:tenant)
           messagingService.saveMessage(it,msg)     
        })
+   
+        tenant.mailLastChecked = new Date() // now
+        tenant.save(flush:true) // save record....
    
        redirect(action:'index')
     }
     
     def showIn(MessageIn messageIn){
         
+        String body = messagingService.getMessageBody(messageIn,"TEXT/HTML")
         long unreadCount = MessageIn.countByStatus("Unread")
         messageIn.status = "Read"
         messageIn.save(flush:true)
-        respond messageIn, model:[unreadCount:unreadCount],view:'show'
+        respond messageIn, model:[unreadCount:unreadCount,body:body]
     }
     
     def showOut(MessageOut messageOut){
-        
-        respond messageOut,view:'show'
+        long unreadCount = MessageIn.countByStatus("Unread")
+        String body = messagingService.getMessageBody(messageOut)
+        respond messageOut, model:[unreadCount:unreadCount,body:body]
     }
-    
-    def compose(){
-       respond new MessageOut(params),view:'compose' 
-    }
-    
-    def saveMsgOut(MessageOut messageOut){
-        
-        String mailProvider = "Gmail"//tenant.mailProvider
-        String mailUsername = "omasiri@gmail.com"//tenant.mailUsername
-        String mailPassword = '$Money3.8'//tenant.mailPassword
-        def email = params.recipients
-        def props = [hostname:mailProvider,senders:mailUsername,username:mailUsername,password:mailPassword,recipients:email]
-        messageOut.properties = props
-        if (messageOut.hasErrors()) {
-            respond messageOut.errors, view:'compose',model:[entity:provider]
-            return
-        }
-        File[] attachments
-        if(params?.attachment){
-            def file = request.getFile("attachment")
-            attachments.add(file)
-        }
-        messagingService.queueEmail(mailProvider,mailUsername,mailPassword,mailUsername,email,params?.subject, params.body,attachments)
-        
-        redirect action:'outbox'
-    }
-    
-        
-   
-    
     
     @Transactional
     def delete(MessageIn messageInInstance) {
-       print "inside delete" 
+        
         if (messageInInstance == null) {
             notFound()
             return
@@ -108,22 +96,67 @@ def messagingService
         request.withFormat {
             form multipartForm {
                 flash.message = message(code: 'default.deleted.message', args: [message(code: 'messageIn.label', default: 'Message'), messageInInstance.id])
-                redirect controller="novamail", action:'inbox'
+                redirect action:'inbox'
             }
             '*'{ render status: NO_CONTENT }
         }
     }
     
+    def compose(){
+       respond new MessageOut(params),view:'compose'
+    }
     
+    def saveMsgOut(MessageOut messageOut){
+        
+       
+        String mailProvider = "Gmail"
+        String mailUsername = "omasiri@gmail.com"
+        String mailPassword = "\$Money3.8"
+        def email = "support@novadge.com"
+        def props = [hostname:mailProvider,senders:mailUsername,username:mailUsername,password:mailPassword,recipients:email]
+        messageOut.properties = props
+        if (messageOut.hasErrors()) {
+            
+            respond messageOut.errors, view:'compose',model:[entity:"provider"]
+            return
+        }
+        List<File> attachments = []
+        
+        
+        if(params?.attachment?.getOriginalFilename()){
+            //print "fake attachement"
+            def f = request.getFile("attachment")
+            def file = new File(f.getOriginalFilename())
+            FileOutputStream fout = new FileOutputStream(file)
+            fout.write(f.getBytes())
+            attachments.add(file)
+        }
+       
+        messagingService.sendEmail(mailProvider,mailUsername,mailPassword,mailUsername,email,params?.subject, params.body?.toString(),attachments)
+        //print "sent email"
+        request.withFormat {
+            
+            form {
+               
+               flash.message = "${message(code:'message.queued.label',default:'Message queued for delivery')}" //message(code: 'default.created.message', args: [message(code: 'messageOut.label', default: 'Message out'), messageOut.id])
+                redirect action:'outbox'
+            }
+            multipartForm {
+                flash.message = "${message(code:'message.queued.label',default:'Message queued for delivery')}" //message(code: 'default.created.message', args: [message(code: 'messageOut.label', default: 'Message out'), messageOut.id])
+                redirect action:'outbox' 
+            }
+            '*' { respond messageOut, [status: CREATED] }
+        }
+    }
     
         
     def outbox(Integer max) {
         params.max = Math.min(max ?: 10, 100)
-        
-        respond MessageOut.list(params), model:[messageOutCount: MessageOut.count()]
+        long unreadCount = MessageIn.countByStatus("Unread")
+        respond MessageOut.list(params), model:[messageOutCount: MessageOut.count(),unreadCount:unreadCount]
     }
     
-    def ajaxList(){
+    def ajaxListInbox(){
         
         
         def query = {
@@ -151,8 +184,48 @@ def messagingService
         msgList.each({
                 map = [:]       
                 map.put('id',it[0])
-                map.put('label',"${it[1]}")
-                map.put('value',it[1])
+                map.put('label',"${it[1]} :: ${it[2]}")
+                map.put('value',"${it[1]} :: ${it[2]}")
+//                  map.id = it.id
+//                  map.label = it.LONG_COMMON_NAME
+//                  map.value = it.LONG_COMMON_NAME
+                
+                ajaxList.add(map)
+        })
+    
+    render ajaxList as JSON
+    }
+    
+    def ajaxListOutbox(){
+        
+        
+        def query = {
+            or{
+               rlike("recipients", "${params.term}") 
+               rlike("subject", "${params.term}")
+               rlike("status", "${params.term}")
+            }
+            
+            
+            
+                          
+        projections { // good to select only the required columns.
+                property("id")
+                property("recipients")
+                property("subject")
+            }
+        }
+       
+        def msgList = MessageOut.createCriteria().list(query)
+        
+        def map = [:]
+       // print rxnconsoList
+        def ajaxList = []
+        msgList.each({
+                map = [:]       
+                map.put('id',it[0])
+                map.put('label',"${it[1]} :: ${it[2]}")
+                map.put('value',"${it[1]} :: ${it[2]}")
 //                  map.id = it.id
 //                  map.label = it.LONG_COMMON_NAME
 //                  map.value = it.LONG_COMMON_NAME
@@ -164,8 +237,7 @@ def messagingService
     }
     
     def display(MessageIn messageInInstance){ 
-        //print "inside display"
-       // print messageInInstance.body
+       // print "inside display"
        // def messageInInstance = MessageIn.get(params.id)
          if (messageInInstance == null) {
             notFound()
@@ -173,14 +245,29 @@ def messagingService
          }
             String content = messagingService.getMessageBody(messageInInstance)
             
-            //def Document = recordInstance.scan.getBytes()
-           // response.setContentType(messageInInstance?.body[0].contentType)
-            //response.setContentLength(messageInInstance?.image.size())
+            OutputStream out = response.getOutputStream()
+            
+            out.write(content.getBytes())
+            out.close()
+       
+    }
+    
+    def displayOut(MessageOut messageOutInstance){ 
+        //print "inside display"
+       // def messageInInstance = MessageIn.get(params.id)
+         if (messageOutInstance == null) {
+            notFound()
+            return
+         }
+            String content = messagingService.getMessageBody(messageOutInstance)
+           //response.setContentType( "text/html") 
             OutputStream out = response.getOutputStream()
             out.write(content.getBytes())
             out.close()
        
     }
+    
+    
     
     def download(Attachment attachmentInstance){
        // print "inside download"

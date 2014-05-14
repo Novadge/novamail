@@ -49,10 +49,10 @@ class MessagingService {
      * file: File object (optional)
      */
     boolean sendEmail(String to, String subject, String body) {
-        def map = getAccountDetails()
-        sendEmail(map.hostname, map.username, map.password, map.from, to, subject, body,false, null)
+        List<File> attachments = []
+        sendEmail(to, subject, body, attachments)
     }
-    
+     
     
     /**
      * Sends emails.
@@ -91,9 +91,6 @@ class MessagingService {
      * Sends emails with quarts job.
      *
      * @params : Map containing email attributes such as
-     * hostName: name of the host eg Gmail
-     * username: email username
-     * password: email password
      * from:
      * to:
      * subject:
@@ -102,18 +99,8 @@ class MessagingService {
      */
     def queueEmail(String to, String subject, String body,List<File> attachments){
         def map = getAccountDetails()
-        def messageOut = new MessageOut(hostname:map.hostname,username:map.username,password:map.password,senders:map.from,recipients:to,subject:subject,body:body.toString())
-        if (messageOut.hasErrors()) {
-            return false
-        }
-        Attachment attachment = null
-        FileInputStream fis = null
-        attachments?.each{
-            attachment = new Attachment(name:it.getName(),data:it.getBytes())
-            messageOut.addToAttachments(attachment)
-            // delete the file
-        }
-        messageOut.save(flush:true)
+        queueEmail(map.hostname,map.username,map.password,map.from,to,subject,body.toString(),attachments)
+        
         
     }
     
@@ -158,7 +145,9 @@ class MessagingService {
      */
     def queueEmail(String to, String subject, String body){
         def map = getAccountDetails()
-        def messageOut = new MessageOut(hostname:map.hostname,username:map.username,password:map.password,senders:map.from,to,subject,body,null)        
+        List<File> attachments = []
+        queueEmail(map.hostname,map.username,map.password,map.from,to,subject,body.toString(),attachments)
+        
     }
     
     
@@ -195,7 +184,39 @@ class MessagingService {
      * 
      */
     boolean sendHTMLEmail(String hostname, String username, String password, String from, String to, String subject, String body) {
-        sendEmail(hostname, username, password, from, to, subject, body,true, null)
+         List<File> attachments = []// empty list of attachments
+        sendEmail(hostname, username, password, from, to, subject, body,true, attachments)
+    }
+    
+     /**
+     * Sends emails.
+     *
+     * @params : Map containing email attributes such as
+     * from:
+     * to:
+     * subject:
+     * body:
+     * 
+     */
+    boolean sendHTMLEmail(String to, String subject, String body) {
+        
+        List<File> attachments = []// empty list of attachments
+        sendHTMLEmail(to,subject,body,attachments)
+    }
+    
+    /**
+     * Sends emails.
+     *
+     * @params : Map containing email attributes such as
+     * from:
+     * to:
+     * subject:
+     * body:
+     * attachments: A list of File object (optional)
+     */
+    boolean sendHTMLEmail(String to, String subject, String body, List<File> attachments) {
+        def map = getAccountDetails()
+        sendEmail(map.hostname,map.username,map.password,map.from, to, subject, body,true, attachments)
     }
     
     /**

@@ -131,8 +131,8 @@ def messagingService
             fout.write(f.getBytes())
             attachments.add(file)
         }
-       
-        messagingService.sendEmail(email,params?.subject, params.body?.toString())
+        
+        messagingService.sendHTMLEmail(email,params?.subject, params.body?.toString())
         print "sent email"
         request.withFormat {
             

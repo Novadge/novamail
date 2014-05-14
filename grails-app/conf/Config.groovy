@@ -21,6 +21,21 @@ log4j = {
            'net.sf.ehcache.hibernate'
 }
 
+//novadge{
+//    app{
+//        name=""
+//    }
+//    email{
+//        support=""
+//        info=""
+//    }
+//}
+//novamail{
+//    hostname="Gmail"
+//    username=""
+//    password="" 
+//  
+//}
 
 
 

@@ -12,7 +12,7 @@ grails.project.dependency.resolution = {
     }
 
     dependencies {
-       // runtime 'mysql:mysql-connector-java:5.1.27'
+//        runtime 'mysql:mysql-connector-java:5.1.27'
         compile 'javax.mail:javax.mail-api:1.5.1'
         runtime 'com.sun.mail:javax.mail:1.5.1'
     }
@@ -21,7 +21,7 @@ grails.project.dependency.resolution = {
         build ':release:3.0.1', ':rest-client-builder:1.0.3', {
             export = false
         }
-//        build ":tomcat:7.0.52.1"
+        build ":tomcat:7.0.52.1"
 //
 //        // plugins for the compile step
 //        compile ":scaffolding:2.0.3"

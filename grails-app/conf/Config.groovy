@@ -20,7 +20,7 @@ log4j = {
            'org.hibernate',
            'net.sf.ehcache.hibernate'
 }
-
+//
 //novadge{
 //    app{
 //        name=""
@@ -33,7 +33,24 @@ log4j = {
 //novamail{
 //    hostname="Gmail"
 //    username=""
-//    password="" 
+//    password=""
+//    store="imap"
+//    
+//    hostProps = [
+//                    "Host":"imap.gmail.com",
+//                    "mail.imap.host":"imap.gmail.com",
+//                    "mail.store.protocol": "imaps",
+//                    "mail.imap.socketFactory.class": "javax.net.ssl.SSLSocketFactory",
+//                    "mail.imap.socketFactory.fallback": "false",
+//                    "mail.imaps.partialfetch": "false",
+//        
+//        "mail.smtp.starttls.enable": "true",
+//                    "mail.smtp.host": "smtp.gmail.com",
+//                    "mail.smtp.auth": "true",
+//                    "mail.smtp.socketFactory.port": "465",
+//                    "mail.smtp.socketFactory.class": "javax.net.ssl.SSLSocketFactory",
+//                    "mail.smtp.socketFactory.fallback": "false"
+//                    ]
 //  
 //}
 

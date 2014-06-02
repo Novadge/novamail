@@ -280,8 +280,13 @@ class MessagingService {
      * file: File object (optional)
      */
     private boolean doSendEmail(Map properties, boolean html, List<File> attachments){
-        //def tenant = utilityService.getUserTenant()
-        def hostProps = getSMTPProps(properties.hostName)
+        def hostProps = grailsApplication.config.novamail.hostProps
+        
+        if(hostProps?.keySet().size() == 0){ // if user did not declare custom settings
+            
+            hostProps = getSMTPProps(properties.hostName)
+        }
+        
         //log.debug "Inside message service obj ${properties}"
         
        def postman = new PostMan()
@@ -384,11 +389,10 @@ class MessagingService {
      * password: *************     
      */
      Message[] getMessages(String provider, String store,String username,String password){
-        Map emailProps = [:]
-        emailProps.hostName = provider; emailProps.username = username; emailProps.password = password;
-        return doGetMessages(emailProps,store,null,Folder.READ_ONLY)
+        return getMessages(provider,store,username,password,null)
+                
     }
-    
+        
     
     /**
      * Receive emails.
@@ -401,9 +405,8 @@ class MessagingService {
      * term: search term used to specify which messages to retrieve     
      */
     Message[] getMessages(String provider, String store,String username,String password,SearchTerm term){
-        Map emailProps = [:]
-        emailProps.hostName = provider; emailProps.username = username; emailProps.password = password;
-        return doGetMessages(emailProps,store,term,Folder.READ_ONLY)
+        return getMessages(provider,store,username,password,term,Folder.READ_ONLY)
+        
     }
     
     /**
@@ -424,6 +427,45 @@ class MessagingService {
     }
     
     
+    /**
+     * Receive emails.
+     *
+     * @params : 
+     * term: search term used to specify which messages to retrieve 
+     * folder_rw: Folder.READ_WRITE, Folder.READ_ONLY, etc    
+     */
+    Message[] getMessages(SearchTerm term,int folder_rw){
+        Map emailProps = [:]
+        def store = grailsApplication.config.novamail.store
+        emailProps.hostName = grailsApplication.config.novamail.hostname
+        emailProps.username = grailsApplication.config.novamail.username
+        emailProps.password = grailsApplication.config.novamail.password
+        return doGetMessages(emailProps,store,term,folder_rw)
+    }
+    
+    
+    /**
+     * Receive emails.
+     *
+     * @params : 
+     * term: search term used to specify which messages to retrieve 
+     *   
+     */
+    Message[] getMessages(SearchTerm term){
+       return getMessages(term,Folder.READ_ONLY)
+        
+    }
+    
+    
+    /**
+     * Receive all emails.
+     *    
+     */
+    Message[] getMessages(){
+        return getMessages(null)        
+    }
+    
+    
     /*
      * Retrieve messages from email account based on search term
      * @params: , store , and search term
@@ -441,30 +483,36 @@ class MessagingService {
      **/
     Message[] doGetMessages(Map emailProps, String store,SearchTerm term,int folder_rw){
         def host = ""
-        def hostProps = [:]
+        def hostProps = grailsApplication.config.novamail.hostProps
         log.debug "Store is ${store}"
-        switch(store){
-            case 'pop3':
-                
-                hostProps = getPOP3Props(emailProps.hostName)
-                
-                break
-                
-            case 'pop3s':
-                hostProps = getPOP3SProps(emailProps.hostName)
-                
-                break 
-                
-            case 'imap':
-                hostProps = getIMAPProps(emailProps.hostName)
-                break
-                
-            case 'imaps':
-                hostProps = getIMAPSProps(emailProps.hostName)
-                break
-            
-                
+        
+        if(hostProps?.keySet().size()==0 ){// if user has not declared custom hostProps
+            // try to get host props from novamail
+            log.debug "did not find custom properties"
+            switch(store){
+                case 'pop3':
+
+                    hostProps = getPOP3Props(emailProps.hostName)
+
+                    break
+
+                case 'pop3s':
+                    hostProps = getPOP3SProps(emailProps.hostName)
+
+                    break 
+
+                case 'imap':
+                    hostProps = getIMAPProps(emailProps.hostName)
+                    break
+
+                case 'imaps':
+                    hostProps = getIMAPSProps(emailProps.hostName)
+                    break
+
+
+            }
         }
+        
         def postman = new PostMan(emailProps,hostProps)
         if(term){ // if search term is specified and folder flag is set...
            log.debug "search term is set as ${term}"
@@ -708,7 +756,7 @@ class MessagingService {
     
     /**
      * This class checks the message against defined criteria
-     */
+     **/
     public boolean criteriaMatch(Message message,String sender){
         
     }
@@ -719,7 +767,8 @@ class MessagingService {
      * hostName: name of the host
      * */
     private Map getSMTPProps(String hostName){
-        def hostProps =  [:]
+        //def hostProps = grailsApplication.config.novamail.hostProps
+        def hostProps = [:]
         switch(hostName) {
             case "Gmail":
             //log.debug "Provider is gmail"
@@ -750,7 +799,8 @@ class MessagingService {
                     "mail.smtp.socketFactory.fallback":"false"]
             break
 
-            case "Other":
+            default: // overide with user defined settings
+                hostProps = [:]
             break
         }
         return hostProps
@@ -761,7 +811,7 @@ class MessagingService {
      * @params: name of the host eg. Gmail, Hotmail, Yahoo
      * hostName: name of the host
      * */
-    private getPOP3Props(String hostName){
+    private Map getPOP3Props(String hostName){
         def hostProps =  [:]
         switch(hostName) { 
             case "Gmail":
@@ -795,8 +845,8 @@ class MessagingService {
             ]
             break
 
-            case "Other":
-                
+            default: // overide with user defined settings
+                hostProps = grailsApplication.config.novamail.hostProps
             break
         }
         return hostProps
@@ -808,7 +858,8 @@ class MessagingService {
      * hostName: name of the host
      * */
     private Map getPOP3SProps(String hostName){
-        String SSL_FACTORY = "javax.net.ssl.SSLSocketFactory";
+        
+        
         def hostProps =  [:]
         switch(hostName) {
             case "Gmail":
@@ -831,7 +882,8 @@ class MessagingService {
                 hostProps = [:]
             break
 
-            case "Other":
+            default: // overide with user defined settings
+                hostProps = grailsApplication.config.novamail.hostProps
             break
         }
         return hostProps
@@ -843,7 +895,7 @@ class MessagingService {
      * hostName: name of the host
      * */
     private Map getIMAPSProps(String hostName){
-        String SSL_FACTORY = "javax.net.ssl.SSLSocketFactory";
+        
         def hostProps =  [:]
         switch(hostName) {
             case "Gmail":
@@ -852,7 +904,7 @@ class MessagingService {
                     "Host":"imap.gmail.com",
                     "mail.imap.host":"imap.gmail.com",
                     "mail.store.protocol": "imaps",
-                    "mail.imap.socketFactory.class":SSL_FACTORY,
+                    "mail.imap.socketFactory.class": "javax.net.ssl.SSLSocketFactory",
                     "mail.imap.socketFactory.fallback": "false",
                     "mail.imaps.partialfetch": "false"
                     ]
@@ -864,7 +916,7 @@ class MessagingService {
                     "Host":" imap-mail.outlook.com",
                     "mail.imap.host":" imap-mail.outlook.com",
                     "mail.store.protocol": "imaps",
-                    "mail.imap.socketFactory.class":SSL_FACTORY,
+                    "mail.smtp.socketFactory.class": "javax.net.ssl.SSLSocketFactory",
                     "mail.imap.socketFactory.fallback": "false",
                     "mail.imaps.partialfetch": "false"
                 ]
@@ -875,7 +927,8 @@ class MessagingService {
                 hostProps = [:]
             break
 
-            case "Other":
+            default: // overide with user defined settings
+                hostProps = grailsApplication.config.novamail.hostProps
             break
         }
         return hostProps
@@ -917,7 +970,8 @@ class MessagingService {
                 ]
             break
 
-            case "Other":
+            default: // overide with user defined settings
+                hostProps = grailsApplication.config.novamail.hostProps
             break
         }
         return hostProps

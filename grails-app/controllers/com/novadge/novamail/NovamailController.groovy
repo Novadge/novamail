@@ -29,21 +29,21 @@ def messagingService
     
     //String incomingMailServer, String store, String username, String password
     def refresh(){
-       def tenant = utilityService.getUserTenant()
-       if(!tenant){
-           flash.message = "tenant not found"
-           redirect(controller:'dashboard')
-       }
-       String mailProvider = tenant.mailProvider
-       String mailUsername = tenant.mailUsername
-       String mailPassword = tenant.mailPassword
-       def date = null
-       if(!tenant?.mailLastChecked){
-           date = new Date()-1// today
-       }
-       else{
-           date = tenant.mailLastChecked
-       }
+//       def tenant = utilityService.getUserTenant()
+//       if(!tenant){
+//           flash.message = "tenant not found"
+//           redirect(controller:'dashboard')
+//       }
+//       String mailProvider = tenant.mailProvider
+//       String mailUsername = tenant.mailUsername
+//       String mailPassword = tenant.mailPassword
+       def date = new Date() - 2
+//       if(!tenant?.mailLastChecked){
+//           date = new Date()-1// today
+//       }
+//       else{
+//           date = tenant.mailLastChecked
+//       }
        //print date
        //SubjectTerm(java.lang.String pattern)
        //ReceivedDateTerm(int comparison, java.util.Date date) 
@@ -55,16 +55,17 @@ def messagingService
       // def flagTerm = new FlagTerm(new Flags(Flags.Flag.SEEN), false)
        def term = new ReceivedDateTerm(ComparisonTerm.GE,date) // yesterday and today
        
-       def m = messagingService?.getMessages(mailProvider,"imap",mailUsername,mailPassword,term,Folder.READ_WRITE)
+       def m = messagingService?.getMessages(null)
        MessageIn msg = null
        m.each({
-          msg = new MessageIn(tenant:tenant)
+          print it
+          msg = new MessageIn()
           messagingService.saveMessage(it,msg)     
        })
    
-        tenant.mailLastChecked = new Date() // now
-        tenant.save(flush:true) // save record....
-   
+//        tenant.mailLastChecked = new Date() // now
+//        tenant.save(flush:true) // save record....
+//   
        redirect(action:'index')
     }
     
@@ -133,7 +134,7 @@ def messagingService
         }
         
         messagingService.sendHTMLEmail(email,params?.subject, params.body?.toString())
-        print "sent email"
+        //print "sent email"
         request.withFormat {
             
             form {

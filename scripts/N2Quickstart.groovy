@@ -132,9 +132,28 @@ private void updateConfig() {
 			it.writeLine '\n// Added by the Novamail plugin:'
                         it.writeLine """\n\
                                     novamail{\n\\n\
-                                        hostname ='your hostname'\n\
+                                        hostname ='your hostname'// eg. Gmail, Yahoo, Hotmail, etc.\n\
                                         username ='your username'\n\
-                                        password ='your password'\n\
+                                        password ='your password'\n\\n\\n\
+// Uncomment to declare your custom email host properties. \n\\n\
+//                                      store="imap"
+// 
+//                                      hostProps = [
+//                                            "Host":"imap.gmail.com",
+//                                            "mail.imap.host":"imap.gmail.com",
+//                                            "mail.store.protocol": "imaps",
+//                                            "mail.imap.socketFactory.class": "javax.net.ssl.SSLSocketFactory",
+//                                            "mail.imap.socketFactory.fallback": "false",
+//                                            "mail.imaps.partialfetch": "false",
+//
+//                                            "mail.smtp.starttls.enable": "true",
+//                                            "mail.smtp.host": "smtp.gmail.com",
+//                                            "mail.smtp.auth": "true",
+//                                            "mail.smtp.socketFactory.port": "465",
+//                                            "mail.smtp.socketFactory.class": "javax.net.ssl.SSLSocketFactory",
+//                                            "mail.smtp.socketFactory.fallback": "false"
+//                                        ]
+                                        
                                     }
                                     
                         """

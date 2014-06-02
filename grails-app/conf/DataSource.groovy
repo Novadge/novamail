@@ -23,7 +23,7 @@
 //    test {
 //        dataSource {
 //            dbCreate = "update"
-//            url = "jdbc:mysql://localhost:3306/careplus_test"//"jdbc:h2:mem:testDb;MVCC=TRUE;LOCK_TIMEOUT=10000"
+//            url = "jdbc:mysql://localhost:3306/novamail"//"jdbc:h2:mem:testDb;MVCC=TRUE;LOCK_TIMEOUT=10000"
 //        }
 //    }
 //    production {

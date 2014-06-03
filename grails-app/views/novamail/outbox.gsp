@@ -55,7 +55,7 @@
 		</thead>
 		<tbody>
                     
-			<g:each in="${messageOutInstanceList}" status="i" var="messageOut">
+			<g:each in="${messageOutList}" status="i" var="messageOut">
                         	<tr class="${(i % 2) == 0 ? 'even' : 'odd'} ${messageOut.status == 'Sent'? '':'bold'}">
 					
                                 	<td><g:link action="showOut" id="${messageOut.id}">${fieldValue(bean: messageOut, field: "recipients")}</g:link></td>

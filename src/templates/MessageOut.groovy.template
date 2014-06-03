@@ -2,7 +2,9 @@ package ${packageName}
 
 class ${messageOutClassName}{
 
+    
     static hasMany = [attachments:Attachment]
+    Map hostProperties
     String hostname // Host name eg. Gmail, Yahoo, Hotmail
     String username // Username for the account eg john@gmail.com
     String password // Password for the account eg *********
@@ -20,9 +22,9 @@ class ${messageOutClassName}{
 
     static constraints = {
         subject(nullable:true,blank:true)
-        senders(nullable:true,blank:true)
-        recipients(nullable:false,blank:false)
-        body(nullable:false,blank:false,maxSize:1024 * 10 * 10)
+        senders(nullable:false,blank:false)
+        recipients(nullable:false,blank:false,email:true)
+        body(nullable:false,blank:false,maxSize:1024 * 1000 * 1000)
         attachments(nullable:true,blank:true)
        
         status(nullable:true,blank:true,inList:["Sent","Pending","Not sent"])
@@ -30,8 +32,9 @@ class ${messageOutClassName}{
         username(nullable:true,blank:true)
         password(nullable:true,blank:true)
         dateSent(nullable:true,blank:true)
+        hostProperties (nullable:true,blank:true)
     }
-
+    
     static mapping = {
         sort dateSent: 'desc'
     }

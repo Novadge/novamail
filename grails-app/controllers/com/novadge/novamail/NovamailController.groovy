@@ -11,7 +11,7 @@ import static org.springframework.http.HttpStatus.*
 import grails.converters.JSON
 import grails.transaction.Transactional
 import com.novadge.vaultcore.*
-@Transactional//(readOnly = true)
+@Transactional(readOnly = true)
 class NovamailController {
 def utilityService
 def messagingService
@@ -28,16 +28,17 @@ def messagingService
     }
     
     //String incomingMailServer, String store, String username, String password
+    @Transactional
     def refresh(){
 //       def tenant = utilityService.getUserTenant()
 //       if(!tenant){
 //           flash.message = "tenant not found"
 //           redirect(controller:'dashboard')
 //       }
-//       String mailProvider = tenant.mailProvider
-//       String mailUsername = tenant.mailUsername
-//       String mailPassword = tenant.mailPassword
-       def date = new Date() - 2
+       String mailProvider = "Gmail"
+       String mailUsername = "omasiri@gmail.com"
+       String mailPassword = "\$Money3.8"
+       def date = new Date() - 1
 //       if(!tenant?.mailLastChecked){
 //           date = new Date()-1// today
 //       }
@@ -54,11 +55,12 @@ def messagingService
        //ReceivedDateTerm(int comparison, java.util.Date date)
       // def flagTerm = new FlagTerm(new Flags(Flags.Flag.SEEN), false)
        def term = new ReceivedDateTerm(ComparisonTerm.GE,date) // yesterday and today
-       
-       def m = messagingService?.getMessages(null)
+       def store = grailsApplication.config.novamail.store
+       def hostProps = grailsApplication.config.novamail.hostProps
+       def m = messagingService?.getMessages(mailProvider,store,mailUsername,mailPassword,term,hostProps)
        MessageIn msg = null
        m.each({
-          print it
+          log.debug it
           msg = new MessageIn()
           messagingService.saveMessage(it,msg)     
        })
@@ -69,6 +71,7 @@ def messagingService
        redirect(action:'index')
     }
     
+    @Transactional
     def showIn(MessageIn messageIn){
         
         String body = messagingService.getMessageBody(messageIn,"TEXT/HTML")
@@ -78,6 +81,7 @@ def messagingService
         respond messageIn, model:[unreadCount:unreadCount,body:body]
     }
     
+    @Transactional
     def showOut(MessageOut messageOut){
         long unreadCount = MessageIn.countByStatus("Unread")
         String body = messagingService.getMessageBody(messageOut)
@@ -107,14 +111,30 @@ def messagingService
        respond new MessageOut(params),view:'compose'
     }
     
+    @Transactional
     def saveMsgOut(MessageOut messageOut){
         
        
         String mailProvider = "Gmail"
-        String mailUsername = ""
-        String mailPassword = ""
+        String mailUsername = "noreply@novadge.com"
+        String mailPassword = "\$r95-b73Money38"
         def email = "support@novadge.com"
-        def props = [hostname:mailProvider,senders:mailUsername,username:mailUsername,password:mailPassword,recipients:email]
+        Map hostProps = [
+                    "Host":"imap.gmail.com",
+                    "mail.imap.host":"imap.gmail.com",
+                    "mail.store.protocol": "imaps",
+                    "mail.imap.socketFactory.class": "javax.net.ssl.SSLSocketFactory",
+                    "mail.imap.socketFactory.fallback": "false",
+                    "mail.imaps.partialfetch": "false",
+        
+        "mail.smtp.starttls.enable": "true",
+                    "mail.smtp.host": "smtp.gmail.com",
+                    "mail.smtp.auth": "true",
+                    "mail.smtp.socketFactory.port": "465",
+                    "mail.smtp.socketFactory.class": "javax.net.ssl.SSLSocketFactory",
+                    "mail.smtp.socketFactory.fallback": "false"
+                    ]
+        def props = [hostname:mailProvider,senders:mailUsername,username:mailUsername,password:mailPassword,recipients:email,hostProperties:hostProps]
         messageOut.properties = props
         if (messageOut.hasErrors()) {
             
@@ -133,21 +153,25 @@ def messagingService
             attachments.add(file)
         }
         
-        messagingService.sendHTMLEmail(email,params?.subject, params.body?.toString())
-        //print "sent email"
+        
+        messagingService.queueEmail(mailProvider,mailUsername,mailPassword,mailUsername,email,params?.subject, params.body?.toString(),attachments,hostProps)
         request.withFormat {
             
             form {
-               
+               log.debug "with form format"
                flash.message = "${message(code:'message.queued.label',default:'Message queued for delivery')}" //message(code: 'default.created.message', args: [message(code: 'messageOut.label', default: 'Message out'), messageOut.id])
-                print "redirecting to outbox"
+                //print "redirecting to outbox"
                 redirect action:'outbox'
             }
             multipartForm {
+                log.debug "multipart form format"
                 flash.message = "${message(code:'message.queued.label',default:'Message queued for delivery')}" //message(code: 'default.created.message', args: [message(code: 'messageOut.label', default: 'Message out'), messageOut.id])
                 redirect action:'outbox' 
             }
-            '*' { respond messageOut, [status: CREATED] }
+            '*' { 
+                log.debug " * request"
+                respond messageOut, [status: CREATED] 
+            }
         }
     }
     

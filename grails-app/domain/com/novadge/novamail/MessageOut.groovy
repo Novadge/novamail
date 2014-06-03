@@ -2,7 +2,9 @@ package com.novadge.novamail
 
 class MessageOut{
 
+    
     static hasMany = [attachments:Attachment]
+    Map hostProperties
     String hostname // Host name eg. Gmail, Yahoo, Hotmail
     String username // Username for the account eg john@gmail.com
     String password // Password for the account eg *********
@@ -30,6 +32,7 @@ class MessageOut{
         username(nullable:true,blank:true)
         password(nullable:true,blank:true)
         dateSent(nullable:true,blank:true)
+        hostProperties (nullable:true,blank:true)
     }
     
     static mapping = {

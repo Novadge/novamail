@@ -9,9 +9,7 @@
 
 	</head>
         <body>
-        <!--
-         <img src="http://careplus.novadge.com/static/images/careplus_logo.png" alt="CarePlus+ Logo"/>
-        -->
+        
           <div>
             <p>
               Dear ${recipient},

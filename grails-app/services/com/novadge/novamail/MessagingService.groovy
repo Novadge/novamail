@@ -21,71 +21,6 @@ class MessagingService {
         map.from = grailsApplication.config.novamail.username.toString()
         return map
     }
-    /**
-     * Sends emails.
-     *
-     * @params : Map containing email attributes such as
-     * hostName: name of the host eg Gmail
-     * username: email username
-     * password: email password
-     * from:
-     * to:
-     * subject:
-     * body:
-     * file: File object (optional)
-     */
-    boolean sendEmail(String hostname, String username, String password, String from, String to, String subject, String body) {
-        sendEmail(hostname, username, password, from, to, subject, body,false, null)
-    }
-    
-    /**
-     * Sends emails.
-     *
-     * @params : Map containing email attributes such as
-     * from:
-     * to:
-     * subject:
-     * body:
-     * file: File object (optional)
-     */
-    boolean sendEmail(String to, String subject, String body) {
-        List<File> attachments = []
-        sendEmail(to, subject, body, attachments)
-    }
-     
-    
-    /**
-     * Sends emails.
-     *
-     * @params : Map containing email attributes such as
-     * from:
-     * to:
-     * subject:
-     * body:
-     * attachments: A list of File objects (optional)
-     */
-    boolean sendEmail(String to, String subject, String body,List<File> attachments) {
-        def map = getAccountDetails()
-        sendEmail(map.hostname, map.username, map.password, map.from, to, subject, body,false, attachments)
-    }
-    
-    
-    /**
-     * Sends emails.
-     *
-     * @params : Map containing email attributes such as
-     * hostName: name of the host eg Gmail
-     * username: email username
-     * password: email password
-     * from:
-     * to:
-     * subject:
-     * body:
-     * attachments: A list of File objects (optional)
-     */
-    boolean sendEmail(String hostname, String username, String password, String from, String to, String subject, String body,List<File> attachments) {
-        sendEmail(hostname, username, password, from, to, subject, body,false, attachments)
-    }
     
     /**
      * Sends emails with quarts job.
@@ -99,7 +34,8 @@ class MessagingService {
      */
     def queueEmail(String to, String subject, String body,List<File> attachments){
         def map = getAccountDetails()
-        queueEmail(map.hostname,map.username,map.password,map.from,to,subject,body.toString(),attachments)
+        def hostProps = grailsApplication.config.novamail.hostProps
+        queueEmail(map.hostname,map.username,map.password,map.from,to,subject,body.toString(),attachments,hostProps)
         
         
     }
@@ -116,10 +52,11 @@ class MessagingService {
      * subject:
      * body:
      * attachments: A list of File objects (optional)
+     * hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"] 
      */
-    def queueEmail(String hostname, String username, String password, String from, String to, String subject, String body,List<File> attachments){
+    def queueEmail(String hostname, String username, String password, String from, String to, String subject, String body,List<File> attachments,Map hostProps){
         
-        def messageOut = new MessageOut(hostname:hostname,username:username,password:password,senders:from,recipients:to,subject:subject,body:body.toString())
+        def messageOut = new MessageOut(hostname:hostname,username:username,password:password,senders:from,recipients:to,subject:subject,body:body.toString(),hostProperties:hostProps)
         if (messageOut.hasErrors()) {
             return false
         }
@@ -145,8 +82,9 @@ class MessagingService {
      */
     def queueEmail(String to, String subject, String body){
         def map = getAccountDetails()
+        def hostProps = grailsApplication.config.novamail.hostProps
         List<File> attachments = []
-        queueEmail(map.hostname,map.username,map.password,map.from,to,subject,body.toString(),attachments)
+        queueEmail(map.hostname,map.username,map.password,map.from,to,subject,body.toString(),attachments,hostProps)
         
     }
     
@@ -162,9 +100,10 @@ class MessagingService {
      * to:
      * subject:
      * body:
+     * hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"] 
      */
-    def queueEmail(String hostname, String username, String password, String from, String to, String subject, String body){
-        queueEmail(hostname,username,password,from,to,subject,body,null)        
+    def queueEmail(String hostname, String username, String password, String from, String to, String subject, String body,Map hostProps){
+        queueEmail(hostname,username,password,from,to,subject,body,null,hostProps)        
     }
     
     
@@ -181,11 +120,12 @@ class MessagingService {
      * to:
      * subject:
      * body:
-     * 
+     * hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"] 
      */
-    boolean sendHTMLEmail(String hostname, String username, String password, String from, String to, String subject, String body) {
+    boolean sendHTMLEmail(String hostname, String username, String password, String from, String to, String subject, String body,Map hostProps) {
          List<File> attachments = []// empty list of attachments
-        sendEmail(hostname, username, password, from, to, subject, body,true, attachments)
+        sendEmail(hostname, username, password, from, to, subject, body,true, attachments,hostProps)
+        
     }
     
      /**
@@ -216,7 +156,9 @@ class MessagingService {
      */
     boolean sendHTMLEmail(String to, String subject, String body, List<File> attachments) {
         def map = getAccountDetails()
-        sendEmail(map.hostname,map.username,map.password,map.from, to, subject, body,true, attachments)
+        def hostProps = grailsApplication.config.novamail.hostProps
+        //sendEmail(map.hostname,map.username,map.password,map.from, to, subject, body,true, attachments,hostProps)
+        sendHTMLEmail(map.hostname, map.username, map.password, map.from, map.to, map.subject, map.body,attachments,hostProps)
     }
     
     /**
@@ -231,14 +173,82 @@ class MessagingService {
      * subject:
      * body:
      * attachments: A list of File object (optional)
+     * hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"]
      */
-    boolean sendHTMLEmail(String hostname, String username, String password, String from, String to, String subject, String body, List<File> attachments) {
-        sendEmail(hostname, username, password, from, to, subject, body,true, attachments)
+    boolean sendHTMLEmail(String hostname, String username, String password, String from, String to, String subject, String body, List<File> attachments,Map hostProps) {
+        sendEmail(hostname, username, password, from, to, subject, body,true, attachments,hostProps)
     }
 
+    /**
+     * Sends emails.
+     *
+     * @params : Map containing email attributes such as
+     * hostName: name of the host eg Gmail
+     * username: email username
+     * password: email password
+     * from:
+     * to:
+     * subject:
+     * body:
+     * hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"]
+     */
+    boolean sendEmail(String hostname, String username, String password, String from, String to, String subject, String body,Map hostProps) {
+        sendEmail(hostname, username, password, from, to, subject, body,false, null,hostProps)
+    }
+    
+    /**
+     * Sends emails.
+     *
+     * @params : Map containing email attributes such as
+     * from:
+     * to:
+     * subject:
+     * body:
+     * 
+     */
+    boolean sendEmail(String to, String subject, String body) {
+        List<File> attachments = []
+        sendEmail(to, subject, body, attachments)
+    }
+     
+    
+    /**
+     * Sends emails.
+     *
+     * @params : Map containing email attributes such as
+     * from:
+     * to:
+     * subject:
+     * body:
+     * attachments: A list of File objects 
+     */
+    boolean sendEmail(String to, String subject, String body,List<File> attachments) {
+        def map = getAccountDetails()
+        def hostProps = grailsApplication.config.novamail.hostProps
+        sendEmail(map.hostname, map.username, map.password, map.from, to, subject, body,false, attachments,hostProps)
+    }
+    
+    
+    /**
+     * Sends emails.
+     *
+     * @params : Map containing email attributes such as
+     * hostName: name of the host eg Gmail
+     * username: email username
+     * password: email password
+     * from:
+     * to:
+     * subject:
+     * body:
+     * attachments: A list of File objects 
+     * hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"]
+     */
+    boolean sendEmail(String hostname, String username, String password, String from, String to, String subject, String body,List<File> attachments,Map hostProps) {
+        sendEmail(hostname, username, password, from, to, subject, body,false, attachments,hostProps)
+    }
     
     //-----------------------------------------------------------------------
-    //-----------internal email sending -------------------------
+    
     /**
      * Sends emails.
      *
@@ -251,8 +261,10 @@ class MessagingService {
      * subject:
      * body:
      * attachments: a list of File objects (optional)
+     * hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"]
      */
-    boolean sendEmail(String hostname, String username, String password, String from, String to, String subject, String body,boolean html, List<File> attachments) {
+    boolean sendEmail(String hostname, String username, String password, String from, String to, String subject, String body,boolean html, List<File> attachments,Map hostProps) {
+        
         doSendEmail([
             from: from,
             to: to,
@@ -261,11 +273,11 @@ class MessagingService {
             hostName: hostname,
             username: username,
             password: password,
-        ],html, attachments)
+        ],html, attachments,hostProps)
     }
 
     //-----------------------------------------------------------------------
-    //-----------internal email sending -------------------------
+    
     /**
      * Sends emails.
      *
@@ -277,10 +289,14 @@ class MessagingService {
      * to:
      * subject:
      * body:
-     * file: File object (optional)
+     * attachments: a list of File objects (optional)
+     * hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"]
      */
-    private boolean doSendEmail(Map properties, boolean html, List<File> attachments){
-        def hostProps = grailsApplication.config.novamail.hostProps
+    private boolean doSendEmail(Map properties, boolean html, List<File> attachments,Map hostProps){
+        
+        if(!hostProps){
+            hostProps = grailsApplication.config.novamail.hostProps // try to get from custom config
+        }
         
         if(hostProps?.keySet().size() == 0){ // if user did not declare custom settings
             
@@ -345,8 +361,9 @@ class MessagingService {
                    files.add(f) // extract data
                    
                 }
+                
                //(String hostname, String username, String password, String from, String to, String subject, String body)
-                if(sendHTMLEmail(it?.hostname, it?.username, it?.password, it?.senders, it?.recipients, it?.subject, it?.body, files)){
+                if(sendHTMLEmail(it?.hostname, it?.username, it?.password, it?.senders, it?.recipients, it?.subject, it?.body, files,it.hostProperties)){
                     it.status = "Sent"
                     it.dateSent = new Date()
                     it.save()  
@@ -356,7 +373,7 @@ class MessagingService {
             else{
                // log.debug "Sending Message....complete..."
                //(String hostname, String username, String password, String from, String to, String subject, String body)
-               if(sendHTMLEmail(it?.hostname, it?.username, it?.password, it?.senders, it?.recipients, it?.subject, it?.body)){
+               if(sendHTMLEmail(it?.hostname, it?.username, it?.password, it?.senders, it?.recipients, it?.subject, it?.body,it.hostProperties)){
                     it.status = "Sent"
                     it.dateSent = new Date()
                     it.save()
@@ -388,8 +405,8 @@ class MessagingService {
      * username: john@yahoo.com
      * password: *************     
      */
-     Message[] getMessages(String provider, String store,String username,String password){
-        return getMessages(provider,store,username,password,null)
+     Message[] getMessages(String provider, String store,String username,String password,Map hostProps){
+        return getMessages(provider,store,username,password,null,hostProps)
                 
     }
         
@@ -404,8 +421,8 @@ class MessagingService {
      * password: *************
      * term: search term used to specify which messages to retrieve     
      */
-    Message[] getMessages(String provider, String store,String username,String password,SearchTerm term){
-        return getMessages(provider,store,username,password,term,Folder.READ_ONLY)
+    Message[] getMessages(String provider, String store,String username,String password,SearchTerm term,Map hostProps){
+        return getMessages(provider,store,username,password,term,Folder.READ_ONLY,hostProps)
         
     }
     
@@ -420,10 +437,10 @@ class MessagingService {
      * term: search term used to specify which messages to retrieve 
      * folder_rw. Folder.READ_ONLY, Folder.READ_WRITE    
      */
-    Message[] getMessages(String provider, String store,String username,String password,SearchTerm term,int folder_rw){
+    Message[] getMessages(String provider, String store,String username,String password,SearchTerm term,int folder_rw, Map hostProps){
         Map emailProps = [:]
         emailProps.hostName = provider; emailProps.username = username; emailProps.password = password;
-        return doGetMessages(emailProps,store,term,folder_rw)
+        return doGetMessages(emailProps,store,term,folder_rw,hostProps)
     }
     
     
@@ -481,9 +498,12 @@ class MessagingService {
      * TO, CC and BCC for Message.RecipientType
      * 
      **/
-    Message[] doGetMessages(Map emailProps, String store,SearchTerm term,int folder_rw){
-        def host = ""
-        def hostProps = grailsApplication.config.novamail.hostProps
+    Message[] doGetMessages(Map emailProps, String store,SearchTerm term,int folder_rw, Map hostProps){
+        
+        if(!hostProps){
+            hostProps = grailsApplication.config.novamail.hostProps // try to get from custom config
+        }
+        
         log.debug "Store is ${store}"
         
         if(hostProps?.keySet().size()==0 ){// if user has not declared custom hostProps
@@ -622,6 +642,7 @@ class MessagingService {
         msg = setParts(msg,it) // set the body and attachment parts of the message
         MessageIn.withNewSession{ // save message with new session because ... 
                 //for some strange reason it does not save with current session (probably because of download delay...;)
+           
             msg.save(flush:true) 
         }
         
@@ -644,7 +665,11 @@ class MessagingService {
         msg = setParts(msg,it) // set the body and attachment parts of the message
         MessageIn.withNewSession{ // save message with new session because ... 
                 //for some strange reason it does not save with current session (probably because of download delay...;)
-            msg.save(flush:true) 
+             print "message is valid: ${msg.validate()}" 
+            
+            if(msg.save(flush:true)){
+                print "saved ;)"
+            } 
         }
         
     }

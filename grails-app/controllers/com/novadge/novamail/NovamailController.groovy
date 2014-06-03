@@ -57,7 +57,7 @@ def messagingService
        def term = new ReceivedDateTerm(ComparisonTerm.GE,date) // yesterday and today
        def store = grailsApplication.config.novamail.store
        def hostProps = grailsApplication.config.novamail.hostProps
-       def m = messagingService?.getMessages(mailProvider,store,mailUsername,mailPassword,term,hostProps)
+       def m = messagingService?.getMessages(term)
        MessageIn msg = null
        m.each({
           log.debug it
@@ -154,7 +154,8 @@ def messagingService
         }
         
         
-        messagingService.queueEmail(mailProvider,mailUsername,mailPassword,mailUsername,email,params?.subject, params.body?.toString(),attachments,hostProps)
+       
+        messagingService.sendHTMLEmail(email,params?.subject, params.body?.toString())
         request.withFormat {
             
             form {

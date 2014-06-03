@@ -152,13 +152,13 @@ class MessagingService {
      * to:
      * subject:
      * body:
-     * attachments: A list of File object (optional)
+     * attachments: A list of File objects 
      */
-    boolean sendHTMLEmail(String to, String subject, String body, List<File> attachments) {
+    boolean sendHTMLEmail(String to, String subject, String body,List<File> attachments) {
         def map = getAccountDetails()
         def hostProps = grailsApplication.config.novamail.hostProps
-        //sendEmail(map.hostname,map.username,map.password,map.from, to, subject, body,true, attachments,hostProps)
-        sendHTMLEmail(map.hostname, map.username, map.password, map.from, map.to, map.subject, map.body,attachments,hostProps)
+
+        sendHTMLEmail(map.hostname, map.username, map.password, map.from, to, subject, body, attachments,hostProps)
     }
     
     /**
@@ -176,6 +176,7 @@ class MessagingService {
      * hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"]
      */
     boolean sendHTMLEmail(String hostname, String username, String password, String from, String to, String subject, String body, List<File> attachments,Map hostProps) {
+        log.debug "line 179"
         sendEmail(hostname, username, password, from, to, subject, body,true, attachments,hostProps)
     }
 
@@ -225,6 +226,8 @@ class MessagingService {
     boolean sendEmail(String to, String subject, String body,List<File> attachments) {
         def map = getAccountDetails()
         def hostProps = grailsApplication.config.novamail.hostProps
+//        log.debug map
+//        log.debug hostProps
         sendEmail(map.hostname, map.username, map.password, map.from, to, subject, body,false, attachments,hostProps)
     }
     
@@ -422,6 +425,7 @@ class MessagingService {
      * term: search term used to specify which messages to retrieve     
      */
     Message[] getMessages(String provider, String store,String username,String password,SearchTerm term,Map hostProps){
+        log.debug "line 427"
         return getMessages(provider,store,username,password,term,Folder.READ_ONLY,hostProps)
         
     }
@@ -438,6 +442,7 @@ class MessagingService {
      * folder_rw. Folder.READ_ONLY, Folder.READ_WRITE    
      */
     Message[] getMessages(String provider, String store,String username,String password,SearchTerm term,int folder_rw, Map hostProps){
+        log.debug "line 444"
         Map emailProps = [:]
         emailProps.hostName = provider; emailProps.username = username; emailProps.password = password;
         return doGetMessages(emailProps,store,term,folder_rw,hostProps)
@@ -452,12 +457,13 @@ class MessagingService {
      * folder_rw: Folder.READ_WRITE, Folder.READ_ONLY, etc    
      */
     Message[] getMessages(SearchTerm term,int folder_rw){
-        Map emailProps = [:]
-        def store = grailsApplication.config.novamail.store
-        emailProps.hostName = grailsApplication.config.novamail.hostname
-        emailProps.username = grailsApplication.config.novamail.username
-        emailProps.password = grailsApplication.config.novamail.password
-        return doGetMessages(emailProps,store,term,folder_rw)
+        log.debug "line 458"
+        String store = grailsApplication.config.novamail.store
+        String provider = grailsApplication.config.novamail.hostname
+        String username = grailsApplication.config.novamail.username
+        String password = grailsApplication.config.novamail.password
+        Map hostProps = grailsApplication.config.novamail.hostProps
+        return getMessages(provider,store,username,password,term,folder_rw,hostProps)
     }
     
     
@@ -469,6 +475,7 @@ class MessagingService {
      *   
      */
     Message[] getMessages(SearchTerm term){
+        log.debug "line 476"
        return getMessages(term,Folder.READ_ONLY)
         
     }
@@ -665,10 +672,10 @@ class MessagingService {
         msg = setParts(msg,it) // set the body and attachment parts of the message
         MessageIn.withNewSession{ // save message with new session because ... 
                 //for some strange reason it does not save with current session (probably because of download delay...;)
-             print "message is valid: ${msg.validate()}" 
+             //log.debug "message is valid: ${msg.validate()}" 
             
             if(msg.save(flush:true)){
-                print "saved ;)"
+                //log.debug "saved ;)"
             } 
         }
         
@@ -974,7 +981,7 @@ class MessagingService {
                     "Host":"imap.gmail.com",
                     "mail.imap.host":"imap.gmail.com",
                     "mail.store.protocol": "imaps",
-                    "mail.imaps.partialfetch": "false"                   
+                    "mail.imaps.partialfetch": "false"
                     ]
             break
 

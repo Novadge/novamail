@@ -79,6 +79,20 @@ class MessagingService {
         
     }
     
+    /**
+     * Sends emails with quarts job.
+     *
+     * @params : 
+     * messageOut: messageOut object
+     * 
+     * 
+     */
+    def queueEmail(MessageOut messageOut){
+        
+        messageOut.save(flush:true)
+        
+    }
+    
     /*Add attachments to a message
      * @Params
      * messageOut: Message object to which attachments will be added

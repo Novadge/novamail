@@ -116,9 +116,9 @@ def messagingService
         
        
         String mailProvider = "Gmail"
-        String mailUsername = "noreply@novadge.com"
-        String mailPassword = "\$r95-b73Money38"
-        def email = "support@novadge.com"
+        String mailUsername = ""
+        String mailPassword = ""
+        def email = ""
         Map hostProps = [
                     "Host":"imap.gmail.com",
                     "mail.imap.host":"imap.gmail.com",
@@ -134,13 +134,14 @@ def messagingService
                     "mail.smtp.socketFactory.class": "javax.net.ssl.SSLSocketFactory",
                     "mail.smtp.socketFactory.fallback": "false"
                     ]
-        def props = [hostname:mailProvider,senders:mailUsername,username:mailUsername,password:mailPassword,recipients:email,hostProperties:hostProps]
+        def props = [hostname:mailProvider,senders:mailUsername,username:mailUsername,password:mailPassword,hostProperties:hostProps]
         messageOut.properties = props
         if (messageOut.hasErrors()) {
             
             respond messageOut.errors, view:'compose',model:[entity:"provider"]
             return
         }
+        //print messageOut
         List<File> attachments = []
         
         
@@ -154,7 +155,7 @@ def messagingService
         }
         
         
-       
+       //messagingService.queueEmail(messageOut, attachments)
         messagingService.sendHTMLEmail(email,params?.subject, params.body?.toString())
         request.withFormat {
             

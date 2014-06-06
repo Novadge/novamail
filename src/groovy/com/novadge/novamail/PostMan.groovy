@@ -263,9 +263,9 @@ class PostMan {
         log.debug "created session"
         MimeMessage message = new MimeMessage(session)
         message.setFrom(new InternetAddress(emailProps.from))
-
-        message.addRecipient(Message.RecipientType.TO, new InternetAddress(emailProps.to))
-
+        
+        message.addRecipients(Message.RecipientType.TO, /*new */InternetAddress.parse(emailProps.to))
+        
         message.setSubject("${emailProps.subject}")
         
         if (html) {

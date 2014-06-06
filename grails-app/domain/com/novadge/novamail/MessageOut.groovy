@@ -23,7 +23,7 @@ class MessageOut{
     static constraints = {
         subject(nullable:true,blank:true)
         senders(nullable:false,blank:false)
-        recipients(nullable:false,blank:false,email:true)
+        recipients(nullable:false,blank:false)
         body(nullable:false,blank:false,maxSize:1024 * 1000 * 1000)
         attachments(nullable:true,blank:true)
        

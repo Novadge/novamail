@@ -32,8 +32,8 @@ log4j = {
 //}
 //novamail{
 //    hostname="Gmail"
-//    username="omasiri@novadge.com"
-//    password="\$r95-b73Money38"
+//    username=""
+//    password=""
 //    store="imap"
 //    
 //    hostProps = [

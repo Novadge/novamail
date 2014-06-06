@@ -57,16 +57,7 @@ class MessagingService {
     def queueEmail(String hostname, String username, String password, String from, String to, String subject, String body,List<File> attachments,Map hostProps){
         
         def messageOut = new MessageOut(hostname:hostname,username:username,password:password,senders:from,recipients:to,subject:subject,body:body.toString(),hostProperties:hostProps)
-        if (messageOut.hasErrors()) {
-            return false
-        }
-        Attachment attachment = null
-        FileInputStream fis = null
-        attachments?.each{
-            attachment = new Attachment(name:it.getName(),data:it.getBytes())
-            messageOut.addToAttachments(attachment)
-            // delete the file
-        }
+        messageOut = addAttachments(messageOut,attachments)
         messageOut.save(flush:true)
         
     }
@@ -74,7 +65,41 @@ class MessagingService {
     /**
      * Sends emails with quarts job.
      *
-     * @params : Map containing email attributes such as
+     * @params : 
+     * messageOut: messageOut object
+     * attachments: A list of File objects (optional)
+     * 
+     */
+    def queueEmail(MessageOut messageOut, List<File> attachments){
+        
+        messageOut = addAttachments(messageOut,attachments)
+        log.debug messageOut.validate()
+        log.debug messageOut.getErrors()
+        messageOut.save(flush:true)
+        
+    }
+    
+    /*Add attachments to a message
+     * @Params
+     * messageOut: Message object to which attachments will be added
+     * attachments: List of file objects to attach
+     * 
+     * */
+    private addAttachments(MessageOut messageOut, List<File> attachments){
+        Attachment attachment = null
+        FileInputStream fis = null
+        attachments?.each{
+            attachment = new Attachment(name:it.getName(),data:it.getBytes())
+            messageOut.addToAttachments(attachment)
+            // delete the file
+        }
+        return messageOut
+    }
+    
+    /**
+     * Sends emails with quarts job.
+     *
+     * @params : email attributes
      * from:
      * to:
      * subject:
@@ -92,7 +117,7 @@ class MessagingService {
     /**
      * Sends emails with quarts job.
      *
-     * @params : Map containing email attributes such as
+     * @params : email attributes
      * hostName: name of the host eg Gmail
      * username: email username
      * password: email password
@@ -112,7 +137,7 @@ class MessagingService {
     /**
      * Sends emails.
      *
-     * @params : Map containing email attributes such as
+     * @params : email attributes such as
      * hostName: name of the host eg Gmail
      * username: email username
      * password: email password
@@ -131,7 +156,7 @@ class MessagingService {
      /**
      * Sends emails.
      *
-     * @params : Map containing email attributes such as
+     * @params : email attributes such as
      * from:
      * to:
      * subject:
@@ -147,7 +172,7 @@ class MessagingService {
     /**
      * Sends emails.
      *
-     * @params : Map containing email attributes such as
+     * @params : email attributes such as
      * from:
      * to:
      * subject:
@@ -164,7 +189,7 @@ class MessagingService {
     /**
      * Sends emails.
      *
-     * @params : Map containing email attributes such as
+     * @params : email attributes such as
      * hostName: name of the host eg Gmail
      * username: email username
      * password: email password
@@ -183,7 +208,7 @@ class MessagingService {
     /**
      * Sends emails.
      *
-     * @params : Map containing email attributes such as
+     * @params : email attributes such as
      * hostName: name of the host eg Gmail
      * username: email username
      * password: email password
@@ -200,7 +225,7 @@ class MessagingService {
     /**
      * Sends emails.
      *
-     * @params : Map containing email attributes such as
+     * @params :email attributes such as
      * from:
      * to:
      * subject:
@@ -216,7 +241,7 @@ class MessagingService {
     /**
      * Sends emails.
      *
-     * @params : Map containing email attributes such as
+     * @params : email attributes such as
      * from:
      * to:
      * subject:
@@ -235,7 +260,7 @@ class MessagingService {
     /**
      * Sends emails.
      *
-     * @params : Map containing email attributes such as
+     * @params : email attributes such as
      * hostName: name of the host eg Gmail
      * username: email username
      * password: email password
@@ -285,6 +310,7 @@ class MessagingService {
      * Sends emails.
      *
      * @params : Map containing email attributes such as
+     * properties: Map containing email attibutes such as hostName, username, password, from, to, subject,body
      * hostName: name of the host eg Gmail
      * username: email username
      * password: email password

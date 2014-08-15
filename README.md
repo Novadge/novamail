@@ -13,8 +13,7 @@ novamail{
     hostname="Gmail"
     username="john@gmail.com"
     password="blahblahblah"
-    store="imap"
-    
+    store="imap"    
     hostProps = [
                     "Host":"imap.gmail.com",
                     "mail.imap.host":"imap.gmail.com",
@@ -46,6 +45,7 @@ Inject messagingService into your class
 
 <code>messagingService</code> is a Grails service that provides a single method called sendEmail that takes parameters.
 Please note that 'sendEmail()' is overloaded 'see http://en.wikipedia.org/wiki/Function_overloading' and can take various variations of parameters. 
+<br>
 One simple form is:
 <code>
 sendEmail(String to, String subject, String body)
@@ -72,3 +72,5 @@ Class yourControllerOrService{<br>
   }<br> 
 }
 </code>
+
+

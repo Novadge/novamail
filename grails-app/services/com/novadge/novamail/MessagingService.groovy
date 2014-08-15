@@ -482,7 +482,7 @@ class MessagingService {
      * folder_rw. Folder.READ_ONLY, Folder.READ_WRITE    
      */
     Message[] getMessages(String provider, String store,String username,String password,SearchTerm term,int folder_rw, Map hostProps){
-        log.debug "line 444"
+        
         Map emailProps = [:]
         emailProps.hostName = provider; emailProps.username = username; emailProps.password = password;
         return doGetMessages(emailProps,store,term,folder_rw,hostProps)
@@ -497,7 +497,7 @@ class MessagingService {
      * folder_rw: Folder.READ_WRITE, Folder.READ_ONLY, etc    
      */
     Message[] getMessages(SearchTerm term,int folder_rw){
-        log.debug "line 458"
+        
         String store = grailsApplication.config.novamail.store
         String provider = grailsApplication.config.novamail.hostname
         String username = grailsApplication.config.novamail.username
@@ -515,7 +515,7 @@ class MessagingService {
      *   
      */
     Message[] getMessages(SearchTerm term){
-        log.debug "line 476"
+        
        return getMessages(term,Folder.READ_ONLY)
         
     }

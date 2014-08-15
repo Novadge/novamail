@@ -13,7 +13,7 @@ import grails.transaction.Transactional
 import com.novadge.vaultcore.*
 @Transactional(readOnly = true)
 class NovamailController {
-def utilityService
+
 def messagingService
 
     static allowedMethods = [save: "POST", update: "PUT", delete: "DELETE"]
@@ -30,30 +30,12 @@ def messagingService
     //String incomingMailServer, String store, String username, String password
     @Transactional
     def refresh(){
-//       def tenant = utilityService.getUserTenant()
-//       if(!tenant){
-//           flash.message = "tenant not found"
-//           redirect(controller:'dashboard')
-//       }
-       String mailProvider = "Gmail"
-       String mailUsername = "omasiri@gmail.com"
-       String mailPassword = "\$Money3.8"
+
+       String mailProvider = ""
+       String mailUsername = ""
+       String mailPassword = ""
        def date = new Date() - 1
-//       if(!tenant?.mailLastChecked){
-//           date = new Date()-1// today
-//       }
-//       else{
-//           date = tenant.mailLastChecked
-//       }
-       //print date
-       //SubjectTerm(java.lang.String pattern)
-       //ReceivedDateTerm(int comparison, java.util.Date date) 
-       //FromTerm(Address address)//InternetAddress(java.lang.String address) 
-       //or NewsAddress(java.lang.String newsgroup) 
-       //ComparisonTerm.EQ, GE, GT, LE, LT, NE
-       //public SentDateTerm(int comparison,java.util.Date date)
-       //ReceivedDateTerm(int comparison, java.util.Date date)
-      // def flagTerm = new FlagTerm(new Flags(Flags.Flag.SEEN), false)
+
        def term = new ReceivedDateTerm(ComparisonTerm.GE,date) // yesterday and today
        def store = grailsApplication.config.novamail.store
        def hostProps = grailsApplication.config.novamail.hostProps
@@ -65,9 +47,7 @@ def messagingService
           messagingService.saveMessage(it,msg)     
        })
    
-//        tenant.mailLastChecked = new Date() // now
-//        tenant.save(flush:true) // save record....
-//   
+  
        redirect(action:'index')
     }
     
@@ -119,21 +99,7 @@ def messagingService
         String mailUsername = ""
         String mailPassword = ""
         def email = ""
-        Map hostProps = [
-                    "Host":"imap.gmail.com",
-                    "mail.imap.host":"imap.gmail.com",
-                    "mail.store.protocol": "imaps",
-                    "mail.imap.socketFactory.class": "javax.net.ssl.SSLSocketFactory",
-                    "mail.imap.socketFactory.fallback": "false",
-                    "mail.imaps.partialfetch": "false",
-        
-        "mail.smtp.starttls.enable": "true",
-                    "mail.smtp.host": "smtp.gmail.com",
-                    "mail.smtp.auth": "true",
-                    "mail.smtp.socketFactory.port": "465",
-                    "mail.smtp.socketFactory.class": "javax.net.ssl.SSLSocketFactory",
-                    "mail.smtp.socketFactory.fallback": "false"
-                    ]
+        Map hostProps = grailsApplication.config.novamail.hostProps
         def props = [hostname:mailProvider,senders:mailUsername,username:mailUsername,password:mailPassword,hostProperties:hostProps]
         messageOut.properties = props
         if (messageOut.hasErrors()) {
@@ -214,9 +180,7 @@ def messagingService
                 map.put('id',it[0])
                 map.put('label',"${it[1]} :: ${it[2]}")
                 map.put('value',"${it[1]} :: ${it[2]}")
-//                  map.id = it.id
-//                  map.label = it.LONG_COMMON_NAME
-//                  map.value = it.LONG_COMMON_NAME
+
                 
                 ajaxList.add(map)
         })

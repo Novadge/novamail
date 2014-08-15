@@ -63,7 +63,8 @@ Inject messagingService into your class
 
 <code>messagingService</code> is a Grails service that provides a single method called sendEmail that takes parameters.
 Please note that 'sendEmail()' is overloaded 'see http://en.wikipedia.org/wiki/Function_overloading' and can take various variations of parameters. 
-<br>
+
+<br/>
 One simple form is:
 <code>
 sendEmail(String to, String subject, String body)
@@ -80,14 +81,21 @@ body: "The body of your message"
 
 <h2>Example</h2>
 
-An example usage can be seen below.<br>
+An example usage can be seen below.<br/>
 <code>
+
 Class yourControllerOrService{
+
     def messagingService
+    
     def yourMethod(){
+    
         messagingService.sendEmail("recipient@gmail.com","email subject","email body")
+        
     }
+    
 }
+
 </code>
 
 

@@ -12,10 +12,15 @@ Assuming you want to add config for a gmail account for 'john@gmail.com' then ad
 <code>
 
 novamail{
+
     hostname="Gmail"
+    
     username="john@gmail.com"
+    
     password="blahblahblah"
+    
     store="imap"
+    
     hostProps = [
 
                     "mail.imap.host":"imap.gmail.com",

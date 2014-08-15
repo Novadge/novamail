@@ -10,50 +10,35 @@ Add your email provider properties to grails configuration file: Example
 Assuming you want to add config for a gmail account for 'john@gmail.com' then add the following to your grails config file.
 
 <code>
-<br/>
-novamail\{
 
-    hostname="Gmail"
-    
-    username="john@gmail.com"
-    
-    password="blahblahblah"
-    
-    store="imap"
-    
-    hostProps = [
+    novamail{
+
+        hostname="Gmail"
+        username="john@gmail.com"
+        password="blahblahblah"
+        store="imap"
+        hostProps = [
 
                     "mail.imap.host":"imap.gmail.com",
-
                     "mail.store.protocol": "imaps",
-
                     "mail.imap.socketFactory.class": "javax.net.ssl.SSLSocketFactory",
-
                     "mail.imap.socketFactory.fallback": "false",
-
                     "mail.imaps.partialfetch": "false",
-        
                     "mail.smtp.starttls.enable": "true",
-
                     "mail.smtp.host": "smtp.gmail.com",
-
                     "mail.smtp.auth": "true",
-
                     "mail.smtp.socketFactory.port": "465",
-
                     "mail.smtp.socketFactory.class": "javax.net.ssl.SSLSocketFactory",
-
                     "mail.smtp.socketFactory.fallback": "false"
 
                     ]
-                    
-\}
-<br/>
+    }
+
 
 </code>
 
-<note>Novamail will try to use predefined host props for some popular email providers if you do not provide hostProps
-</note>
+<h3>Side note </h3>
+Novamail will try to use predefined host props for some popular email providers if you do not provide hostProps
 
 <h2>Usage</h2>
 
@@ -61,7 +46,7 @@ Inject messagingService into your class
 
 <code>def messagingService</code>
 
-<code>messagingService</code> is a Grails service that provides a single method called sendEmail that takes parameters.
+<em>messagingService</em> is a Grails service that provides a single method called sendEmail that takes parameters.
 Please note that 'sendEmail()' is overloaded 'see http://en.wikipedia.org/wiki/Function_overloading' and can take various variations of parameters. 
 
 <br/>
@@ -81,21 +66,21 @@ body: "The body of your message"
 
 <h2>Example</h2>
 
-An example usage can be seen below.<br/>
+An example usage can be seen below.
 
 <code>
 
-Class yourControllerOrService\{
-
-    def messagingService
+    Class YourController{
     
-    def yourMethod(){
-    
-        messagingService.sendEmail("recipient@gmail.com","email subject","email body")
+        def messagingService
         
-    }
+        def yourMethod(){
+            ....
+            messagingService.sendEmail("recipient@gmail.com","email subject","email body")
+        
+        }
     
-\}
+    }
 
 </code>
 

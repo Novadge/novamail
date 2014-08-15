@@ -11,7 +11,6 @@ Assuming you want to add config for a gmail account for 'john@gmail.com' then ad
 
 <code>
 novamail{
-
     hostname="Gmail"
 
     username="john@gmail.com"
@@ -46,6 +45,7 @@ novamail{
 
                     ]
 }
+
 </code>
 
 <note>Novamail will try to use predefined host props for some popular email providers if you do not provide hostProps

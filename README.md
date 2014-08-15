@@ -11,7 +11,7 @@ Assuming you want to add config for a gmail account for 'john@gmail.com' then ad
 
 <code>
 <br/>
-novamail{
+novamail\{
 
     hostname="Gmail"
     
@@ -47,7 +47,7 @@ novamail{
 
                     ]
                     
-}
+\}
 <br/>
 
 </code>
@@ -82,9 +82,10 @@ body: "The body of your message"
 <h2>Example</h2>
 
 An example usage can be seen below.<br/>
+
 <code>
 
-Class yourControllerOrService{
+Class yourControllerOrService\{
 
     def messagingService
     
@@ -94,7 +95,7 @@ Class yourControllerOrService{
         
     }
     
-}
+\}
 
 </code>
 

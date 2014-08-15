@@ -251,7 +251,7 @@ class PostMan {
     private void doSendEmail(Map emailProps, Map props, boolean html, List<File> files) {
         log.debug "inside postman with ${files}"
         Properties properties = System.getProperties()
-        log.debug "setting properties"
+        log.debug "setting properties ${props}"
         // Setup mail server
         props.each { key, value ->
             
@@ -278,6 +278,7 @@ class PostMan {
         
         if (files) {
             BodyPart messageBodyPart = new MimeBodyPart()
+            log.debug "mail has attachments"
             log.debug "adding attachments"
             
             messageBodyPart.setContent(emailProps.body, TEXT_HTML)
@@ -285,10 +286,10 @@ class PostMan {
             Multipart multipart = new MimeMultipart()
 
             multipart.addBodyPart(messageBodyPart)
-            log.debug "mail has attachments"
+            
             // Part two is attachment
             files.each({file ->
-                log.debug "attaching inside postman"
+                log.debug "attaching files..."
                 messageBodyPart = new MimeBodyPart()
                 //TODO: Find way to set file path
                 DataSource source = new FileDataSource(file)
@@ -303,7 +304,7 @@ class PostMan {
         
 
         Transport.send(message)
-        print "Sent message successfully...."
+        log.debug "Sent message successfully...."
     }
     
     

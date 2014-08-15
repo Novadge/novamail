@@ -1,5 +1,6 @@
 grails.project.work.dir = 'target'
 
+grails.project.dependency.resolver = "maven" // or ivy
 grails.project.dependency.resolution = {
 
     inherits 'global'
@@ -21,6 +22,7 @@ grails.project.dependency.resolution = {
         build ':release:3.0.1', ':rest-client-builder:1.0.3', {
             export = false
         }
+        compile ":scaffolding:2.1.2"
 //        build ":tomcat:7.0.52.1"
 //
 //        // plugins for the compile step

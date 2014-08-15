@@ -16,10 +16,27 @@ class MessagingService {
     Map getAccountDetails(){
         Map map = [:]
         map.hostname = grailsApplication.config.novamail.hostname.toString() 
-        map.username = grailsApplication.config.novamail.username.toString()
-        map.password = grailsApplication.config.novamail.password.toString()
-        map.from = grailsApplication.config.novamail.username.toString()
+        map.username = grailsApplication.config?.novamail?.username?.toString()
+        map.password = grailsApplication.config?.novamail?.password?.toString()
+        map.from = grailsApplication.config.novamail?.username?.toString()
+        map.hostProps = grailsApplication.config?.novamail?.hostProps
         return map
+    }
+    
+    
+    
+    /**
+     * Sends emails with quarts job.
+     *
+     * @params : email attributes
+     * from:
+     * to:
+     * subject:
+     * body:
+     */
+    def queueEmail(String to, String subject, String body){
+        queueEmail(to,subject,body,[])
+        
     }
     
     /**
@@ -34,99 +51,9 @@ class MessagingService {
      */
     def queueEmail(String to, String subject, String body,List<File> attachments){
         def map = getAccountDetails()
-        def hostProps = grailsApplication.config.novamail.hostProps
-        queueEmail(map.hostname,map.username,map.password,map.from,to,subject,body.toString(),attachments,hostProps)
-        
-        
+        queueEmail(map.hostname,map.username,map.password,map.from,to,subject,body.toString(),attachments,map.hostProps)
+                
     }
-    
-    /**
-     * Sends emails with quarts job.
-     *
-     * @params : Map containing email attributes such as
-     * hostName: name of the host eg Gmail
-     * username: email username
-     * password: email password
-     * from:
-     * to:
-     * subject:
-     * body:
-     * attachments: A list of File objects (optional)
-     * hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"] 
-     */
-    def queueEmail(String hostname, String username, String password, String from, String to, String subject, String body,List<File> attachments,Map hostProps){
-        
-        def messageOut = new MessageOut(hostname:hostname,username:username,password:password,senders:from,recipients:to,subject:subject,body:body.toString(),hostProperties:hostProps)
-        messageOut = addAttachments(messageOut,attachments)
-        messageOut.save(flush:true)
-        
-    }
-    
-    /**
-     * Sends emails with quarts job.
-     *
-     * @params : 
-     * messageOut: messageOut object
-     * attachments: A list of File objects (optional)
-     * 
-     */
-    def queueEmail(MessageOut messageOut, List<File> attachments){
-        
-        messageOut = addAttachments(messageOut,attachments)
-        log.debug messageOut.validate()
-        log.debug messageOut.getErrors()
-        messageOut.save(flush:true)
-        
-    }
-    
-    /**
-     * Sends emails with quarts job.
-     *
-     * @params : 
-     * messageOut: messageOut object
-     * 
-     * 
-     */
-    def queueEmail(MessageOut messageOut){
-        
-        messageOut.save(flush:true)
-        
-    }
-    
-    /*Add attachments to a message
-     * @Params
-     * messageOut: Message object to which attachments will be added
-     * attachments: List of file objects to attach
-     * 
-     * */
-    private addAttachments(MessageOut messageOut, List<File> attachments){
-        Attachment attachment = null
-        FileInputStream fis = null
-        attachments?.each{
-            attachment = new Attachment(name:it.getName(),data:it.getBytes())
-            messageOut.addToAttachments(attachment)
-            // delete the file
-        }
-        return messageOut
-    }
-    
-    /**
-     * Sends emails with quarts job.
-     *
-     * @params : email attributes
-     * from:
-     * to:
-     * subject:
-     * body:
-     */
-    def queueEmail(String to, String subject, String body){
-        def map = getAccountDetails()
-        def hostProps = grailsApplication.config.novamail.hostProps
-        List<File> attachments = []
-        queueEmail(map.hostname,map.username,map.password,map.from,to,subject,body.toString(),attachments,hostProps)
-        
-    }
-    
     
     /**
      * Sends emails with quarts job.
@@ -144,6 +71,76 @@ class MessagingService {
     def queueEmail(String hostname, String username, String password, String from, String to, String subject, String body,Map hostProps){
         queueEmail(hostname,username,password,from,to,subject,body,null,hostProps)        
     }
+    
+    /**
+     * Sends emails with quarts job.
+     *
+     * @params : Map containing email attributes such as
+     * hostName: name of the host eg Gmail
+     * username: email username
+     * password: email password
+     * from:
+     * to:
+     * subject:
+     * body:
+     * attachments: A list of File objects (optional)
+     * hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"] 
+     */
+    def queueEmail(String hostname, String username, String password, String from, String to, String subject, String body,List<File> attachments,Map hostProps){
+        def messageOut = new MessageOut(hostname:hostname,username:username,password:password,senders:from,recipients:to,subject:subject,body:body.toString(),hostProperties:hostProps)
+        queueEmail(messageOut,attachments)        
+        
+    }
+    
+    /**
+     * Sends emails with quarts job.
+     *
+     * @params : 
+     * messageOut: messageOut object
+     * attachments: A list of File objects (optional)
+     * 
+     */
+    def queueEmail(MessageOut messageOut, List<File> attachments){
+        
+        messageOut = addAttachments(messageOut,attachments)        
+        messageOut.save(flush:true)
+        
+    }
+    
+    /**
+     * Sends emails with quarts job.
+     *
+     * @params : 
+     * messageOut: messageOut object
+     * 
+     * 
+     */
+    def queueEmail(MessageOut messageOut){
+        queueEmail(messageOut,[])
+        
+    }
+    
+    /*Add attachments to a message
+     * @Params
+     * messageOut: Message object to which attachments will be added
+     * attachments: List of file objects to attach
+     * 
+     * */
+    private MessageOut addAttachments(MessageOut messageOut, List<File> attachments){
+        Attachment attachment = null
+        FileInputStream fis = null
+        attachments?.each{
+            attachment = new Attachment(name:it.getName(),data:it.getBytes())
+            messageOut.addToAttachments(attachment)
+            // delete the file
+        }
+        return messageOut
+    }
+    
+    
+    
+    
+    
     
     
     

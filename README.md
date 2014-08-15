@@ -1,7 +1,42 @@
 novamail
 ========
 <h2>Description</h2>
-The Novamail plug-in provides e-mail sending capabilities to a Grails application. It is also capable of sending emails asynchronously by using a scheduled Job.
+
+The Novamail plug-in provides e-mail sending and receiving capabilities to a Grails application. It is also capable of sending emails asynchronously by using a scheduled Job.
+
+<h2>Configuration</h2>
+
+Add your email provider properties to grails configuration file: Example
+Assuming you want to add config for a gmail account for 'john@gmail.com' then add the following to your grails config file.
+<code>
+novamail{
+    hostname="Gmail"
+    username="john@gmail.com"
+    password="blahblahblah"
+    store="imap"
+    
+    hostProps = [
+                    "Host":"imap.gmail.com",
+                    "mail.imap.host":"imap.gmail.com",
+                    "mail.store.protocol": "imaps",
+                    "mail.imap.socketFactory.class": "javax.net.ssl.SSLSocketFactory",
+                    "mail.imap.socketFactory.fallback": "false",
+                    "mail.imaps.partialfetch": "false",
+        
+                    "mail.smtp.starttls.enable": "true",
+                    "mail.smtp.host": "smtp.gmail.com",
+                    "mail.smtp.auth": "true",
+                    "mail.smtp.socketFactory.port": "465",
+                    "mail.smtp.socketFactory.class": "javax.net.ssl.SSLSocketFactory",
+                    "mail.smtp.socketFactory.fallback": "false"
+                    ]
+  
+}
+
+</code>
+
+<note>Novamail will try to use predefined host props for some popular email providers if you do not provide hostProps
+</note>
 
 <h2>Usage</h2>
 
@@ -10,28 +45,20 @@ Inject messagingService into your class
 <code>def messagingService</code>
 
 <code>messagingService</code> is a Grails service that provides a single method called sendEmail that takes parameters.
-Please note that 'sendEmail()' takes the following parameters :
+Please note that 'sendEmail()' is overloaded 'see http://en.wikipedia.org/wiki/Function_overloading' and can take various variations of parameters. 
+One simple form is:
+<code>
+sendEmail(String to, String subject, String body)
+</code>
 
-String hostname, String username, String password, String from, String to, String subject, String body, File attachment)
-.
 Where ......
 
 
-hostName: name of the host eg Gmail, Hotmail, Yahoo
-
-username: email username eg John@example.com
-
-password: email password eg *
-
-from: eg john@gmail.com
-
-to: eg doe@gmail.com
+to: Email recipient eg doe@gmail.com
 
 subject: "Your email subject"
 
 body: "The body of your message"
-
-file: File object (optional)
 
 <h2>Example</h2>
 
@@ -40,15 +67,8 @@ An example usage can be seen below.<br>
 Class yourControllerOrService{<br>
   def messagingService<br>
   def yourMethod(){<br>
-    messagingService.sendEmail(<br>
-      "Gmail",<br>
-      "john@gmail.com",<br>
-      "password",<br>
-      "john@gmail.com",<br>
-      "recipient@gmail.com",<br>
-      "email subject",<br>
-      "email body"<br>
-    )<br>
-  }<br>
+    messagingService.sendEmail("recipient@gmail.com","email subject","email body")
+  <br>  
+  }<br> 
 }
 </code>

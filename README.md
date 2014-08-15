@@ -10,7 +10,7 @@ Add your email provider properties to grails configuration file: Example
 Assuming you want to add config for a gmail account for 'john@gmail.com' then add the following to your grails config file.
 
 <code>
-
+<br/>
 novamail{
 
     hostname="Gmail"
@@ -48,6 +48,7 @@ novamail{
                     ]
                     
 }
+<br/>
 
 </code>
 

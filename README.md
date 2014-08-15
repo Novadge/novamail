@@ -54,7 +54,7 @@ sendEmail(String to, String subject, String body)
 Where ......
 
 
-to: Email recipient eg doe@gmail.com
+to: Email recipient eg recipient@gmail.com
 
 subject: "Your email subject"
 
@@ -64,12 +64,11 @@ body: "The body of your message"
 
 An example usage can be seen below.<br>
 <code>
-Class yourControllerOrService{<br>
-  def messagingService<br>
-  def yourMethod(){<br>
-    messagingService.sendEmail("recipient@gmail.com","email subject","email body")
-  <br>  
-  }<br> 
+Class yourControllerOrService{
+    def messagingService
+    def yourMethod(){
+        messagingService.sendEmail("recipient@gmail.com","email subject","email body")
+    }
 }
 </code>
 

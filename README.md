@@ -8,9 +8,8 @@ The Novamail plug-in provides e-mail sending and receiving capabilities to a Gra
 
 Add your email provider properties to grails configuration file: Example
 Assuming you want to add config for a gmail account for 'john@gmail.com' then add the following to your grails config file.
-<br>
-<code>
 
+<code>
 novamail{
 
     hostname="Gmail"
@@ -46,12 +45,9 @@ novamail{
                     "mail.smtp.socketFactory.fallback": "false"
 
                     ]
-
-  
 }
-
 </code>
-<br>
+
 <note>Novamail will try to use predefined host props for some popular email providers if you do not provide hostProps
 </note>
 

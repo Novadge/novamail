@@ -262,7 +262,19 @@ class PostMan {
         Session session = Session.getDefaultInstance(properties, auth)
         log.debug "created session"
         MimeMessage message = new MimeMessage(session)
-        message.setFrom(new InternetAddress(emailProps.from))
+        String source = emailProps.from
+        String k = "Amazon Web Services, LLC <no-reply-aws@amazon.com>"
+        if(source.contains("<") && source.contains(">")){
+            int start = source.indexOf("<")
+            int end = source.indexOf(">")
+
+            String address =  source.substring(start+1,end)
+            String name = k.substring(0,start-1)
+            message.setFrom(new InternetAddress(address,name))
+        }
+        else{
+            message.setFrom(new InternetAddress(emailProps.from))
+        }       
         
         message.addRecipients(Message.RecipientType.TO, /*new */InternetAddress.parse(emailProps.to))
         

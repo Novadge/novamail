@@ -98,7 +98,7 @@ def messagingService
         String mailProvider = "Gmail"
         String mailUsername = ""
         String mailPassword = ""
-        def email = ""
+        def email = "omasiri@hotmail.com"
         Map hostProps = grailsApplication.config.novamail.hostProps
         def props = [hostname:mailProvider,senders:mailUsername,username:mailUsername,password:mailPassword,hostProperties:hostProps]
         messageOut.properties = props
@@ -121,25 +121,23 @@ def messagingService
         }
         
         
-       //messagingService.queueEmail(messageOut, attachments)
-        messagingService.sendHTMLEmail(email,params?.subject, params.body?.toString())
+       try{
+           print "trying to send msgs"
+           messagingService.sendEmail(email,params?.subject, params.body?.toString())
+       }
+       catch(Exception ex){
+           print "${ex.toString()}"
+           flash.message = ex.toString()
+           respond messageOut, view:'compose'
+           return
+       }
+        
         request.withFormat {
-            
             form {
-               log.debug "with form format"
-               flash.message = "${message(code:'message.queued.label',default:'Message queued for delivery')}" //message(code: 'default.created.message', args: [message(code: 'messageOut.label', default: 'Message out'), messageOut.id])
-                //print "redirecting to outbox"
+                flash.message =  "message sent"//message(code: 'default.created.message', args: [message(code: 'race.label', default: 'Race'), raceInstance.id])
                 redirect action:'outbox'
             }
-            multipartForm {
-                log.debug "multipart form format"
-                flash.message = "${message(code:'message.queued.label',default:'Message queued for delivery')}" //message(code: 'default.created.message', args: [message(code: 'messageOut.label', default: 'Message out'), messageOut.id])
-                redirect action:'outbox' 
-            }
-            '*' { 
-                log.debug " * request"
-                respond messageOut, [status: CREATED] 
-            }
+            //'*' { respond raceInstance, [status: CREATED] }
         }
     }
     

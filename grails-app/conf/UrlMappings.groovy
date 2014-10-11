@@ -7,7 +7,7 @@
 //            }
 //        }
 //
-//        "/"(controller:'novamail',action:'index')
+//        "/"(controller:'novamail',action:"inbox")
 //        "500"(view:'/error')
 //	}
 //}

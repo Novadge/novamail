@@ -133,7 +133,7 @@ private void updateConfig() {
                         it.writeLine """\n\
                                     novamail{\n\\n\
                                         hostname ='your hostname'// eg. Gmail, Yahoo, Hotmail, etc.\n\
-                                        username ='your username'\n\
+                                        username ='your username'\n\ // eg. 'john@gmail.com' or 'John <john@gmail.com>'
                                         password ='your password'\n\\n\\n\
 // Uncomment to declare your custom email host properties. \n\\n\
 //                                      store="imap"

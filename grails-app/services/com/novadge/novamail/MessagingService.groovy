@@ -158,7 +158,7 @@ class MessagingService {
      * body:
      * hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"] 
      */
-    boolean sendHTMLEmail(String hostname, String username, String password, String from, String to, String subject, String body,Map hostProps) {
+    boolean sendHTMLEmail(String hostname, String username, String password, String from, String to, String subject, String body,Map hostProps) throws Exception{
          List<File> attachments = []// empty list of attachments
         sendEmail(hostname, username, password, from, to, subject, body,true, attachments,hostProps)
         
@@ -174,8 +174,8 @@ class MessagingService {
      * body:
      * 
      */
-    boolean sendHTMLEmail(String to, String subject, String body) {
-        
+    boolean sendHTMLEmail(String to, String subject, String body) throws Exception{
+        log.debug "trying to send inside messaging service 178"
         List<File> attachments = []// empty list of attachments
         sendHTMLEmail(to,subject,body,attachments)
     }
@@ -190,10 +190,11 @@ class MessagingService {
      * body:
      * attachments: A list of File objects 
      */
-    boolean sendHTMLEmail(String to, String subject, String body,List<File> attachments) {
+    boolean sendHTMLEmail(String to, String subject, String body,List<File> attachments) throws Exception{
         def map = getAccountDetails()
-        def hostProps = grailsApplication.config.novamail.hostProps
-
+        log.debug map
+        def hostProps = map.hostProps//grailsApplication.config.novamail.hostProps
+        log.debug "messaging service 196 with hostprops ${hostProps}"
         sendHTMLEmail(map.hostname, map.username, map.password, map.from, to, subject, body, attachments,hostProps)
     }
     
@@ -211,8 +212,8 @@ class MessagingService {
      * attachments: A list of File object (optional)
      * hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"]
      */
-    boolean sendHTMLEmail(String hostname, String username, String password, String from, String to, String subject, String body, List<File> attachments,Map hostProps) {
-        log.debug "line 179"
+    boolean sendHTMLEmail(String hostname, String username, String password, String from, String to, String subject, String body, List<File> attachments,Map hostProps) throws Exception{
+        log.debug "line 215"
         sendEmail(hostname, username, password, from, to, subject, body,true, attachments,hostProps)
     }
 
@@ -229,7 +230,7 @@ class MessagingService {
      * body:
      * hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"]
      */
-    boolean sendEmail(String hostname, String username, String password, String from, String to, String subject, String body,Map hostProps) {
+    boolean sendEmail(String hostname, String username, String password, String from, String to, String subject, String body,Map hostProps) throws Exception{
         sendEmail(hostname, username, password, from, to, subject, body,false, null,hostProps)
     }
     
@@ -243,7 +244,7 @@ class MessagingService {
      * body:
      * 
      */
-    boolean sendEmail(String to, String subject, String body) {
+    boolean sendEmail(String to, String subject, String body) throws Exception {
         List<File> attachments = []
         sendEmail(to, subject, body, attachments)
     }
@@ -259,9 +260,9 @@ class MessagingService {
      * body:
      * attachments: A list of File objects 
      */
-    boolean sendEmail(String to, String subject, String body,List<File> attachments) {
+    boolean sendEmail(String to, String subject, String body,List<File> attachments) throws Exception{
         def map = getAccountDetails()
-        def hostProps = grailsApplication.config.novamail.hostProps
+        def hostProps = map.hostProps//grailsApplication.config.novamail.hostProps
 //        log.debug map
 //        log.debug hostProps
         sendEmail(map.hostname, map.username, map.password, map.from, to, subject, body,false, attachments,hostProps)
@@ -282,7 +283,7 @@ class MessagingService {
      * attachments: A list of File objects 
      * hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"]
      */
-    boolean sendEmail(String hostname, String username, String password, String from, String to, String subject, String body,List<File> attachments,Map hostProps) {
+    boolean sendEmail(String hostname, String username, String password, String from, String to, String subject, String body,List<File> attachments,Map hostProps) throws Exception {
         sendEmail(hostname, username, password, from, to, subject, body,false, attachments,hostProps)
     }
     
@@ -302,7 +303,7 @@ class MessagingService {
      * attachments: a list of File objects (optional)
      * hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"]
      */
-    boolean sendEmail(String hostname, String username, String password, String from, String to, String subject, String body,boolean html, List<File> attachments,Map hostProps) {
+    boolean sendEmail(String hostname, String username, String password, String from, String to, String subject, String body,boolean html, List<File> attachments,Map hostProps) throws Exception{
         
         doSendEmail([
             from: from,
@@ -332,7 +333,7 @@ class MessagingService {
      * attachments: a list of File objects (optional)
      * hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"]
      */
-    private boolean doSendEmail(Map properties, boolean html, List<File> attachments,Map hostProps){
+    private boolean doSendEmail(Map properties, boolean html, List<File> attachments,Map hostProps) throws Exception{
         
         if(!hostProps){
             hostProps = grailsApplication.config.novamail.hostProps // try to get from custom config
@@ -346,11 +347,11 @@ class MessagingService {
         //log.debug "Inside message service obj ${properties}"
         
        def postman = new PostMan()
-
-            if (attachments == null) {
+       
+            if (!attachments) {
                 if(html){
-                    log.debug "sending html email without attachments"
-                    postman.sendHTMLEmail(properties, hostProps,attachments)
+                    log.debug"sending html email without attachments 353"
+                    postman.sendHTMLEmail(properties, hostProps)
                 }
                 else{
                     log.debug "sending email without attachments"
@@ -382,13 +383,13 @@ class MessagingService {
     void processMailQueue() {
         log.debug "inside message process queue"
         def pendingMsgs = MessageOut.where { status == 'Pending' || status == 'Not sent' }.list()
-        log.debug "got ${pendingMsgs}"
+        
         pendingMsgs.each {
 
             String subject = "${it.subject}"
             String to = "${it?.recipients}"
 
-            if (it?.attachments != null) {
+            if (!it?.attachments) {
                 
                 int num = it?.attachments.size()
                 List<File> files = []

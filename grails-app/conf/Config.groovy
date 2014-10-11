@@ -20,18 +20,9 @@ log4j = {
            'org.hibernate',
            'net.sf.ehcache.hibernate'
 }
-//
-//novadge{
-//    app{
-//        name=""
-//    }
-//    email{
-//        support=""
-//        info=""
-//    }
-//}
+//// Added by the Novamail plugin:
 //novamail{
-//    hostname="Gmail"
+//    hostname="MailProvider"
 //    username=""
 //    password=""
 //    store="imap"
@@ -44,7 +35,7 @@ log4j = {
 //                    "mail.imap.socketFactory.fallback": "false",
 //                    "mail.imaps.partialfetch": "false",
 //        
-//                    "mail.smtp.starttls.enable": "true",
+//        "mail.smtp.starttls.enable": "true",
 //                    "mail.smtp.host": "smtp.gmail.com",
 //                    "mail.smtp.auth": "true",
 //                    "mail.smtp.socketFactory.port": "465",
@@ -53,29 +44,3 @@ log4j = {
 //                    ]
 //  
 //}
-
-
-
-// Uncomment and edit the following lines to start using Grails encoding & escaping improvements
-
-/* remove this line 
-// GSP settings
-grails {
-    views {
-        gsp {
-            encoding = 'UTF-8'
-            htmlcodec = 'xml' // use xml escaping instead of HTML4 escaping
-            codecs {
-                expression = 'html' // escapes values inside null
-                scriptlet = 'none' // escapes output from scriptlets in GSPs
-                taglib = 'none' // escapes output from taglibs
-                staticparts = 'none' // escapes output from static template parts
-            }
-        }
-        // escapes all not-encoded output at final stage of outputting
-        filteringCodecForContentType {
-            //'text/html' = 'html'
-        }
-    }
-}
-remove this line */

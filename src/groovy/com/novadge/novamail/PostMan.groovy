@@ -258,18 +258,34 @@ class PostMan {
             properties.setProperty(key,value)
         }
         log.debug "creating auth"
-        Authenticator auth = new NovadgeAuthenticator(emailProps.username, emailProps.password)// not yet useful
+        Authenticator auth = null;
+        String usernameAddr = emailProps.username
+        // check if the username contains personal name
+        log.debug "username = ${usernameAddr}"
+        if(emailProps.username?.contains("<") && emailProps.username?.contains(">")){
+            int start = emailProps.username.indexOf("<") // find the index
+            int end = emailProps.username.indexOf(">")// find the index
+            String username =  emailProps.username.substring(start+1,end) // get the string between
+            log.debug username
+            auth = new NovadgeAuthenticator(username, emailProps.password)// create auth
+        }
+        else{
+            auth = new NovadgeAuthenticator(emailProps.username, emailProps.password)// create auth
+        }
+        
         Session session = Session.getDefaultInstance(properties, auth)
         log.debug "created session"
         MimeMessage message = new MimeMessage(session)
-        String source = emailProps.from
-        String k = "Amazon Web Services, LLC <no-reply-aws@amazon.com>"
-        if(source.contains("<") && source.contains(">")){
-            int start = source.indexOf("<")
-            int end = source.indexOf(">")
+        String sourceAddr = emailProps.from
+        log.debug "Source addr = ${sourceAddr}"
+        if(sourceAddr.contains("<") && sourceAddr.contains(">")){
+            
+            int start = sourceAddr.indexOf("<")
+            int end = sourceAddr.indexOf(">")
 
-            String address =  source.substring(start+1,end)
-            String name = k.substring(0,start-1)
+            String address =  sourceAddr.substring(start+1,end)
+            String name = sourceAddr.substring(0,start-1)
+            log.debug address
             message.setFrom(new InternetAddress(address,name))
         }
         else{
@@ -314,7 +330,7 @@ class PostMan {
             message.setContent(multipart)
         }
         
-
+        log.debug "trying to send message with transport ${message}"
         Transport.send(message)
         log.debug "Sent message successfully...."
     }

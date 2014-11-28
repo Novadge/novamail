@@ -37,7 +37,7 @@ grails.project.dependency.resolution = {
     dependencies {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
         // runtime 'mysql:mysql-connector-java:5.1.27'
-        compile 'javax.mail:javax.mail-api:1.5.1'
+		compile 'javax.mail:javax.mail-api:1.5.1'
         runtime 'com.sun.mail:javax.mail:1.5.1'
     }
 
@@ -46,18 +46,5 @@ grails.project.dependency.resolution = {
               ":rest-client-builder:1.0.3") {
             export = false
         }
-        
-//        build ":tomcat:7.0.52.1"
-//        compile ":asset-pipeline:1.9.0"
-//        compile ":quartz:1.0.1"
-//        compile ':cache:1.1.6'
-//
-//        // plugins for the compile step
-//        compile ":scaffolding:2.0.3"
-//        compile ':cache:1.1.2'
-//
-//        // plugins needed at runtime but not for compilation
-//        runtime ":hibernate:3.6.10.13" // or ":hibernate4:4.3.5.1"
-//        runtime ":database-migration:1.4.0"
     }
 }

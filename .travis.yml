@@ -6,6 +6,6 @@ jdk:
 before_script:
 - rm -rf target
 
-script: grails wrapper
+script: grails wrapper &&
         ./grailsw refresh-dependencies
      && ./grailsw test-app

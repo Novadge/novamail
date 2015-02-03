@@ -18,11 +18,11 @@ import grails.util.Metadata
 includeTargets << new File("$novamailPluginDir/scripts/_N2Common.groovy")
 
 USAGE = """
-Usage: grails n2-quickstart <domain-class-package> <messageOut-class-name> <mailDispatch-class-name>
+Usage: grails n2-quickstart
 
-Creates a user and role class (and optionally a requestmap class) in the specified package
+Creates a MessageIn, MessageOut, Body and Attachement in the novamail package
 
-Example: grails n2-quickstart com.yourapp MessageOut MailDispatch
+Example: grails n2-quickstart
 
 """
 

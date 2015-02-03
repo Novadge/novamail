@@ -15,10 +15,10 @@ class MessagingService {
     
     Map getAccountDetails(){
         Map map = [:]
-        map.hostname = grailsApplication.config.novamail.hostname.toString() 
-        map.username = grailsApplication.config?.novamail?.username?.toString()
-        map.password = grailsApplication.config?.novamail?.password?.toString()
-        map.from = grailsApplication.config.novamail?.username?.toString()
+        map.hostname = grailsApplication.config.novamail.hostname
+        map.username = grailsApplication.config?.novamail?.username
+        map.password = grailsApplication.config?.novamail?.password
+        map.from = grailsApplication.config.novamail?.username
         map.hostProps = grailsApplication.config?.novamail?.hostProps
         return map
     }

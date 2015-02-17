@@ -5,3 +5,7 @@ grails-novamail-*.zip.sha1
 /plugin.xml
 /web-app
 .settings
+
+.idea
+novamail.iml
+novamail-grailsPlugins.iml

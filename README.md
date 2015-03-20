@@ -77,7 +77,7 @@ An example usage can be seen below.
         def messagingService
         ...
         def yourMethod(){
-            def map = [to:"recipient@gmail.com",subject:"Email subject",body:"email body]
+            def map = [to:"recipient@gmail.com",subject:"Email subject",body:"email body"]
             messagingService.sendEmail(map)
         
         }

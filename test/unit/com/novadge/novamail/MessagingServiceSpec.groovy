@@ -24,7 +24,18 @@ class MessagingServiceSpec extends Specification {
     def cleanup() {
     }
     
-
+void "test send email(Map map) " (){
+        given:'App user provided email params without credentials'
+            String subject = "Email subject"
+            String to = "demo@email.com"
+            String body = "body"
+            service.sendEmail(to,subject,body)
+        expect:"message is sent"
+           
+        and:""
+                 
+        
+    }
 
      
     void "test return account details defined in grails config" (){
@@ -58,9 +69,7 @@ class MessagingServiceSpec extends Specification {
             assert msg != null
         and:"message is the same message that was persisted"
             msg.recipients == to
-            msg.subject == conf.subject
-        
-        
+            msg.subject == conf.subject       
         
     }
     

@@ -29,16 +29,49 @@ class MessagingService {
         return map
     }
     
+    /**
+     * Send email
+     * @param Map map A map containing the requirements for sending an email
+     * @param map.hostProps
+     * @param map.username (optional: defaults to conf attribute)
+     * @param map.password (optional: defaults to conf attribute)
+     * @param map.hostname (optional: defaults to conf attribute)
+     * @param map.to : Recipients address
+     * @param map.subject : Message subject
+     * @param map.body : Message body
+     * @param map.html (optional: defaults to true)
+     * @param map.attachments : A list of file objects
+     * @param map.hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"] (optional: defaults to conf attribute)
+     * @return boolean
+     **/
+    boolean sendEmail(Map map) {
+        def props = getAccountDetails()// look for config details
+        // use parameter host properties else use properties defined in config
+        Map hostProps = map.hostProps? map.hostProps:props.hostProps
+        // use custom account credentials else use properties defined in config
+        boolean response = false
+        boolean html = true
+        if(map.html){
+            html = map.html
+        }
+        
+        if(!map.username || !map.password){//get credentials from conf file
+           response = sendEmail(props.hostname, props.username, props.password, props.username, map.to, map.subject, map.body,html, map.attachments,hostProps)
+        }
+        else{// use user provided credentials
+           response = sendEmail(map.hostname, map.username, map.password, map.username, map.to, map.subject, map.body,html, map.attachments,hostProps) 
+        }
+        
+
+        return response
+    }
     
     
     /**
      * Sends emails with quarts job.
-     *
-     * @params : email attributes
-     * from:
-     * to:
-     * subject:
-     * body:
+     * @param to: Recipients email address
+     * @param subject: Message subject
+     * @param body: Email message
      */
     def queueEmail(String to, String subject, String body){
         queueEmail(to,subject,body,[])
@@ -47,33 +80,28 @@ class MessagingService {
     
     /**
      * Sends emails with quarts job.
-     *
-     * @params : Map containing email attributes such as
-     * from:
-     * to:
-     * subject:
-     * body:
+     * @param to: Recipients email address
+     * @param subject: Message subject
+     * @param body: Email message
      * attachments: A list of File objects (optional)
-     */
+     **/
     def queueEmail(String to, String subject, String body,List<File> attachments){
-        def map = getAccountDetails()
+        Map map = getAccountDetails()
         queueEmail(map.hostname,map.username,map.password,map.from,to,subject,body.toString(),attachments,map.hostProps)
                 
     }
     
     /**
      * Sends emails with quarts job.
-     *
-     * @params : email attributes
-     * hostName: name of the host eg Gmail
-     * username: email username
-     * password: email password
-     * from:
-     * to:
-     * subject:
-     * body:
-     * hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"] 
-     */
+     * @param hostName: name of the host eg Gmail
+     * @param username: email username
+     * @param password: email password
+     * @param from: Senders email address
+     * @param to: Recipients email address
+     * @param subject: Message subject
+     * @param body: Email message
+     * @param hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"] 
+     **/
     def queueEmail(String hostname, String username, String password, String from, String to, String subject, String body,Map hostProps){
         queueEmail(hostname,username,password,from,to,subject,body,null,hostProps)        
     }
@@ -81,16 +109,14 @@ class MessagingService {
     /**
      * Sends emails with quarts job.
      *
-     * @params : Map containing email attributes such as
-     * hostName: name of the host eg Gmail
-     * username: email username
-     * password: email password
-     * from:
-     * to:
-     * subject:
-     * body:
-     * attachments: A list of File objects (optional)
-     * hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"] 
+      *@param hostname: name of the host eg Gmail
+     * @param username: email username
+     * @param password: email password
+     * @param from: Senders email address
+     * @param to: Recipients email address
+     * @param subject: Message subject
+     * @param body: Email message
+     * @param hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"] 
      */
     def queueEmail(String hostname, String username, String password, String from, String to, String subject, String body,List<File> attachments,Map hostProps){
         def messageOut = new MessageOut(hostname:hostname,username:username,password:password,senders:from,recipients:to,subject:subject,body:body.toString(),hostProperties:hostProps)
@@ -100,10 +126,8 @@ class MessagingService {
     
     /**
      * Sends emails with quarts job.
-     *
-     * @params : 
-     * messageOut: messageOut object
-     * attachments: A list of File objects (optional)
+     * @param messageOut: messageOut object
+     * @param attachments: A list of File objects (optional)
      * 
      */
     def queueEmail(MessageOut messageOut, List<File> attachments){
@@ -115,23 +139,17 @@ class MessagingService {
     
     /**
      * Sends emails with quarts job.
-     *
-     * @params : 
-     * messageOut: messageOut object
-     * 
-     * 
-     */
+     * @param messageOut: messageOut object
+     **/
     def queueEmail(MessageOut messageOut){
         queueEmail(messageOut,[])
         
     }
     
-    /*Add attachments to a message
-     * @Params
-     * messageOut: Message object to which attachments will be added
-     * attachments: List of file objects to attach
-     * 
-     * */
+    /**Add attachments to a message
+     * @params messageOut: Message object to which attachments will be added
+     * @params attachments: List of file objects to attach
+     **/
     private MessageOut addAttachments(MessageOut messageOut, List<File> attachments){
         Attachment attachment = null
         FileInputStream fis = null
@@ -163,14 +181,14 @@ class MessagingService {
      * subject:
      * body:
      * hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"] 
-     */
+     **/
     boolean sendHTMLEmail(String hostname, String username, String password, String from, String to, String subject, String body,Map hostProps) throws Exception{
          List<File> attachments = []// empty list of attachments
         sendEmail(hostname, username, password, from, to, subject, body,true, attachments,hostProps)
         
     }
     
-     /**
+    /**
      * Sends emails.
      *
      * @params : email attributes such as
@@ -179,7 +197,7 @@ class MessagingService {
      * subject:
      * body:
      * 
-     */
+     **/
     boolean sendHTMLEmail(String to, String subject, String body) throws Exception{
         log.debug "trying to send inside messaging service 178"
         List<File> attachments = []// empty list of attachments
@@ -227,14 +245,14 @@ class MessagingService {
      * Sends emails.
      *
      * @params : email attributes such as
-     * hostName: name of the host eg Gmail
-     * username: email username
-     * password: email password
-     * from:
-     * to:
-     * subject:
-     * body:
-     * hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"]
+     * @param hostName: name of the host eg Gmail
+     * @param username: email username
+     * @param password: email password
+     * @param from: senders email address
+     * @param to: recipients email address
+     * @param subject: email subject
+     * @param body: email body
+     * @param hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"]
      */
     boolean sendEmail(String hostname, String username, String password, String from, String to, String subject, String body,Map hostProps) throws Exception{
         sendEmail(hostname, username, password, from, to, subject, body,false, null,hostProps)
@@ -242,14 +260,10 @@ class MessagingService {
     
     /**
      * Sends emails.
-     *
-     * @params :email attributes such as
-     * from:
-     * to:
-     * subject:
-     * body:
-     * 
-     */
+     * @param to: recipients email address
+     * @param subject: email subject
+     * @param body: email body
+     **/
     boolean sendEmail(String to, String subject, String body) throws Exception {
         List<File> attachments = []
         sendEmail(to, subject, body, attachments)
@@ -258,13 +272,10 @@ class MessagingService {
     
     /**
      * Sends emails.
-     *
-     * @params : email attributes such as
-     * from:
-     * to:
-     * subject:
-     * body:
-     * attachments: A list of File objects 
+     * @param to: recipients email address
+     * @param subject: email subject
+     * @param body: email body
+     * @param attachments: A list of File objects 
      */
     boolean sendEmail(String to, String subject, String body,List<File> attachments) throws Exception{
         def map = getAccountDetails()
@@ -277,17 +288,15 @@ class MessagingService {
     
     /**
      * Sends emails.
-     *
-     * @params : email attributes such as
-     * hostName: name of the host eg Gmail
-     * username: email username
-     * password: email password
-     * from:
-     * to:
-     * subject:
-     * body:
-     * attachments: A list of File objects 
-     * hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"]
+     * @param hostName: name of the host eg Gmail
+     * @param username: email username
+     * @param password: email password
+     * @param from: senders email address
+     * @param to: recipients email address
+     * @param subject: email subject
+     * @param body: email body
+     * @param attachments: A list of File objects 
+     * @param hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"]
      */
     boolean sendEmail(String hostname, String username, String password, String from, String to, String subject, String body,List<File> attachments,Map hostProps) throws Exception {
         sendEmail(hostname, username, password, from, to, subject, body,false, attachments,hostProps)
@@ -296,18 +305,16 @@ class MessagingService {
     //-----------------------------------------------------------------------
     
     /**
-     * Sends emails.
-     *
-     * @params : email attributes such as
-     * hostName: name of the host eg Gmail, Hotmail, Yahoo, etc
-     * username: email username
-     * password: email password
-     * from: Sender address
-     * to:  Recipient address
-     * subject: Message subject
-     * body: Message body
-     * attachments: a list of File objects (optional)
-     * hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"]
+     * Sends email.
+     * @param hostname: name of the host eg Gmail, Hotmail, Yahoo, etc
+     * @param username: email username
+     * @param password: email password
+     * @param from: senders email address
+     * @param to: recipients email address
+     * @param subject: email subject
+     * @param body: email body
+     * @param attachments: a list of File objects (optional)
+     * @param hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"]
      */
     boolean sendEmail(String hostname, String username, String password, String from, String to, String subject, String body,boolean html, List<File> attachments,Map hostProps) throws Exception{
         
@@ -326,18 +333,16 @@ class MessagingService {
     
     /**
      * Sends emails.
-     *
-     * @params : Map containing email attributes such as
-     * properties: Map containing email attibutes such as hostName, username, password, from, to, subject,body
-     * hostName: name of the host eg Gmail
+     * properties: Map containing email attibutes such as hostname, username, password, from, to, subject,body
+     * hostname: name of the host eg Gmail
      * username: email username
      * password: email password
-     * from:
-     * to:
-     * subject:
-     * body:
-     * attachments: a list of File objects (optional)
-     * hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"]
+     * from: senders email address
+     * to: recipients email address
+     * subject: email subject
+     * body: email body
+     * @param attachments: a list of File objects (optional)
+     * @param hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"]
      */
     private boolean doSendEmail(Map properties, boolean html, List<File> attachments,Map hostProps) throws Exception{
         
@@ -444,13 +449,12 @@ class MessagingService {
     }
     
     /**
-     * Receive emails.
-     *
-     * @params : 
-     * provider: name of the host eg Gmail,yahoo,hotmail,etc
-     * store: IMAP,POP
-     * username: john@yahoo.com
-     * password: *************     
+     * Receive emails. 
+     * @param provider: name of the host eg Gmail,yahoo,hotmail,etc
+     * @param store: IMAP,POP
+     * @param username: john@yahoo.com
+     * @param password: *************   
+     * @param hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"]
      */
      Message[] getMessages(String provider, String store,String username,String password,Map hostProps){
         return getMessages(provider,store,username,password,null,hostProps)
@@ -460,13 +464,12 @@ class MessagingService {
     
     /**
      * Receive emails.
-     *
-     * @params : 
-     * provider: name of the host eg Gmail,yahoo,hotmail,etc
-     * store: IMAP,POP
-     * username: john@yahoo.com
-     * password: *************
-     * term: search term used to specify which messages to retrieve     
+     * @param provider: name of the host eg Gmail,yahoo,hotmail,etc
+     * @param store: IMAP,POP
+     * @param username: john@yahoo.com
+     * @param password: *************
+     * @param term: search term used to specify which messages to retrieve 
+     * @param hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"]    
      */
     Message[] getMessages(String provider, String store,String username,String password,SearchTerm term,Map hostProps){
         
@@ -475,15 +478,14 @@ class MessagingService {
     }
     
     /**
-     * Receive emails.
-     *
-     * @params : 
-     * provider: name of the host eg Gmail,yahoo,hotmail,etc
-     * store: IMAP,POP
-     * username: john@yahoo.com
-     * password: *************
-     * term: search term used to specify which messages to retrieve 
-     * folder_rw. Folder.READ_ONLY, Folder.READ_WRITE    
+     * Receive emails. 
+     * @param provider: name of the host eg Gmail,yahoo,hotmail,etc
+     * @param store: IMAP,POP
+     * @param username: john@yahoo.com
+     * @param password: *************
+     * @param term: search term used to specify which messages to retrieve 
+     * @param folder_rw: Folder.READ_ONLY, Folder.READ_WRITE  
+     * @param hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"] 
      */
     Message[] getMessages(String provider, String store,String username,String password,SearchTerm term,int folder_rw, Map hostProps){
         
@@ -494,11 +496,9 @@ class MessagingService {
     
     
     /**
-     * Receive emails.
-     *
-     * @params : 
-     * term: search term used to specify which messages to retrieve 
-     * folder_rw: Folder.READ_WRITE, Folder.READ_ONLY, etc    
+     * Receive emails. 
+     * @param term: search term used to specify which messages to retrieve 
+     * @param folder_rw: Folder.READ_WRITE, Folder.READ_ONLY, etc    
      */
     Message[] getMessages(SearchTerm term,int folder_rw){
         
@@ -513,9 +513,7 @@ class MessagingService {
     
     /**
      * Receive emails.
-     *
-     * @params : 
-     * term: search term used to specify which messages to retrieve 
+     * @param term: search term used to specify which messages to retrieve 
      *   
      */
     Message[] getMessages(SearchTerm term){
@@ -534,20 +532,21 @@ class MessagingService {
     }
     
     
-    /*
+    /**
      * Retrieve messages from email account based on search term
      * @params: , store , and search term
-     * emailProps: Map containing email account properties  
-     * store : (imap,pop) 
-     * term : search term.
-     * GT, EQ,GE,LE,NE for ComparitsonTerm || 
-     * ReceivedDateTerm eg new ReceivedDateTerm(ComparisonTerm.GT,new Date()-1)
-     * SentDateTerm eg new SentDateTerm(ComparisonTerm.GT,new Date()-1)
-     * SubjectTerm(java.lang.String pattern) 
-     * FromTerm(Address address), 
-     * RecipientTerm(Message.RecipientType type, Address address)
-     * TO, CC and BCC for Message.RecipientType
-     * 
+     * @param emailProps: Map containing email account properties  
+     * @param store : (imap,pop) 
+     * @param term : search term.
+     *  GT, EQ,GE,LE,NE for ComparisonTerm || 
+     *  ReceivedDateTerm eg new ReceivedDateTerm(ComparisonTerm.GT,new Date()-1)
+     *  SentDateTerm eg new SentDateTerm(ComparisonTerm.GT,new Date()-1)
+     *  SubjectTerm(java.lang.String pattern) 
+     *  FromTerm(Address address), 
+     *  RecipientTerm(Message.RecipientType type, Address address)
+     *  TO, CC and BCC for Message.RecipientType
+     * @param folder_rw: Folder.READ_WRITE, Folder.READ_ONLY, etc 
+     * @param hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"]
      **/
     Message[] doGetMessages(Map emailProps, String store,SearchTerm term,int folder_rw, Map hostProps){
         
@@ -596,7 +595,7 @@ class MessagingService {
         
     }
     
-    /*
+    /**
      * Get message body 
      * @param: messageOut object
      * note: many messages will contain text/plain and text/html formats
@@ -639,23 +638,22 @@ class MessagingService {
     
     
     
-    /*
+    /**
      * Get message body 
      * @params message object
      * message: message from which to extract body
      * note: many messages will contain text/plain and text/html formats
      * where both are available this method will return the first in the list
-     */
+     **/
     String getMessageBody(MessageIn message){
         return getMessageBody(message,null)
     }
     
     
-    /*
+    /**
      * Get message attachments in a prefered format 
-     * @params messageIn object
-     * message: message from which to extract attachments     
-     */
+     * @param message: message from which to extract attachments     
+     **/
     List<byte[]> getMessageAttachments(MessageIn message){
         List<byte[]> bytes = []
         message?.attachments.each{
@@ -667,7 +665,7 @@ class MessagingService {
     
     /**
      * Persist an array of messages to the database
-     * @Params: An array of messages
+     * @param messages: An array of messages
      */
     def saveMessages(Message[] messages){
                 
@@ -680,7 +678,7 @@ class MessagingService {
     
     /**
      * Persist a message to the database
-     * @Params: A message
+     * @param message: A message object
      */
     def saveMessage(Message message){
         
@@ -702,9 +700,8 @@ class MessagingService {
     
     /**
      * Persist a message to the database
-     * @Params: A message and a domain class
-     * message: incoming javamail message
-     * messageIn: local database store object
+     * @param message: incoming javamail message
+     * @param msg: local database store object
      */
     def saveMessage(Message message,MessageIn msg){
         
@@ -725,15 +722,14 @@ class MessagingService {
         
     }
     
-    /*
+    /**
      * This method is used to separtate the body and attachment parts of 
      * a Part(javax.mail.Message) object and bind it to a com.novamail.MessageIn
      * Object for database persistence.
-     * @Params: com.novamail.MessageIn object, javax.mail.Message 
-     * novaMsg: The object to which you want to bind incomming message properties
-     * part: Message object from which we want to extract properties
+     * @param novaMsg: The object to which you want to bind incomming message properties
+     * @param part: Message object from which we want to extract properties
      * 
-     * */
+     **/
     public MessageIn setParts(MessageIn novaMsg,Part part){
         log.debug "content type ${part.getContentType()} "
         if (part.isMimeType("text/*")) {
@@ -745,15 +741,14 @@ class MessagingService {
         }
     }
    
-   /*
+    /**
      * This method is used to extract and bind text from incoming message
      * Part(javax.mail.Message) to a com.novamail.MessageIn
-     * Object for database persistence.
-     * @Params: com.novamail.MessageIn object, javax.mail.Message 
-     * novaMsg: The object to which you want to bind incoming message text
-     * part: Message object from which we want to extract properties
+     * Object for database persistence. 
+     * @param novaMsg: The object to which you want to bind incoming message text
+     * @param part: Message object from which we want to extract properties
      * 
-     * */
+     **/
    public MessageIn setTextPart(MessageIn novaMsg,Part part){
        log.debug "text part begin"
        String content = getText(part)
@@ -761,15 +756,15 @@ class MessagingService {
        return novaMsg
    }
    
-    /*
+    /**
      * This method is used to extract and bind text and attachments from incoming
      * messages Part(javax.mail.Message) to a com.novamail.MessageIn
      * Object for database persistence.
      * @Params: com.novamail.MessageIn object, javax.mail.Message 
-     * novaMsg: The object to which you want to bind incomming message properties
-     * part: Message object from which we want to extract properties
+     * @param novaMsg: The object to which you want to bind incomming message properties
+     * @param part: Message object from which we want to extract properties
      * 
-     * */
+     **/
     public MessageIn setMultipart(MessageIn novaMsg,Part part){
         log.debug "multipart begin...."
         if (part.isMimeType("multipart/*")) {
@@ -800,15 +795,15 @@ class MessagingService {
         return novaMsg
     }
     
-    /*
+    /**
      * This method is used to extract and bind attachements from incoming 
      * messages(javax.mail.Message)objects to a com.novamail.MessageIn
      * Object for database persistence.
      * @Params: com.novamail.MessageIn object, javax.mail.Message 
-     * novaMsg: The object to which you want to bind incomming message properties
-     * part: Message object from which we want to extract properties
+     * @param novaMsg: The object to which you want to bind incomming message properties
+     * @param part: Message object from which we want to extract properties
      * 
-     * */
+     **/
     public MessageIn setAttachment(MessageIn novaMsg,Part bp){
         log.debug "attachment begin..."
         log.debug bp.getContentType()
@@ -832,11 +827,11 @@ class MessagingService {
     
     
     
-    /*
+    /**
      * Retrieve predefined SMTP properties
      * @params: name of the host eg. Gmail, Hotmail, Yahoo
-     * hostName: name of the host
-     * */
+     * @param hostName: name of the host
+     **/
     private Map getSMTPProps(String hostName){
         //def hostProps = grailsApplication.config.novamail.hostProps
         def hostProps = [:]
@@ -877,11 +872,11 @@ class MessagingService {
         return hostProps
     }
     
-    /*
+    /**
      * Retrieve predefined Pop3 properties
      * @params: name of the host eg. Gmail, Hotmail, Yahoo
-     * hostName: name of the host
-     * */
+     * @param hostName: name of the host
+     **/
     private Map getPOP3Props(String hostName){
         def hostProps =  [:]
         switch(hostName) { 
@@ -923,11 +918,11 @@ class MessagingService {
         return hostProps
     }
     
-    /*
+    /**
      * Retrieve POP3s properties
      * @params: name of the host eg. Gmail, Hotmail, Yahoo
-     * hostName: name of the host
-     * */
+     * @param hostName: name of the host
+     **/
     private Map getPOP3SProps(String hostName){
         
         
@@ -960,11 +955,11 @@ class MessagingService {
         return hostProps
     }
     
-    /*
+    /**
      * Retrieve IMAPS properties
      * @params: name of the host eg. Gmail, Hotmail, Yahoo
-     * hostName: name of the host
-     * */
+     * @param hostName: name of the host
+     **/
     private Map getIMAPSProps(String hostName){
         
         def hostProps =  [:]
@@ -1006,11 +1001,11 @@ class MessagingService {
     }
     
     
-    /*
+    /**
      * Retrieve Imap properties
      * @params: name of the host eg. Gmail, Hotmail, Yahoo
-     * hostName: name of the host
-     * */
+     * @param hostName: name of the host
+     **/
     private Map getIMAPProps(String hostName){
         def hostProps =  [:]
         switch(hostName) {
@@ -1054,7 +1049,7 @@ class MessagingService {
     /**
      * Return the primary text content of the message.
      * @Params: javax.mail.Message p
-     * p: message object from which we want to extract 'body' text
+     * @param p: message object from which we want to extract 'body' text
      */
    public String getText(Part p) throws
                 MessagingException, IOException {

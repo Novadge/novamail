@@ -87,3 +87,34 @@ An example usage can be seen below.
 </code>
 
 
+novamail with NovamailService
+==============================
+
+<h2>Requirements</h2>
+
+To use the <code>novamailService</code>, you need to declare a map with the required variables. These are, 
+ <code>hostname, username, password, from, to, subject, body, html, attachments, hostProps</code>. <br />
+ 
+<code>hostname, username, password, from, to, subject, body</code> are string variables. <code>html</code> is boolean that defaults
+to <code>true</code>, <code>attachments</code> is a List of type File (for file attachments) and is optional, 
+while <code>hostProps</code> is a map of host properties (see above). <br />
+
+If <code>hostname, username, password, from, hostProps</code> have been set in the Config.groovy file, they do not have to be
+added to your map passed to the <code>novamailService</code>. <code>html</code> defaults to <code>true</code> so that can be 
+omitted as well except when set explicitly (your choice). <br />
+
+<h2>Example Usage</h2>
+
+<code>
+    
+    Class MyController {
+        def novamailService
+        
+        def myMethod() {
+            ...
+            def map = [to: "recepeitn@gmail.com", subject: "Hello there!", body: "Just to test out awesome Novamail"]
+            novamailService.sendEmail(map) // Call the novamailService sendEmail method passing in the map
+        }
+    }
+    
+</code>

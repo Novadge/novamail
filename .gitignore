@@ -14,13 +14,13 @@
 /stacktrace.log
 /test/reports
 /logs
+*.log
 
 # project release file
 /*.war
 
 # plugin release files
 /*.zip
-/*.zip.sha1
 /plugin.xml
 
 # older plugin install locations
@@ -29,3 +29,4 @@
 
 # "temporary" build files
 /target
+*.iml

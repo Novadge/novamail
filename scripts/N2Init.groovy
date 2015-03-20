@@ -18,7 +18,7 @@ import grails.util.Metadata
 includeTargets << new File("$novamailPluginDir/scripts/_N2Common.groovy")
 
 USAGE = """
-Usage: grails n2-quickstart
+Usage: grails n2-init
 
 Creates a MessageIn, MessageOut, Body and Attachement in the novamail package
 
@@ -108,11 +108,11 @@ private boolean configure() {
 private void createDomains() {
 
 	String dir = packageToDir(packageName)
-	generateFile "$templateDir/MessageOut.groovy.template", "$appDir/domain/${dir}${messageOutClassName}.groovy"
-        generateFile "$templateDir/MessageIn.groovy.template", "$appDir/domain/${dir}${messageInClassName}.groovy"
-        generateFile "$templateDir/Body.groovy.template", "$appDir/domain/${dir}${bodyClassName}.groovy"
-        generateFile "$templateDir/Attachment.groovy.template", "$appDir/domain/${dir}${attachmentClassName}.groovy"
-	generateFile "$templateDir/MailDispatchJob.groovy.template", "$appDir/jobs/${dir}${mailDispatchJobName}.groovy"
+	copyFile "$templateDir/MessageOut.groovy.template", "$appDir/domain/${dir}${messageOutClassName}.groovy"
+        copyFile "$templateDir/MessageIn.groovy.template", "$appDir/domain/${dir}${messageInClassName}.groovy"
+        copyFile "$templateDir/Body.groovy.template", "$appDir/domain/${dir}${bodyClassName}.groovy"
+        copyFile "$templateDir/Attachment.groovy.template", "$appDir/domain/${dir}${attachmentClassName}.groovy"
+	copyFile "$templateDir/MailDispatchJob.groovy.template", "$appDir/jobs/${dir}${mailDispatchJobName}.groovy"
 	
 }
 
@@ -181,4 +181,4 @@ private parseArgs() {
 	null
 }
 
-setDefaultTarget 'n2Quickstart'
+setDefaultTarget 'n2Init'

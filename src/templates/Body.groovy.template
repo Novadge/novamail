@@ -1,6 +1,6 @@
-package ${packageName}
+package com.novadge.novamail
 
-class ${bodyClassName}{ 
+class Body {
     static belongsTo = [messageIn:MessageIn]
     String contentType
     String content

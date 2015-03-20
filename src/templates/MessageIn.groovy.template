@@ -1,9 +1,9 @@
-package ${packageName}
+package com.novadge.novamail
 import javax.mail.internet.MimeMultipart
 import javax.mail.Multipart
 import javax.mail.Address
-class ${messageInClassName}{
 
+class MessageIn {
     static hasMany = [body:Body,attachments:Attachment]
     String senders/**/
     //Subclasses: InternetAddress, NewsAddress 
@@ -33,5 +33,8 @@ class ${messageInClassName}{
     static mapping = {
         sort dateReceived: 'desc'
     }
+    
+    
+    
     
 }

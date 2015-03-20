@@ -12,7 +12,10 @@ class MessagingService {
    def grailsApplication 
     //-----------------------------------------------------------------------
     //-----------internal email sending -------------------------
-    
+    /**
+     * Retrieve account details from grail config file
+     * @returns :map of config attributes
+     **/
     Map getAccountDetails(){
         Map map = [:]
         map.hostname = grailsApplication.config.novamail.hostname
@@ -592,7 +595,7 @@ class MessagingService {
     
     /*
      * Get message body 
-     * @params messageOut object
+     * @param: messageOut object
      * note: many messages will contain text/plain and text/html formats
      * where both are available this method will return the first in the list
      */
@@ -605,9 +608,9 @@ class MessagingService {
     
     /*
      * Get message body in a prefered format 
-     * @params messageIn object and prefered format
-     * message: message from which to extract body
-     * prefFormat: format in which to return message body
+     * messageIn object and prefered format
+     * @param message: message from which to extract body
+     * @param prefFormat: format in which to return message body
      * note: many messages will contain text/plain and text/html formats
      * where both are available this method will return the first in the list
      */

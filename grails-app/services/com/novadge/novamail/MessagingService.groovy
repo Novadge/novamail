@@ -18,7 +18,7 @@ class MessagingService {
      * Retrieve message config from grails config
      * @returns Map: a map of config attributes
      * 
-     * */
+     **/
     Map getAccountDetails(){
         Map map = [:]
         map.hostname = grailsApplication.config.novamail.hostname
@@ -69,9 +69,15 @@ class MessagingService {
     
     /**
      * Sends emails with quarts job.
+<<<<<<< HEAD
      * @param to: Recipients email address
      * @param subject: Message subject
      * @param body: Email message
+=======
+     * @param to: email recipient
+     * @param subject: email subject
+     * @param body: email body
+>>>>>>> master
      */
     def queueEmail(String to, String subject, String body){
         queueEmail(to,subject,body,[])
@@ -80,11 +86,21 @@ class MessagingService {
     
     /**
      * Sends emails with quarts job.
+<<<<<<< HEAD
      * @param to: Recipients email address
      * @param subject: Message subject
      * @param body: Email message
      * attachments: A list of File objects (optional)
      **/
+=======
+     * @params : Map containing email attributes such as
+     * @param from: email sender
+     * @param to: email recipient
+     * @param subject: email subject
+     * @param body: email body
+     * @param attachments: A list of File objects (optional)
+     */
+>>>>>>> master
     def queueEmail(String to, String subject, String body,List<File> attachments){
         Map map = getAccountDetails()
         queueEmail(map.hostname,map.username,map.password,map.from,to,subject,body.toString(),attachments,map.hostProps)

@@ -12,10 +12,13 @@ class MessagingService {
    def grailsApplication 
     //-----------------------------------------------------------------------
     //-----------internal email sending -------------------------
+
+    
     /**
-     * Retrieve account details from grail config file
-     * @returns :map of config attributes
-     **/
+     * Retrieve message config from grails config
+     * @returns Map: a map of config attributes
+     * 
+     * */
     Map getAccountDetails(){
         Map map = [:]
         map.hostname = grailsApplication.config.novamail.hostname
@@ -197,7 +200,7 @@ class MessagingService {
         def map = getAccountDetails()
         log.debug map
         def hostProps = map.hostProps//grailsApplication.config.novamail.hostProps
-        log.debug "messaging service 196 with hostprops ${hostProps}"
+        log.debug "messaging service with hostprops ${hostProps}"
         sendHTMLEmail(map.hostname, map.username, map.password, map.from, to, subject, body, attachments,hostProps)
     }
     
@@ -299,10 +302,10 @@ class MessagingService {
      * hostName: name of the host eg Gmail, Hotmail, Yahoo, etc
      * username: email username
      * password: email password
-     * from:
-     * to:  
-     * subject:
-     * body:
+     * from: Sender address
+     * to:  Recipient address
+     * subject: Message subject
+     * body: Message body
      * attachments: a list of File objects (optional)
      * hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"]
      */
@@ -466,7 +469,7 @@ class MessagingService {
      * term: search term used to specify which messages to retrieve     
      */
     Message[] getMessages(String provider, String store,String username,String password,SearchTerm term,Map hostProps){
-        log.debug "line 427"
+        
         return getMessages(provider,store,username,password,term,Folder.READ_ONLY,hostProps)
         
     }
@@ -827,15 +830,10 @@ class MessagingService {
     
     
     
-    /**
-     * This class checks the message against defined criteria
-     **/
-    public boolean criteriaMatch(Message message,String sender){
-        
-    }
+    
     
     /*
-     * Retrieve SMTP properties
+     * Retrieve predefined SMTP properties
      * @params: name of the host eg. Gmail, Hotmail, Yahoo
      * hostName: name of the host
      * */
@@ -880,7 +878,7 @@ class MessagingService {
     }
     
     /*
-     * Retrieve Pop3 properties
+     * Retrieve predefined Pop3 properties
      * @params: name of the host eg. Gmail, Hotmail, Yahoo
      * hostName: name of the host
      * */

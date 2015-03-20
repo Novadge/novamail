@@ -54,17 +54,17 @@ Please note that 'sendEmail()' is overloaded 'see http://en.wikipedia.org/wiki/F
 <br/>
 One simple form is:
 <code>
-sendEmail(String to, String subject, String body)
+sendEmail(Map map)
 </code>
 
 Where ......
 
+map contains parameters...
+map.to: Email recipient eg recipient@gmail.com
 
-to: Email recipient eg recipient@gmail.com
+map.subject: "Your email subject"
 
-subject: "Your email subject"
-
-body: "The body of your message"
+map.body: "The body of your message"
 
 <h2>Example</h2>
 
@@ -73,12 +73,12 @@ An example usage can be seen below.
 <code>
 
     Class YourController{
-    
+     
         def messagingService
-        
+        ...
         def yourMethod(){
-            ....
-            messagingService.sendEmail("recipient@gmail.com","email subject","email body")
+            def map = [to:"recipient@gmail.com",subject:"Email subject",body:"email body]
+            messagingService.sendEmail(map)
         
         }
     
@@ -87,20 +87,24 @@ An example usage can be seen below.
 </code>
 
 
-novamail with NovamailService
+novamail with Mapped parameters
 ==============================
 
 <h2>Requirements</h2>
 
-To use the <code>novamailService</code>, you need to declare a map with the required variables. These are, 
- <code>hostname, username, password, from, to, subject, body, html, attachments, hostProps</code>. <br />
+To use the <code>messagingService</code> with mapped parameters, you need to declare a 
+map with the required variables. These are, <code>hostname, username, password, 
+from, to, subject, body, html, attachments, hostProps</code>.
+<br />
  
-<code>hostname, username, password, from, to, subject, body</code> are string variables. <code>html</code> is boolean that defaults
-to <code>true</code>, <code>attachments</code> is a List of type File (for file attachments) and is optional, 
+<code>hostname, username, password, from, to, subject, body</code> are string variables. 
+<code>html</code> is boolean that defaults to <code>true</code>, 
+<code>attachments</code> is a List of type File (for file attachments) and is optional, 
 while <code>hostProps</code> is a map of host properties (see above). <br />
 
-If <code>hostname, username, password, from, hostProps</code> have been set in the Config.groovy file, they do not have to be
-added to your map passed to the <code>novamailService</code>. <code>html</code> defaults to <code>true</code> so that can be 
+If <code>hostname, username, password, from, hostProps</code> have been set in the 
+Config.groovy file, they do not have to be added to your map parameter. 
+<code>html</code> defaults to <code>true</code> so that can be 
 omitted as well except when set explicitly (your choice). <br />
 
 <h2>Example Usage</h2>
@@ -108,12 +112,12 @@ omitted as well except when set explicitly (your choice). <br />
 <code>
     
     Class MyController {
-        def novamailService
+        def messagingService
         
         def myMethod() {
             ...
             def map = [to: "recepeitn@gmail.com", subject: "Hello there!", body: "Just to test out awesome Novamail"]
-            novamailService.sendEmail(map) // Call the novamailService sendEmail method passing in the map
+            messagingService.sendEmail(map) // Call the messagingService sendEmail method passing in the map
         }
     }
     

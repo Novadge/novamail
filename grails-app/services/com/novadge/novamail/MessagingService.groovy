@@ -49,21 +49,16 @@ class MessagingService {
         // use parameter host properties else use properties defined in config
         Map hostProps = map.hostProps? map.hostProps:props.hostProps
         // use custom account credentials else use properties defined in config
-        boolean response = false
-        boolean html = true
-        if(map.html){
-            html = map.html
-        }
         
+        boolean html = map?.html != null? map.html:true
+                
         if(!map.username || !map.password){//get credentials from conf file
-           response = sendEmail(props.hostname, props.username, props.password, props.username, map.to, map.subject, map.body,html, map.attachments,hostProps)
+           return sendEmail(props.hostname, props.username, props.password, props.username, map.to, map.subject, map.body,html, map.attachments,hostProps)
         }
         else{// use user provided credentials
-           response = sendEmail(map.hostname, map.username, map.password, map.username, map.to, map.subject, map.body,html, map.attachments,hostProps) 
+           return sendEmail(map.hostname, map.username, map.password, map.username, map.to, map.subject, map.body,html, map.attachments,hostProps) 
         }
         
-
-        return response
     }
     
     

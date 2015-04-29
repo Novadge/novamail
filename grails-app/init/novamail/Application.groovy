@@ -1,4 +1,4 @@
-package mail.grails3
+package novamail
 
 import grails.boot.GrailsApp
 import grails.boot.config.GrailsAutoConfiguration

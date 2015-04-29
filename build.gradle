@@ -37,7 +37,7 @@ ext {
 bintray {
   pkg {
     userOrg = 'novadge' // If you want to publish to an organization
-    name = "mail-grails"
+    name = "novamail"
     issueTrackerUrl = "https://github.com/Novadge/novamail/issues"
     vcsUrl = "https://github.com/Novadge/novamail"
     version {

@@ -1,7 +1,7 @@
 novamail
 ========
 
-[![Build Status](https://travis-ci.org/Omasiri/novamail.svg?branch=master)](https://travis-ci.org/Omasiri/novamail)
+[![Build Status](https://travis-ci.org/Novadge/novamail.svg?branch=master)](https://travis-ci.org/Novadge/novamail)
 <h2>Description</h2>
 
 The Novamail plug-in provides e-mail sending and receiving capabilities to a Grails application. It is also capable of sending emails asynchronously by using a scheduled Job.

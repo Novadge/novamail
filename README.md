@@ -4,7 +4,7 @@ Mail-grails
 [![Build Status](https://travis-ci.org/Novadge/mail-grails.svg?branch=master)](https://travis-ci.org/Novadge/mail-grails)
 <h2>Description</h2>
 
-The Mail-Grails plug-in provides e-mail sending and receiving capabilities to a Grails application. It is also capable of sending emails asynchronously by using a scheduled Job.
+The Novamail plug-in provides e-mail sending and receiving capabilities to a Grails application. It is also capable of sending emails asynchronously by using a scheduled Job.
 
 <h2>Configuration</h2>
 
@@ -13,7 +13,7 @@ Assuming you want to add config for a gmail account for 'john@gmail.com' then ad
 
 <code>
 
-    # Added by the Mail-Grails plugin:
+    # Added by the Novamail plugin:
 novamail:
     hostname: "Gmail"
     username: 'Username<yourname@provider.com>'
@@ -37,7 +37,7 @@ novamail:
 </code>
 
 <h3>Side note </h3>
-Mail-Grails will try to use predefined host props for some popular email providers if you do not provide hostProps
+Novamail will try to use predefined host props for some popular email providers if you do not provide hostProps
 
 <h2>Usage</h2>
 
@@ -84,7 +84,7 @@ An example usage can be seen below.
 </code>
 
 
-Mail-Grails with Mapped parameters
+Novamail with Mapped parameters
 ==============================
 
 <h2>Requirements</h2>

@@ -17,12 +17,12 @@ class NovamailGrailsPlugin extends Plugin {
     def author = "Omasirichukwu Udeinya"
     def authorEmail = ""
     def description = '''\
-The Mail-Grails plug-in provides e-mail sending and retrieving capabilities to a \n\
+The Novamail plug-in provides e-mail sending and retrieving capabilities to a \n\
 Grails application. It is also capable of sending emails asynchronously by using a scheduled Job.
 '''
 
     // URL to the plugin's documentation
-    def documentation = "http://github.com/Novadge/mail-grails"
+    def documentation = "http://github.com/Novadge/novamail"
 
     // Extra (optional) plugin metadata
 

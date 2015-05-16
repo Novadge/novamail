@@ -1,4 +1,4 @@
-Mail-grails
+Novamail
 ========
 
 [![Build Status](https://travis-ci.org/Novadge/mail-grails.svg?branch=master)](https://travis-ci.org/Novadge/mail-grails)

@@ -62,14 +62,16 @@ void "test send email(Map map) " (){
             Map conf = service.getAccountDetails()
             List<File> attachments = []
             String to = "recipient@test.com"
+			String subject = "test"
+			String body = "test body"
             //File f = new File("test1"); File g = new File("test2"); attachments.add(f); attachments.add(g);
-            service.queueEmail(to,conf.subject,conf.body,attachments)
+            service.queueEmail(to,subject,body,attachments)
         expect:"message object is persisted to the database"
-            def msg = MessageOut.where{recipients == to && subject == conf.subject}.find()
+            def msg = MessageOut.where{recipients == to && subject == subject}.find()
             assert msg != null
         and:"message is the same message that was persisted"
             msg.recipients == to
-            msg.subject == conf.subject       
+            msg.subject == subject       
         
     }
     

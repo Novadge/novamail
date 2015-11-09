@@ -1,7 +1,7 @@
-novamail
+Novamail
 ========
 
-[![Build Status](https://travis-ci.org/Omasiri/novamail.svg?branch=master)](https://travis-ci.org/Omasiri/novamail)
+[![Build Status](https://travis-ci.org/Novadge/mail-grails.svg?branch=master)](https://travis-ci.org/Novadge/mail-grails)
 <h2>Description</h2>
 
 The Novamail plug-in provides e-mail sending and receiving capabilities to a Grails application. It is also capable of sending emails asynchronously by using a scheduled Job.
@@ -13,28 +13,25 @@ Assuming you want to add config for a gmail account for 'john@gmail.com' then ad
 
 <code>
 
-    novamail{
-
-        hostname="Gmail"
-        username="john@gmail.com"
-        password="blahblahblah"
-        store="imap"
-        hostProps = [
-
-                    "mail.imap.host":"imap.gmail.com",
-                    "mail.store.protocol": "imaps",
-                    "mail.imap.socketFactory.class": "javax.net.ssl.SSLSocketFactory",
-                    "mail.imap.socketFactory.fallback": "false",
-                    "mail.imaps.partialfetch": "false",
-                    "mail.smtp.starttls.enable": "true",
-                    "mail.smtp.host": "smtp.gmail.com",
-                    "mail.smtp.auth": "true",
-                    "mail.smtp.socketFactory.port": "465",
-                    "mail.smtp.socketFactory.class": "javax.net.ssl.SSLSocketFactory",
-                    "mail.smtp.socketFactory.fallback": "false"
-
-                    ]
-    }
+    # Added by the Novamail plugin:
+novamail:
+    hostname: "Gmail"
+    username: 'Username<yourname@provider.com>'
+    password: 'bla bla bla'
+    store: "imap"    
+    hostProps:
+        "Host": "imap.gmail.com"
+        "mail.imap.host": "imap.gmail.com"
+        "mail.store.protocol": "imaps"
+        "mail.imap.socketFactory.class": "javax.net.ssl.SSLSocketFactory"
+        "mail.imap.socketFactory.fallback": "false"
+        "mail.imaps.partialfetch": "false"        
+        "mail.smtp.starttls.enable": "true"
+        "mail.smtp.host": "smtp.gmail.com"
+        "mail.smtp.auth": "true"
+        "mail.smtp.socketFactory.port": "465"
+        "mail.smtp.socketFactory.class": "javax.net.ssl.SSLSocketFactory"
+        "mail.smtp.socketFactory.fallback": "false"
 
 
 </code>
@@ -87,7 +84,7 @@ An example usage can be seen below.
 </code>
 
 
-novamail with Mapped parameters
+Novamail with Mapped parameters
 ==============================
 
 <h2>Requirements</h2>

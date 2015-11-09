@@ -24,45 +24,22 @@ class MessagingServiceSpec extends Specification {
     def cleanup() {
     }
     
-
-
-     
-    void "test return account details defined in grails config" (){
-        given:"email provider and account details defined in grails config"
-            //def grailsAppMock = mockFor(GrailsApplication)
-            
-        when:
-            assert grailsApplication != null
-            Map conf = service.getAccountDetails()
-        then:"account details is not null"
-            conf != null
-            
-        and:"correct details returned"
-            conf.hostname == 'Gmail'
-            conf.username == 'testuser@gmail.com'
-            conf.password == 'password'
-            conf.from == 'testuser@gmail.com'
+void "test send email(Map map) " (){
+        given:'App user provided email params without credentials'
+            String subject = "Email subject"
+            String to = "demo@email.com"
+            String body = "body"
+			String username = "user@x.com"
+			String password = "password"
+            service.sendEmail(['to':to,'subject':subject,'body':body,'username':username,'password':password])
+        expect:"message is sent"
+           
+        and:""
+                 
         
     }
-    
-    
-    void "test queueEmail" (){
-        given:'app user has provided email provider and account details'
-            Map conf = service.getAccountDetails()
-            List<File> attachments = []
-            String to = "recipient@test.com"
-			String subject = "test"
-			String body = "test body"
-            //File f = new File("test1"); File g = new File("test2"); attachments.add(f); attachments.add(g);
-            service.queueEmail(to,subject,body,attachments)
-        expect:"message object is persisted to the database"
-            def msg = MessageOut.where{recipients == to && subject == subject}.find()
-            assert msg != null
-        and:"message is the same message that was persisted"
-            msg.recipients == to
-            msg.subject == subject       
-        
-    }
+
+
     
 
 //    void "test queueEmail(String hostname, String username, String password, String from, String to, String subject, String body,Map hostProps)" (){

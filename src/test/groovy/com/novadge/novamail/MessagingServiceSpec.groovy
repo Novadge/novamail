@@ -29,7 +29,9 @@ void "test send email(Map map) " (){
             String subject = "Email subject"
             String to = "demo@email.com"
             String body = "body"
-            service.sendEmail(to,subject,body)
+			String username = "user@x.com"
+			String password = "password"
+            service.sendEmail(['to':to,'subject':subject,'body':body,'username':username,'password':password])
         expect:"message is sent"
            
         and:""

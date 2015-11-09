@@ -74,7 +74,7 @@ class PostMan {
                 //do nothing :(
             }
             else{
-               log.debug "setting ${key} to ${value}"
+//               log.debug "setting ${key} to ${value}"
                properties.setProperty(key,value) 
             }
             
@@ -95,11 +95,11 @@ class PostMan {
      **/
     void storeConnect(String host, String username, String password) {
         try {
-            log.debug "trying to connect to store......at ${host}\n"
+//            log.debug "trying to connect to store......at ${host}\n"
             store.connect(host, username, password)
         }
         catch(e) {
-            log.error "Unable to connect to store because $e.message", e
+//            log.error "Unable to connect to store because $e.message", e
         }
     }
 
@@ -110,11 +110,11 @@ class PostMan {
      **/
     void getStore(String string) {
         try {
-            log.debug "trying to get store......${string}\n"
+//            log.debug "trying to get store......${string}\n"
             store = session.getStore(string)
         }
         catch (e) {
-            log.error e.message, e
+//            log.error e.message, e
         }
     }
 
@@ -124,14 +124,14 @@ class PostMan {
      **/
     void getInbox() {
         try {
-            log.debug "trying to get inbox......\n"
+//            log.debug "trying to get inbox......\n"
             
             inbox = store.getFolder("INBOX")
             inbox.open(Folder.READ_ONLY)
             messages =  inbox.getMessages()
         }
         catch (e) {
-            log.error "Unable to get inbox because $e.message", e
+//            log.error "Unable to get inbox because $e.message", e
         }
     }
     
@@ -147,7 +147,7 @@ class PostMan {
      */
     Message[] getInbox(SearchTerm term, int folder_rw) {
         try {
-            log.debug "trying to get inbox......\n"
+//            log.debug "trying to get inbox......\n"
             inbox = store.getFolder("INBOX")
             if(folder_rw){
                 inbox.open(folder_rw)
@@ -162,7 +162,7 @@ class PostMan {
             
         }
         catch (e) {
-            log.error "Unable to get inbox because $e.message", e
+//            log.error "Unable to get inbox because $e.message", e
         }
          
         return messages
@@ -249,24 +249,24 @@ class PostMan {
      * file: file object to send as attachment
      */
     private void doSendEmail(Map emailProps, Map props, boolean html, List<File> files) {
-        log.debug "inside postman with ${files}"
+//        log.debug "inside postman with ${files}"
         Properties properties = System.getProperties()
-        log.debug "setting properties ${props}"
+//        log.debug "setting properties ${props}"
         // Setup mail server
         props.each { key, value ->
             
             properties.setProperty(key,value)
         }
-        log.debug "creating auth"
+//        log.debug "creating auth"
         Authenticator auth = null;
         String usernameAddr = emailProps.username
         // check if the username contains personal name
-        log.debug "username = ${usernameAddr}"
+//        log.debug "username = ${usernameAddr}"
         if(emailProps.username?.contains("<") && emailProps.username?.contains(">")){
             int start = emailProps.username.indexOf("<") // find the index
             int end = emailProps.username.indexOf(">")// find the index
             String username =  emailProps.username.substring(start+1,end) // get the string between
-            log.debug username
+//            log.debug username
             auth = new NovadgeAuthenticator(username, emailProps.password)// create auth
         }
         else{
@@ -274,10 +274,10 @@ class PostMan {
         }
         
         Session session = Session.getDefaultInstance(properties, auth)
-        log.debug "created session"
+//        log.debug "created session"
         MimeMessage message = new MimeMessage(session)
         String sourceAddr = emailProps.from
-        log.debug "Source addr = ${sourceAddr}"
+//        log.debug "Source addr = ${sourceAddr}"
         if(sourceAddr.contains("<") && sourceAddr.contains(">")){
             
             int start = sourceAddr.indexOf("<")
@@ -285,7 +285,7 @@ class PostMan {
 
             String address =  sourceAddr.substring(start+1,end)
             String name = sourceAddr.substring(0,start-1)
-            log.debug address
+//            log.debug address
             message.setFrom(new InternetAddress(address,name))
         }
         else{
@@ -306,8 +306,8 @@ class PostMan {
         
         if (files) {
             BodyPart messageBodyPart = new MimeBodyPart()
-            log.debug "mail has attachments"
-            log.debug "adding attachments"
+//            log.debug "mail has attachments"
+//            log.debug "adding attachments"
             
             messageBodyPart.setContent(emailProps.body, TEXT_HTML)
 
@@ -317,7 +317,7 @@ class PostMan {
             
             // Part two is attachment
             files.each({file ->
-                log.debug "attaching files..."
+//                log.debug "attaching files..."
                 messageBodyPart = new MimeBodyPart()
                 //TODO: Find way to set file path
                 DataSource source = new FileDataSource(file)
@@ -330,9 +330,9 @@ class PostMan {
             message.setContent(multipart)
         }
         
-        log.debug "trying to send message with transport ${message}"
+//        log.debug "trying to send message with transport ${message}"
         Transport.send(message)
-        log.debug "Sent message successfully...."
+//        log.debug "Sent message successfully...."
     }
     
     

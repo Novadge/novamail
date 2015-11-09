@@ -681,7 +681,7 @@ class MessagingService {
         Map props = [:]
         msg = new MessageIn() // create a new message object
         Message it = message // reference handle... too lazy to do anything more... ;)
-        props =[contentType:it.getContentType(),senders:it.getFrom()[0].toString(),recipients:it.getRecipients(RecipientType.TO).toString(),subject:it.getSubject(),dateSent:it.getSentDate(),dateReceived:it.getReceivedDate(),status:"Unread"]
+        props =[contentType:it?.getContentType(),senders:it?.getFrom()[0].toString(),recipients:it?.getRecipients(RecipientType.TO).toString(),subject:it.getSubject(),dateSent:it.getSentDate(),dateReceived:it.getReceivedDate(),status:"Unread"]
         msg.properties = props // assign properties to the message object
         msg = setParts(msg,it) // set the body and attachment parts of the message
         MessageIn.withNewSession{ // save message with new session because ... 
@@ -747,7 +747,7 @@ class MessagingService {
    public MessageIn setTextPart(MessageIn novaMsg,Part part){
        log.debug "text part begin"
        String content = getText(part)
-       novaMsg.addToBody(new Body(contentType:part.getContentType(),content:content))//addToBody(new Body(fileType:part.getContentType(),body:content))
+       novaMsg.addToBody(new Body(contentType:part?.getContentType(),content:content?.toString()))//addToBody(new Body(fileType:part.getContentType(),body:content))
        return novaMsg
    }
    

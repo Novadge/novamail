@@ -78,7 +78,7 @@ dependencies {
 
     console "org.grails:grails-console"
     compile 'javax.mail:javax.mail-api:1.5.5'
-    compile 'com.sun.mail:javax.mail:1.5.5'
+    compile 'javax.mail:mail:1.5.0-b01'
 }
 
 task wrapper(type: Wrapper) {

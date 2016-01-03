@@ -1,16 +1,12 @@
-package com.novadge.novamail
-
-import grails.plugins.*
-
-class NovamailGrailsPlugin extends Plugin {
-
+class NovamailGrailsPlugin {
+    // the plugin version
+    def version = "0.3.8"
     // the version or versions of Grails the plugin is designed for
-    def grailsVersion = "3.0.1 > *"
+    def grailsVersion = "2.4 > *"
     // resources that are excluded from plugin packaging
     def pluginExcludes = [
         "grails-app/views/error.gsp"
     ]
-
 
     // TODO Fill in these fields
     def title = "Novamail Plugin" // Headline display name of the plugin
@@ -22,7 +18,7 @@ Grails application. It is also capable of sending emails asynchronously by using
 '''
 
     // URL to the plugin's documentation
-    def documentation = "http://github.com/Novadge/novamail"
+    def documentation = "http://grails.org/plugin/novamail"
 
     // Extra (optional) plugin metadata
 
@@ -38,8 +34,10 @@ Grails application. It is also capable of sending emails asynchronously by using
     ]
 
     // Location of the plugin's issue tracker.
-    def issueManagement = [system: 'GITHUB', url: 'https://github.com/Novadge/novamail/issues']
+    def issueManagement = [system: 'GITHUB', url: 'https://github.com/Omasiri/novamail/issues']
 
     // Online location of the plugin's browseable source code.
-    def scm = [url: 'https://github.com/Novadge/novamail']
+    def scm = [url: 'https://github.com/Omasiri/novamail']
+
+    
 }

@@ -1,0 +1,14 @@
+package com.novadge.novamail
+
+class Attachment {
+    static belongsTo = [messageIn:MessageIn,messageOut:MessageOut]
+    String name
+    byte[] data
+
+    static constraints = {
+        name(nullable:true,blank:true)
+        messageIn(nullable:true,blank:true)
+        messageOut(nullable:true,blank:true)
+        data(nullable:false,blank:false,maxSize:1024 * 100* 100)
+    }
+}

@@ -16,7 +16,7 @@ plugins {
     id "com.jfrog.bintray" version "1.1"
 }
 
-version "0.1.0"
+version "0.1.1"
 group "com.novadge.plugins"
 
 apply plugin: 'maven-publish'
@@ -77,8 +77,8 @@ dependencies {
     testCompile "org.grails:grails-plugin-testing"
 
     console "org.grails:grails-console"
-    compile 'javax.mail:javax.mail-api:1.5.1'
-    compile 'com.sun.mail:javax.mail:1.5.1'
+    compile 'javax.mail:javax.mail-api:1.5.5'
+    compile 'com.sun.mail:javax.mail:1.5.5'
 }
 
 task wrapper(type: Wrapper) {

@@ -21,6 +21,7 @@
 
 # plugin release files
 /*.zip
+/*.sha1
 /plugin.xml
 
 # older plugin install locations
@@ -30,9 +31,10 @@
 # "temporary" build files
 /target
 /build
-.gradle
+*.gradle
 /gradle
 .nb-gradle
+
 *.iml
 
 # Ignore Gradle GUI config

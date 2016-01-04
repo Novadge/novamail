@@ -63,6 +63,51 @@ class MessagingService {
     
     
     /**
+     * Send email
+     * @param messageOut : messageOut instance
+     */
+    void sendEmail(MessageOut messageOut) {        
+        
+            String subject = "${messageOut.subject}"
+            String to = "${messageOut?.recipients}"
+
+            if (!messageOut?.attachments) {
+                List<File> files = []
+                
+                messageOut?.attachments?.each{att -> // all attachments
+                   log.debug "creating files"
+                   File f = new File("${att?.name}")
+                   def fout = new FileOutputStream(f)
+                   fout.write(att.data)
+                   files.add(f) // extract data
+                   
+                }
+                
+               //(String hostname, String username, String password, String from, String to, String subject, String body)
+                if(sendHTMLEmail(messageOut?.hostname, messageOut?.username, messageOut?.password, messageOut?.senders, messageOut?.recipients, messageOut?.subject, messageOut?.body, files,messageOut?.hostProperties)){
+                    messageOut.status = "Sent"
+                    messageOut.dateSent = new Date()
+                    messageOut.save()  
+                }
+                 
+            }
+            else{
+               // log.debug "Sending Message....complete..."
+               //(String hostname, String username, String password, String from, String to, String subject, String body)
+               if(sendHTMLEmail(messageOut?.hostname, messageOut?.username, messageOut?.password, messageOut?.senders, messageOut?.recipients, messageOut?.subject, messageOut?.body,messageOut?.hostProperties)){
+                    messageOut.status = "Sent"
+                    messageOut.dateSent = new Date()
+                    messageOut.save()
+               }
+               
+                 
+            }
+            
+        
+    }
+    
+    
+    /**
      * Sends emails with quarts job.
      * @param to: email recipient
      * @param subject: email subject

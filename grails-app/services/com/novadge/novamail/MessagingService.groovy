@@ -232,11 +232,11 @@ class MessagingService {
      * Sends emails.
      *
      * @params : email attributes such as
-     * from:
-     * to:
-     * subject:
-     * body:
-     * 
+     * from: The sender
+     * to: The recipient
+     * subject: Your message subject
+     * body: The body of your message
+     * @returns boolean
      **/
     boolean sendHTMLEmail(String to, String subject, String body) throws Exception{
         log.debug "trying to send inside messaging service 178"
@@ -248,10 +248,10 @@ class MessagingService {
      * Sends emails.
      *
      * @params : email attributes such as
-     * from:
-     * to:
-     * subject:
-     * body:
+     * from: The sender
+     * to: The recipient
+     * subject: Your message subject
+     * body: The body of your message
      * attachments: A list of File objects 
      */
     boolean sendHTMLEmail(String to, String subject, String body,List<File> attachments) throws Exception{
@@ -269,10 +269,10 @@ class MessagingService {
      * hostName: name of the host eg Gmail
      * username: email username
      * password: email password
-     * from:
-     * to:
-     * subject:
-     * body:
+     * from: The sender
+     * to: The recipient
+     * subject: Your message subject
+     * body: The body of your message
      * attachments: A list of File object (optional)
      * hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"]
      */

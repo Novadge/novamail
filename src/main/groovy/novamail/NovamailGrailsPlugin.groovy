@@ -1,19 +1,19 @@
-package com.novadge.novamail
+package novamail
 
 import grails.plugins.*
 
 class NovamailGrailsPlugin extends Plugin {
 
     // the version or versions of Grails the plugin is designed for
-    def grailsVersion = "3.0.1 > *"
+    def grailsVersion = "3.1.1 > *"
     // resources that are excluded from plugin packaging
     def pluginExcludes = [
         "grails-app/views/error.gsp"
     ]
 
-
     // TODO Fill in these fields
-    def title = "Novamail Plugin" // Headline display name of the plugin
+    // TODO Fill in these fields
+    def title = "Novamail" // Headline display name of the plugin
     def author = "Omasirichukwu Udeinya"
     def authorEmail = ""
     def description = '''\
@@ -42,4 +42,32 @@ Grails application. It is also capable of sending emails asynchronously by using
 
     // Online location of the plugin's browseable source code.
     def scm = [url: 'https://github.com/Novadge/novamail']
+
+    Closure doWithSpring() { {->
+            // TODO Implement runtime spring config (optional)
+        }
+    }
+
+    void doWithDynamicMethods() {
+        // TODO Implement registering dynamic methods to classes (optional)
+    }
+
+    void doWithApplicationContext() {
+        // TODO Implement post initialization spring config (optional)
+    }
+
+    void onChange(Map<String, Object> event) {
+        // TODO Implement code that is executed when any artefact that this plugin is
+        // watching is modified and reloaded. The event contains: event.source,
+        // event.application, event.manager, event.ctx, and event.plugin.
+    }
+
+    void onConfigChange(Map<String, Object> event) {
+        // TODO Implement code that is executed when the project configuration changes.
+        // The event is the same as for 'onChange'.
+    }
+
+    void onShutdown(Map<String, Object> event) {
+        // TODO Implement code that is executed when the application shuts down (optional)
+    }
 }

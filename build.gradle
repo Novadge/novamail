@@ -65,15 +65,15 @@ task wrapper(type: Wrapper) {
 }
 grailsPublish {
     // TODO: Provide values here
-    user = 'user'
-    key = 'key'
+    user = System.getenv('BINTRAY_USER')
+    key = System.getenv('BINTRAY_KEY')
     githubSlug = 'foo/bar'
     license {
         name = 'Apache-2.0'
     }
     title = "Novamail"
-    desc = "Full plugin description"
-    developers = [johndoe:"John Doe"]
-    portalUser = ""
-    portalPassword = ""    
+    desc = "The Novamail plug-in provides e-mail sending and receiving capabilities to a Grails application. It is also capable of sending emails asynchronously by using a scheduled Job."
+    developers = [omasiri:"Omasirichukwu Udeinya"]
+    portalUser = System.getenv('GRAILS_PORTAL_USER')
+    portalPassword = System.getenv('GRAILS_PORTAL_PASSWORD')   
 }

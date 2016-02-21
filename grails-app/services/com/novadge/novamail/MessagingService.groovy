@@ -63,6 +63,46 @@ class MessagingService {
     
     
     /**
+     * Send email
+     * @param messageOut : messageOut instance
+     */
+    void sendEmail(MessageOut messageOut) {        
+        
+            String subject = "${messageOut.subject}"
+            String to = "${messageOut?.recipients}"
+
+            if (!messageOut?.attachments) {
+                List<File> files = []
+                
+                messageOut?.attachments?.each{att -> // all attachments
+                   log.debug "creating files"
+                   File f = new File("${att?.name}")
+                   def fout = new FileOutputStream(f)
+                   fout.write(att.data)
+                   files.add(f) // extract data
+                   
+                }
+                
+               //(String hostname, String username, String password, String from, String to, String subject, String body)
+                sendHTMLEmail(messageOut?.hostname, messageOut?.username, messageOut?.password, messageOut?.senders, messageOut?.recipients, messageOut?.subject, messageOut?.body, files,messageOut?.hostProperties)
+                
+                 
+            }
+            else{
+               // log.debug "Sending Message....complete..."
+               //(String hostname, String username, String password, String from, String to, String subject, String body)
+               sendHTMLEmail(messageOut?.hostname, messageOut?.username, messageOut?.password, messageOut?.senders, messageOut?.recipients, messageOut?.subject, messageOut?.body,messageOut?.hostProperties)
+                   
+               
+               
+                 
+            }
+            
+        
+    }
+    
+    
+    /**
      * Sends emails with quarts job.
      * @param to: email recipient
      * @param subject: email subject
@@ -187,11 +227,11 @@ class MessagingService {
      * Sends emails.
      *
      * @params : email attributes such as
-     * from:
-     * to:
-     * subject:
-     * body:
-     * 
+     * from: The sender
+     * to: The recipient
+     * subject: Your message subject
+     * body: The body of your message
+     * @returns boolean
      **/
     boolean sendHTMLEmail(String to, String subject, String body) throws Exception{
         log.debug "trying to send inside messaging service 178"
@@ -203,16 +243,16 @@ class MessagingService {
      * Sends emails.
      *
      * @params : email attributes such as
-     * from:
-     * to:
-     * subject:
-     * body:
+     * from: The sender
+     * to: The recipient
+     * subject: Your message subject
+     * body: The body of your message
      * attachments: A list of File objects 
      */
     boolean sendHTMLEmail(String to, String subject, String body,List<File> attachments) throws Exception{
-        def map = getAccountDetails()
+        Map map = getAccountDetails()
         log.debug map
-        def hostProps = map.hostProps//grailsApplication.config.novamail.hostProps
+        Map hostProps = map.hostProps//grailsApplication.config.novamail.hostProps
         log.debug "messaging service with hostprops ${hostProps}"
         sendHTMLEmail(map.hostname, map.username, map.password, map.from, to, subject, body, attachments,hostProps)
     }
@@ -224,10 +264,10 @@ class MessagingService {
      * hostName: name of the host eg Gmail
      * username: email username
      * password: email password
-     * from:
-     * to:
-     * subject:
-     * body:
+     * from: The sender
+     * to: The recipient
+     * subject: Your message subject
+     * body: The body of your message
      * attachments: A list of File object (optional)
      * hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"]
      */
@@ -391,43 +431,8 @@ class MessagingService {
         def pendingMsgs = MessageOut.where { status == 'Pending' || status == 'Not sent' }.list()
         
         pendingMsgs.each {
-
-            String subject = "${it.subject}"
-            String to = "${it?.recipients}"
-
-            if (!it?.attachments) {
-                
-                int num = it?.attachments.size()
-                List<File> files = []
-                
-                it.attachments.each{att -> // all attachments
-                   log.debug "creating files"
-                   File f = new File("${att?.name}")
-                   def fout = new FileOutputStream(f)
-                   fout.write(att.data)
-                   files.add(f) // extract data
-                   
-                }
-                
-               //(String hostname, String username, String password, String from, String to, String subject, String body)
-                if(sendHTMLEmail(it?.hostname, it?.username, it?.password, it?.senders, it?.recipients, it?.subject, it?.body, files,it.hostProperties)){
-                    it.status = "Sent"
-                    it.dateSent = new Date()
-                    it.save()  
-                }
-                 
-            }
-            else{
-               // log.debug "Sending Message....complete..."
-               //(String hostname, String username, String password, String from, String to, String subject, String body)
-               if(sendHTMLEmail(it?.hostname, it?.username, it?.password, it?.senders, it?.recipients, it?.subject, it?.body,it.hostProperties)){
-                    it.status = "Sent"
-                    it.dateSent = new Date()
-                    it.save()
-               }
-               
-                 
-            }
+            sendEmail(it)
+            
             
         }
     }

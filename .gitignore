@@ -33,6 +33,9 @@
 .gradle
 .nb-gradle
 *.iml
+*/build
+*/.gradle
+*/.nb-gradle
 
 # Ignore Gradle GUI config
 gradle-app.setting

@@ -1,4 +1,5 @@
 ---
+# Added by the Novamail plugin:  
 grails:
     profile: web-plugin
     codegen:

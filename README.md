@@ -17,25 +17,30 @@ Assuming you want to add config for a gmail account for 'john@gmail.com' then ad
 
     # Added by the Novamail plugin:
 novamail:
-    hostname: "Gmail"
-    username: 'Username<yourname@provider.com>'
-    password: 'bla bla bla'
-    store: "imap"    
+    hostname: "Host"
+    username: 'Name <john@doe.com>'
+    password: 'password'
+    store: "imap"
     hostProps:
-        "Host": "imap.gmail.com"
-        "mail.imap.host": "imap.gmail.com"
-        "mail.store.protocol": "imaps"
-        "mail.imap.socketFactory.class": "javax.net.ssl.SSLSocketFactory"
-        "mail.imap.socketFactory.fallback": "false"
-        "mail.imaps.partialfetch": "false"        
-        "mail.smtp.starttls.enable": "true"
-        "mail.smtp.host": "smtp.gmail.com"
-        "mail.smtp.auth": "true"
-        "mail.smtp.socketFactory.port": "465"
-        "mail.smtp.socketFactory.class": "javax.net.ssl.SSLSocketFactory"
-        "mail.smtp.socketFactory.fallback": "false"
-
-
+        Host: "imap.gmail.com"
+        mail:
+            imap:
+                host: "imap.gmail.com"
+                socketFactory.class: "javax.net.ssl.SSLSocketFactory"
+                socketFactory.fallback: "false"
+            imaps:
+                partialfetch: "false"
+            store:
+                protocol: "imaps"
+            smtp:
+                starttls:
+                    enable: "true"
+                host: "smtp.gmail.com"
+                auth: "true"
+                socketFactory.port: "465"
+                socketFactory.class: "javax.net.ssl.SSLSocketFactory"
+                socketFactory.fallback: "false"
+---
 </code>
 
 <h3>Side note </h3>

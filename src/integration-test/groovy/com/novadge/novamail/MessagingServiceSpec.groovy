@@ -51,9 +51,14 @@ void "test send email(Map map) " (){
 //        
 //    }
 //    
-//    void "test sendHTMLEmail(String to, String subject, String body)" () {
-//        
-//    }
+    void "test sendHTMLEmail(String to, String subject, String body)" () {
+        when:
+            String to = "recipient@test.com"
+            String subject = "test"
+            String body = "test body"
+        then:
+            assert service.sendHTMLEmail(to,subject,body) == true
+    }
 //    
 //    void "test sendHTMLEmail(String to, String subject, String body,List<File> attachments)" () {
 //        

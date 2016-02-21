@@ -67,6 +67,7 @@ grailsPublish {
     // TODO: Provide values here
     user = System.getenv('BINTRAY_USER')
     key = System.getenv('BINTRAY_KEY')
+    userOrg = 'novadge' // Optional
     githubSlug = 'foo/bar'
     license {
         name = 'Apache-2.0'

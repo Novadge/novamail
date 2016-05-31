@@ -10,6 +10,8 @@ class MessageOut{
     String password // Password for the account eg *********
     String senders //
     String recipients
+    String cc
+    String bcc
     String subject
     String body
 
@@ -24,6 +26,8 @@ class MessageOut{
         subject(nullable:true,blank:true)
         senders(nullable:false,blank:false)
         recipients(nullable:false,blank:false)
+        cc(nullable:true,blank:true)
+        bcc(nullable:true,blank:true)
         body(nullable:false,blank:false,maxSize:1024 * 1000 * 1000)
         attachments(nullable:true,blank:true)
        

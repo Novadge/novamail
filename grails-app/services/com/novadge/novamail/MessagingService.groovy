@@ -182,7 +182,7 @@ class MessagingService {
      * @param hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"] 
      */
     def queueEmail(String hostname, String username, String password, String from, String to, String cc,String bcc, String subject, String body,List<File> attachments,Map hostProps){
-        List<MessageOut> messageOut = new MessageOut(hostname:hostname,username:username,password:password,senders:from,recipients:to,cc:cc,bcc:bcc,subject:subject,body:body.toString(),hostProperties:hostProps)
+        MessageOut messageOut = new MessageOut(hostname:hostname,username:username,password:password,senders:from,recipients:to,cc:cc,bcc:bcc,subject:subject,body:body.toString(),hostProperties:hostProps)
         queueEmail(messageOut,attachments)        
         
     }

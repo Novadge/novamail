@@ -53,10 +53,10 @@ class MessagingService {
         boolean html = map?.html != null? map.html:true
                 
         if(!map.username || !map.password){//get credentials from conf file
-           return sendEmail(props.hostname, props.username, props.password, props.username, map.to, map.subject, map.body,html, map.attachments,hostProps)
+           return sendEmail(props.hostname, props.username, props.password, props.username, map.to, map.cc,map.bcc,map.subject, map.body,html, map.attachments,hostProps)
         }
         else{// use user provided credentials
-           return sendEmail(map.hostname, map.username, map.password, map.username, map.to, map.subject, map.body,html, map.attachments,hostProps) 
+           return sendEmail(map.hostname, map.username, map.password, map.username, map.to, map.cc,map.bcc, map.subject, map.body,html, map.attachments,hostProps) 
         }
         
     }
@@ -84,20 +84,44 @@ class MessagingService {
                 }
                 
                //(String hostname, String username, String password, String from, String to, String subject, String body)
-                sendHTMLEmail(messageOut?.hostname, messageOut?.username, messageOut?.password, messageOut?.senders, messageOut?.recipients, messageOut?.subject, messageOut?.body, files,messageOut?.hostProperties)
+                sendHTMLEmail(messageOut?.hostname, messageOut?.username, messageOut?.password, messageOut?.senders, messageOut?.recipients,messageOut?.cc,messageOut?.bcc, messageOut?.subject, messageOut?.body, files,messageOut?.hostProperties)
                 
                  
             }
             else{
                // log.debug "Sending Message....complete..."
                //(String hostname, String username, String password, String from, String to, String subject, String body)
-               sendHTMLEmail(messageOut?.hostname, messageOut?.username, messageOut?.password, messageOut?.senders, messageOut?.recipients, messageOut?.subject, messageOut?.body,messageOut?.hostProperties)
+               sendHTMLEmail(messageOut?.hostname, messageOut?.username, messageOut?.password, messageOut?.senders, messageOut?.recipients, messageOut?.cc,messageOut?.bcc, messageOut?.subject, messageOut?.body,messageOut?.hostProperties)
                    
                
                
                  
             }
             
+        
+    }
+    
+    
+    
+    /**
+     * Sends emails with quarts job.
+     * @param messageOut: messageOut object
+     **/
+    def queueEmail(MessageOut messageOut){
+        queueEmail(messageOut,[])
+        
+    }
+    
+    /**
+     * Sends emails with quarts job.
+     * @param messageOut: messageOut object
+     * @param attachments: A list of File objects (optional)
+     * 
+     */
+    def queueEmail(MessageOut messageOut, List<File> attachments){
+        
+        messageOut = addAttachments(messageOut,attachments)        
+        messageOut.save(flush:true)
         
     }
     
@@ -122,7 +146,7 @@ class MessagingService {
      **/
     def queueEmail(String to, String subject, String body,List<File> attachments){
         Map map = getAccountDetails()
-        queueEmail(map.hostname,map.username,map.password,map.from,to,subject,body.toString(),attachments,map.hostProps)
+        queueEmail(map.hostname,map.username,map.password,map.from,to,"","",subject,body.toString(),attachments,map.hostProps)
                 
     }
     
@@ -138,8 +162,10 @@ class MessagingService {
      * @param hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"] 
      **/
     def queueEmail(String hostname, String username, String password, String from, String to, String subject, String body,Map hostProps){
-        queueEmail(hostname,username,password,from,to,subject,body,null,hostProps)        
+        queueEmail(hostname,username,password,from,to,"","",subject,body,null,hostProps)        
     }
+    
+   
     
     /**
      * Sends emails with quarts job.
@@ -148,38 +174,20 @@ class MessagingService {
      * @param username: email username
      * @param password: email password
      * @param from: Senders email address
-     * @param to: Recipients email address
+     * @param to: Comma separated list of recipients email address
+     * @param cc: Comma separated list of email address to send a carbon copy
+     * @param bcc: Comma separated list of email addresses to send a blind carbon copy
      * @param subject: Message subject
      * @param body: Email message
      * @param hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"] 
      */
-    def queueEmail(String hostname, String username, String password, String from, String to, String subject, String body,List<File> attachments,Map hostProps){
-        def messageOut = new MessageOut(hostname:hostname,username:username,password:password,senders:from,recipients:to,subject:subject,body:body.toString(),hostProperties:hostProps)
+    def queueEmail(String hostname, String username, String password, String from, String to, String cc,String bcc, String subject, String body,List<File> attachments,Map hostProps){
+        List<MessageOut> messageOut = new MessageOut(hostname:hostname,username:username,password:password,senders:from,recipients:to,cc:cc,bcc:bcc,subject:subject,body:body.toString(),hostProperties:hostProps)
         queueEmail(messageOut,attachments)        
         
     }
     
-    /**
-     * Sends emails with quarts job.
-     * @param messageOut: messageOut object
-     * @param attachments: A list of File objects (optional)
-     * 
-     */
-    def queueEmail(MessageOut messageOut, List<File> attachments){
-        
-        messageOut = addAttachments(messageOut,attachments)        
-        messageOut.save(flush:true)
-        
-    }
     
-    /**
-     * Sends emails with quarts job.
-     * @param messageOut: messageOut object
-     **/
-    def queueEmail(MessageOut messageOut){
-        queueEmail(messageOut,[])
-        
-    }
     
     /**Add attachments to a message
      * @params messageOut: Message object to which attachments will be added
@@ -204,25 +212,7 @@ class MessagingService {
     
     
     
-    /**
-     * Sends emails.
-     *
-     * @params : email attributes such as
-     * hostName: name of the host eg Gmail
-     * username: email username
-     * password: email password
-     * from:
-     * to:
-     * subject:
-     * body:
-     * hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"] 
-     **/
-    boolean sendHTMLEmail(String hostname, String username, String password, String from, String to, String subject, String body,Map hostProps) throws Exception{
-         List<File> attachments = []// empty list of attachments
-        sendEmail(hostname, username, password, from, to, subject, body,true, attachments,hostProps)
         
-    }
-    
     /**
      * Sends emails.
      *
@@ -234,7 +224,7 @@ class MessagingService {
      * @returns boolean
      **/
     boolean sendHTMLEmail(String to, String subject, String body) throws Exception{
-        log.debug "trying to send inside messaging service 178"
+        
         List<File> attachments = []// empty list of attachments
         sendHTMLEmail(to,subject,body,attachments)
     }
@@ -249,13 +239,16 @@ class MessagingService {
      * body: The body of your message
      * attachments: A list of File objects 
      */
+    
     boolean sendHTMLEmail(String to, String subject, String body,List<File> attachments) throws Exception{
         Map map = getAccountDetails()
-        log.debug map
+        
         Map hostProps = map.hostProps//grailsApplication.config.novamail.hostProps
-        log.debug "messaging service with hostprops ${hostProps}"
-        sendHTMLEmail(map.hostname, map.username, map.password, map.from, to, subject, body, attachments,hostProps)
+        
+        sendHTMLEmail(map.hostname, map.username, map.password, map.from, to,"","", subject, body, attachments,hostProps)
     }
+    
+    
     
     /**
      * Sends emails.
@@ -265,17 +258,21 @@ class MessagingService {
      * username: email username
      * password: email password
      * from: The sender
-     * to: The recipient
+     * to: comma separated list of recipient email addresses
+     * cc: comma separated list of email addresses to send a carbon copy
+     * bcc: comma separated list of email addresses to send a blind carbon copy
      * subject: Your message subject
      * body: The body of your message
      * attachments: A list of File object (optional)
      * hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"]
      */
-    boolean sendHTMLEmail(String hostname, String username, String password, String from, String to, String subject, String body, List<File> attachments,Map hostProps) throws Exception{
-        log.debug "line 215"
-        sendEmail(hostname, username, password, from, to, subject, body,true, attachments,hostProps)
+    
+    boolean sendHTMLEmail(String hostname, String username, String password, String from, String to, String cc, String bcc,String subject, String body, List<File> attachments,Map hostProps) throws Exception{
+        
+        sendEmail(hostname, username, password, from, to, cc, bcc, subject, body,true, attachments,hostProps)
     }
 
+    
     /**
      * Sends emails.
      *
@@ -284,13 +281,15 @@ class MessagingService {
      * @param username: email username
      * @param password: email password
      * @param from: senders email address
-     * @param to: recipients email address
+     * @param to: a comma separated list of recipients email address
+     * @param cc: a comma separated list of email address to send a carbon copy
+     * @param bcc: a comma separated list of email addresses to send a blind copy
      * @param subject: email subject
      * @param body: email body
      * @param hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"]
      */
-    boolean sendEmail(String hostname, String username, String password, String from, String to, String subject, String body,Map hostProps) throws Exception{
-        sendEmail(hostname, username, password, from, to, subject, body,false, null,hostProps)
+    boolean sendEmail(String hostname, String username, String password, String from, String to, String cc, String bcc,String subject, String body,Map hostProps) throws Exception{
+        sendEmail(hostname, username, password, from, to,cc,bcc, subject, body,false, null,hostProps)
     }
     
     /**
@@ -313,12 +312,15 @@ class MessagingService {
      * @param attachments: A list of File objects 
      */
     boolean sendEmail(String to, String subject, String body,List<File> attachments) throws Exception{
-        def map = getAccountDetails()
-        def hostProps = map.hostProps//grailsApplication.config.novamail.hostProps
+        Map map = getAccountDetails()
+        Map hostProps = map.hostProps//grailsApplication.config.novamail.hostProps
 //        log.debug map
 //        log.debug hostProps
-        sendEmail(map.hostname, map.username, map.password, map.from, to, subject, body,false, attachments,hostProps)
+        sendEmail(map.hostname, map.username, map.password, map.from, to,"","", subject, body,false, attachments,hostProps)
     }
+    
+    
+    
     
     
     /**
@@ -327,17 +329,18 @@ class MessagingService {
      * @param username: email username
      * @param password: email password
      * @param from: senders email address
-     * @param to: recipients email address
+     * @param to: a comma separated list of recipients email address
+     * @param cc: a comma separated list of email address to send a carbon copy
+     * @param bcc: a comma separated list of email addresses to send a blind copy
      * @param subject: email subject
      * @param body: email body
      * @param attachments: A list of File objects 
      * @param hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"]
      */
-    boolean sendEmail(String hostname, String username, String password, String from, String to, String subject, String body,List<File> attachments,Map hostProps) throws Exception {
-        sendEmail(hostname, username, password, from, to, subject, body,false, attachments,hostProps)
+    boolean sendEmail(String hostname, String username, String password, String from, String to, String cc, String bcc,String subject, String body,List<File> attachments,Map hostProps) throws Exception {
+        sendEmail(hostname, username, password, from, to, cc, bcc, subject, body,false, attachments,hostProps)
     }
     
-    //-----------------------------------------------------------------------
     
     /**
      * Sends email.
@@ -345,17 +348,21 @@ class MessagingService {
      * @param username: email username
      * @param password: email password
      * @param from: senders email address
-     * @param to: recipients email address
+     * @param to: a comma separated list of recipients email address
+     * @param cc: a comma separated list of email address to send a carbon copy
+     * @param bcc: a comma separated list of email addresses to send a blind copy
      * @param subject: email subject
      * @param body: email body
      * @param attachments: a list of File objects (optional)
      * @param hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"]
      */
-    boolean sendEmail(String hostname, String username, String password, String from, String to, String subject, String body,boolean html, List<File> attachments,Map hostProps) throws Exception{
+    boolean sendEmail(String hostname, String username, String password, String from, String to, String cc,String bcc, String subject, String body,boolean html, List<File> attachments,Map hostProps) throws Exception{
         
         doSendEmail([
             from: from,
             to: to,
+            cc: cc,
+            bcc:bcc,
             subject: subject,
             body: body,
             hostName: hostname,
@@ -439,14 +446,7 @@ class MessagingService {
 
     
     
-    /**
-     * Sends text messages.
-     * Work in progress
-     * We want to integrate this with some kind of text messaging service
-     */
-    def sendSms(obj) {
-        log.debug "Sending SMS Reminder"
-    }
+    
     
     /**
      * Receive emails. 
@@ -817,7 +817,7 @@ class MessagingService {
         catch(Exception ex){
             log.debug "Exception occured...${ex.toString()}"
         }
-        log.debug "attachment .. end\n\n\n"
+        
         return novaMsg
     }
     
@@ -1098,6 +1098,110 @@ class MessagingService {
     }
     
     
+    
+    
+    /**
+     * Sends emails.
+     * @param hostName: name of the host eg Gmail
+     * @param username: email username
+     * @param password: email password
+     * @param from: senders email address
+     * @param to: a comma separated list of recipients email address
+     * @param subject: email subject
+     * @param body: email body
+     * @param attachments: A list of File objects 
+     * @param hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"]
+     */
+    @Deprecated
+    boolean sendEmail(String hostname, String username, String password, String from, String to, String subject, String body,List<File> attachments,Map hostProps) throws Exception {
+        sendEmail(hostname, username, password, from, to, subject, body,false, attachments,hostProps)
+    }
+    
+    //-----------------------------------------------------------------------
+    
+    /**
+     * Sends email.
+     * @param hostname: name of the host eg Gmail, Hotmail, Yahoo, etc
+     * @param username: email username
+     * @param password: email password
+     * @param from: senders email address
+     * @param to: a comma separated list of recipients email addresses
+     * @param subject: email subject
+     * @param body: email body
+     * @param attachments: a list of File objects (optional)
+     * @param hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"]
+     */
+    @Deprecated
+    boolean sendEmail(String hostname, String username, String password, String from, String to, String subject, String body,boolean html, List<File> attachments,Map hostProps) throws Exception{
+        
+        doSendEmail([
+            from: from,
+            to: to,
+            subject: subject,
+            body: body,
+            hostName: hostname,
+            username: username,
+            password: password,
+        ],html, attachments,hostProps)
+    }
+    
+    /**
+     * Sends emails.
+     *
+     * @params : email attributes such as
+     * @param hostName: name of the host eg Gmail
+     * @param username: email username
+     * @param password: email password
+     * @param from: senders email address
+     * @param to: recipients email address
+     * @param subject: email subject
+     * @param body: email body
+     * @param hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"]
+     */
+    @Deprecated
+    boolean sendEmail(String hostname, String username, String password, String from, String to, String subject, String body,Map hostProps) throws Exception{
+        sendEmail(hostname, username, password, from, to, subject, body,false, null,hostProps)
+    }
+    
+    /**
+     * Sends emails.
+     *
+     * @params : email attributes such as
+     * hostName: name of the host eg Gmail
+     * username: email username
+     * password: email password
+     * from: The sender
+     * to: comma separated list of recipient email addresses
+     * subject: Your message subject
+     * body: The body of your message
+     * attachments: A list of File object (optional)
+     * hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"]
+     */
+    @Deprecated
+    boolean sendHTMLEmail(String hostname, String username, String password, String from, String to, String subject, String body, List<File> attachments,Map hostProps) throws Exception{
+        
+        sendEmail(hostname, username, password, from, to, subject, body,true, attachments,hostProps)
+    }
+    
+    
+     /**
+     * Sends emails with quarts job.
+     *
+      *@param hostname: name of the host eg Gmail
+     * @param username: email username
+     * @param password: email password
+     * @param from: Senders email address
+     * @param to: Recipients email address
+     * @param subject: Message subject
+     * @param body: Email message
+     * @param hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"] 
+     */
+    @Deprecated
+    def queueEmail(String hostname, String username, String password, String from, String to, String subject, String body,List<File> attachments,Map hostProps){
+        List<MessageOut> messageOut = new MessageOut(hostname:hostname,username:username,password:password,senders:from,recipients:to,subject:subject,body:body.toString(),hostProperties:hostProps)
+        queueEmail(messageOut,attachments)        
+        
+    }
     
     
         

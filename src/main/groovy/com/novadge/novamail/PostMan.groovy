@@ -60,9 +60,20 @@ class PostMan {
     /*
      * Instantiate the postman with state properties 
      * @Params: maps containing email body, email host properties
-     * props: map of email properties: eg
+     * props: map of email host properties: eg
+     * ["mail.imap.host":""
+     * "mail.store.protocol": ""
+     * ] etc
      * emailProps: Map containing email credentials eg 
-     * [from:'',subject:'',to:'',body:'',username:'',password:'*****']
+     * [from:'',
+     * subject:'',
+     * to:' comma separated sequence of addresses',
+     * bcc:' comma separated sequence of addresses to blind copy',
+     * cc:' comma separated sequence of addresses to send a carbon copy',
+     * body:'',
+     * username:'',
+     * password:'*****'
+     * ]
      * 
      */
     PostMan(Map emailProps,Map props){
@@ -193,7 +204,15 @@ class PostMan {
      * @Params: maps containing email credentials, email server properties
      * props: map of email properties: eg
      * emailProps: Map containing email credentials eg 
-     * [from:'',subject:'',to:'',body:'',username:'',password:'*****']
+      * [from:'',
+     * subject:'',
+     * to:' comma separated sequence of addresses',
+     * bcc:' comma separated sequence of addresses to blind copy',
+     * cc:' comma separated sequence of addresses to send a carbon copy',
+     * body:'',
+     * username:'',
+     * password:'*****'
+     * ]
      * 
      */
     void sendEmail(Map emailProps, Map props) {
@@ -205,7 +224,15 @@ class PostMan {
      * @Params: maps containing email credentials, email properties and file
      * props: map of email properties: eg
      * emailProps: Map containing email credentials eg 
-     * [from:'',subject:'',to:'',body:'',username:'',password:'*****']
+      * [from:'',
+     * subject:'',
+     * to:' comma separated sequence of addresses',
+     * bcc:' comma separated sequence of addresses to blind copy',
+     * cc:' comma separated sequence of addresses to send a carbon copy',
+     * body:'',
+     * username:'',
+     * password:'*****'
+     * ]
      * 
      */
     void sendHTMLEmail(Map emailProps, Map props, List<File> files) {
@@ -218,7 +245,15 @@ class PostMan {
      * @Params: maps containing email credentials
      * props: map of email properties: eg
      * emailProps: Map containing email credentials eg 
-     * [from:'',subject:'',to:'',body:'',username:'',password:'*****']
+      * [from:'',
+     * subject:'',
+     * to:' comma separated sequence of addresses',
+     * bcc:' comma separated sequence of addresses to blind copy',
+     * cc:' comma separated sequence of addresses to send a carbon copy',
+     * body:'',
+     * username:'',
+     * password:'*****'
+     * ]
      * 
      */
     void sendHTMLEmail(Map emailProps, Map props) {
@@ -231,7 +266,15 @@ class PostMan {
      * @Params: maps containing email credentials, email properties and file
      * props: map of email properties: eg
      * emailProps: Map containing email credentials eg 
-     * [from:'',subject:'',to:'',body:'',username:'',password:'*****']
+     * [from:'',
+     * subject:'',
+     * to:' comma separated sequence of addresses',
+     * bcc:' comma separated sequence of addresses to blind copy',
+     * cc:' comma separated sequence of addresses to send a carbon copy',
+     * body:'',
+     * username:'',
+     * password:'*****'
+     * ]
      * file: file object to send as attachment
      */    
     void sendEmail(Map emailProps, Map props, List<File> files) {
@@ -244,7 +287,15 @@ class PostMan {
      * @Params: maps containing email credentials, email properties and file
      * props: map of email properties: eg
      * emailProps: Map containing email credentials eg 
-     * [from:'',subject:'',to:'',body:'',username:'',password:'*****']
+     * [from:'',
+     * subject:'',
+     * to:' comma separated sequence of addresses',
+     * bcc:' comma separated sequence of addresses to blind copy',
+     * cc:' comma separated sequence of addresses to send a carbon copy',
+     * body:'',
+     * username:'',
+     * password:'*****'
+     * ]
      * html: true or false
      * file: file object to send as attachment
      */
@@ -292,7 +343,17 @@ class PostMan {
             message.setFrom(new InternetAddress(emailProps.from))
         }       
         
-        message.addRecipients(Message.RecipientType.TO, /*new */InternetAddress.parse(emailProps.to))
+        if(emailProps.to){
+           message.addRecipients(Message.RecipientType.TO, /*new */InternetAddress.parse(emailProps.to)) 
+        }
+        
+        if(emailProps.cc != "" && emailProps.cc != null){
+           message.addRecipients(Message.RecipientType.CC, /*new */InternetAddress.parse(emailProps.cc)) 
+        }
+        if(emailProps.bcc != "" && emailProps.bcc != null){
+           message.addRecipients(Message.RecipientType.BCC, /*new */InternetAddress.parse(emailProps.bcc)) 
+        }
+        
         
         message.setSubject("${emailProps.subject}")
         

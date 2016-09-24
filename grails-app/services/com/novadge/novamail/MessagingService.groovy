@@ -9,7 +9,7 @@ import javax.activation.DataHandler
 
 import javax.mail.Message.RecipientType
 class MessagingService {
-   def grailsApplication 
+    def grailsApplication 
     //-----------------------------------------------------------------------
     //-----------internal email sending -------------------------
 
@@ -53,10 +53,10 @@ class MessagingService {
         boolean html = map?.html != null? map.html:true
                 
         if(!map.username || !map.password){//get credentials from conf file
-           return sendEmail(props.hostname, props.username, props.password, props.username, map.to, map.subject, map.body,html, map.attachments,hostProps)
+            return sendEmail(props.hostname, props.username, props.password, props.username, map.to, map.subject, map.body,html, map.attachments,hostProps)
         }
         else{// use user provided credentials
-           return sendEmail(map.hostname, map.username, map.password, map.username, map.to, map.subject, map.body,html, map.attachments,hostProps) 
+            return sendEmail(map.hostname, map.username, map.password, map.username, map.to, map.subject, map.body,html, map.attachments,hostProps) 
         }
         
     }
@@ -68,40 +68,37 @@ class MessagingService {
      */
     void sendEmail(MessageOut messageOut) {        
         
-            String subject = "${messageOut.subject}"
-            String to = "${messageOut?.recipients}"
+        String subject = "${messageOut.subject}"
+        String to = "${messageOut?.recipients}"
 
-            if (!messageOut?.attachments) {
-                List<File> files = []
+        if (messageOut?.attachments) {
+            List<File> files = []
                 
-                messageOut?.attachments?.each{att -> // all attachments
-                   log.debug "creating files"
-                   File f = new File("${att?.name}")
-                   def fout = new FileOutputStream(f)
-                   fout.write(att.data)
-                   files.add(f) // extract data
+            messageOut?.attachments?.each{att -> // all attachments
+                log.debug "creating files"
+                File f = new File("${att?.name}")
+                def fout = new FileOutputStream(f)
+                fout.write(att.data)
+                files.add(f) // extract data
                    
-                }
+            }
                 
-               //(String hostname, String username, String password, String from, String to, String subject, String body)
-                if(sendHTMLEmail(messageOut?.hostname, messageOut?.username, messageOut?.password, messageOut?.senders, messageOut?.recipients, messageOut?.subject, messageOut?.body, files,messageOut?.hostProperties)){
-                    messageOut.status = "Sent"
-                    messageOut.dateSent = new Date()
-                    messageOut.save()  
-                }
+            //(String hostname, String username, String password, String from, String to, String subject, String body)
+            sendHTMLEmail(messageOut?.hostname, messageOut?.username, messageOut?.password, messageOut?.senders, messageOut?.recipients, messageOut?.subject, messageOut?.body, files,messageOut?.hostProperties)
                  
-            }
-            else{
-               // log.debug "Sending Message....complete..."
-               //(String hostname, String username, String password, String from, String to, String subject, String body)
-               if(sendHTMLEmail(messageOut?.hostname, messageOut?.username, messageOut?.password, messageOut?.senders, messageOut?.recipients, messageOut?.subject, messageOut?.body,messageOut?.hostProperties)){
-                    messageOut.status = "Sent"
-                    messageOut.dateSent = new Date()
-                    messageOut.save()
-               }
-               
                  
-            }
+        }
+        else{
+            // log.debug "Sending Message....complete..."
+            //(String hostname, String username, String password, String from, String to, String subject, String body)
+            sendHTMLEmail(messageOut?.hostname, messageOut?.username, messageOut?.password, messageOut?.senders, messageOut?.recipients, messageOut?.subject, messageOut?.body,messageOut?.hostProperties)
+                
+                 
+        }
+          
+        messageOut?.status = "Sent"
+        messageOut?.dateSent = new Date()
+        messageOut?.save() 
             
         
     }
@@ -149,7 +146,7 @@ class MessagingService {
     /**
      * Sends emails with quarts job.
      *
-      *@param hostname: name of the host eg Gmail
+     *@param hostname: name of the host eg Gmail
      * @param username: email username
      * @param password: email password
      * @param from: Senders email address
@@ -159,7 +156,7 @@ class MessagingService {
      * @param hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"] 
      */
     def queueEmail(String hostname, String username, String password, String from, String to, String subject, String body,List<File> attachments,Map hostProps){
-        def messageOut = new MessageOut(hostname:hostname,username:username,password:password,senders:from,recipients:to,subject:subject,body:body.toString(),hostProperties:hostProps)
+        MessageOut messageOut = new MessageOut(hostname:hostname,username:username,password:password,senders:from,recipients:to,subject:subject,body:body.toString(),hostProperties:hostProps)
         queueEmail(messageOut,attachments)        
         
     }
@@ -223,7 +220,7 @@ class MessagingService {
      * hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"] 
      **/
     boolean sendHTMLEmail(String hostname, String username, String password, String from, String to, String subject, String body,Map hostProps) throws Exception{
-         List<File> attachments = []// empty list of attachments
+        List<File> attachments = []// empty list of attachments
         sendEmail(hostname, username, password, from, to, subject, body,true, attachments,hostProps)
         
     }
@@ -320,8 +317,8 @@ class MessagingService {
     boolean sendEmail(String to, String subject, String body,List<File> attachments) throws Exception{
         def map = getAccountDetails()
         def hostProps = map.hostProps//grailsApplication.config.novamail.hostProps
-//        log.debug map
-//        log.debug hostProps
+        //        log.debug map
+        //        log.debug hostProps
         sendEmail(map.hostname, map.username, map.password, map.from, to, subject, body,false, attachments,hostProps)
     }
     
@@ -359,14 +356,14 @@ class MessagingService {
     boolean sendEmail(String hostname, String username, String password, String from, String to, String subject, String body,boolean html, List<File> attachments,Map hostProps) throws Exception{
         
         doSendEmail([
-            from: from,
-            to: to,
-            subject: subject,
-            body: body,
-            hostName: hostname,
-            username: username,
-            password: password,
-        ],html, attachments,hostProps)
+                from: from,
+                to: to,
+                subject: subject,
+                body: body,
+                hostName: hostname,
+                username: username,
+                password: password,
+            ],html, attachments,hostProps)
     }
 
     //-----------------------------------------------------------------------
@@ -397,32 +394,32 @@ class MessagingService {
         
         //log.debug "Inside message service obj ${properties}"
         
-       def postman = new PostMan()
+        def postman = new PostMan()
        
-            if (!attachments) {
-                if(html){
-                    log.debug"sending html email without attachments 353"
-                    postman.sendHTMLEmail(properties, hostProps)
-                }
-                else{
-                    log.debug "sending email without attachments"
-                   postman.sendEmail(properties, hostProps) 
-                }
-                
+        if (!attachments) {
+            if(html){
+                log.debug"sending html email without attachments 353"
+                postman.sendHTMLEmail(properties, hostProps)
             }
-            else {
-                if(html){
-                    log.debug "sending html email with attachments"
-                    postman.sendHTMLEmail(properties, hostProps, attachments)
-                }
-                else{
-                    log.debug "sending email with attachmentss"
-                   postman.sendEmail(properties, hostProps, attachments) 
-                }
-                
+            else{
+                log.debug "sending email without attachments"
+                postman.sendEmail(properties, hostProps) 
             }
+                
+        }
+        else {
+            if(html){
+                log.debug "sending html email with attachments"
+                postman.sendHTMLEmail(properties, hostProps, attachments)
+            }
+            else{
+                log.debug "sending email with attachmentss"
+                postman.sendEmail(properties, hostProps, attachments) 
+            }
+                
+        }
 
-            return true
+        return true
     
     }
 
@@ -446,15 +443,15 @@ class MessagingService {
                 List<File> files = []
                 
                 it.attachments.each{att -> // all attachments
-                   log.debug "creating files"
-                   File f = new File("${att?.name}")
-                   def fout = new FileOutputStream(f)
-                   fout.write(att.data)
-                   files.add(f) // extract data
+                    log.debug "creating files"
+                    File f = new File("${att?.name}")
+                    def fout = new FileOutputStream(f)
+                    fout.write(att.data)
+                    files.add(f) // extract data
                    
                 }
                 
-               //(String hostname, String username, String password, String from, String to, String subject, String body)
+                //(String hostname, String username, String password, String from, String to, String subject, String body)
                 if(sendHTMLEmail(it?.hostname, it?.username, it?.password, it?.senders, it?.recipients, it?.subject, it?.body, files,it.hostProperties)){
                     it.status = "Sent"
                     it.dateSent = new Date()
@@ -463,13 +460,13 @@ class MessagingService {
                  
             }
             else{
-               // log.debug "Sending Message....complete..."
-               //(String hostname, String username, String password, String from, String to, String subject, String body)
-               if(sendHTMLEmail(it?.hostname, it?.username, it?.password, it?.senders, it?.recipients, it?.subject, it?.body,it.hostProperties)){
+                // log.debug "Sending Message....complete..."
+                //(String hostname, String username, String password, String from, String to, String subject, String body)
+                if(sendHTMLEmail(it?.hostname, it?.username, it?.password, it?.senders, it?.recipients, it?.subject, it?.body,it.hostProperties)){
                     it.status = "Sent"
                     it.dateSent = new Date()
                     it.save()
-               }
+                }
                
                  
             }
@@ -496,7 +493,7 @@ class MessagingService {
      * @param password: *************   
      * @param hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"]
      */
-     Message[] getMessages(String provider, String store,String username,String password,Map hostProps){
+    Message[] getMessages(String provider, String store,String username,String password,Map hostProps){
         return getMessages(provider,store,username,password,null,hostProps)
                 
     }
@@ -558,7 +555,7 @@ class MessagingService {
      */
     Message[] getMessages(SearchTerm term){
         
-       return getMessages(term,Folder.READ_ONLY)
+        return getMessages(term,Folder.READ_ONLY)
         
     }
     
@@ -600,24 +597,24 @@ class MessagingService {
             // try to get host props from novamail
             log.debug "did not find custom properties"
             switch(store){
-                case 'pop3':
+            case 'pop3':
 
-                    hostProps = getPOP3Props(emailProps.hostName)
+                hostProps = getPOP3Props(emailProps.hostName)
 
-                    break
+                break
 
-                case 'pop3s':
-                    hostProps = getPOP3SProps(emailProps.hostName)
+            case 'pop3s':
+                hostProps = getPOP3SProps(emailProps.hostName)
 
-                    break 
+                break 
 
-                case 'imap':
-                    hostProps = getIMAPProps(emailProps.hostName)
-                    break
+            case 'imap':
+                hostProps = getIMAPProps(emailProps.hostName)
+                break
 
-                case 'imaps':
-                    hostProps = getIMAPSProps(emailProps.hostName)
-                    break
+            case 'imaps':
+                hostProps = getIMAPSProps(emailProps.hostName)
+                break
 
 
             }
@@ -625,8 +622,8 @@ class MessagingService {
         
         def postman = new PostMan(emailProps,hostProps)
         if(term){ // if search term is specified and folder flag is set...
-           log.debug "search term is set as ${term}"
-           return postman.getInbox(term,folder_rw)
+            log.debug "search term is set as ${term}"
+            return postman.getInbox(term,folder_rw)
         }
         else{
             log.debug "No search term is set"
@@ -642,8 +639,8 @@ class MessagingService {
      * where both are available this method will return the first in the list
      */
     String getMessageBody(MessageOut message){
-       // log.debug "message = ${message}"
-       if(!message.body){return "NO CONTENT"}
+        // log.debug "message = ${message}"
+        if(!message.body){return "NO CONTENT"}
         
         return message.body// return the first available content
     }
@@ -657,21 +654,21 @@ class MessagingService {
      * where both are available this method will return the first in the list
      */
     String getMessageBody(MessageIn message,String prefFormat){
-       // log.debug "message = ${message}"
-       if(!message.body){return "NO CONTENT"}
+        // log.debug "message = ${message}"
+        if(!message.body){return "NO CONTENT"}
         if(prefFormat == null){
-           return message?.body[0]?.content 
+            return message?.body[0]?.content 
         }
         //log.debug message.body
         int num = message?.body?.size() // get number of items in message body
         if(num >1){
-           // log.debug "message has more than one body"
+            // log.debug "message has more than one body"
             message.body.each{
                 if(it.contentType =~ prefFormat){
                     return it?.content
                 }
             }
-           // return messageIn.body[0].content // return available content
+            // return messageIn.body[0].content // return available content
         }
         return message.body[0]?.content// return the first available content
     }
@@ -709,9 +706,9 @@ class MessagingService {
      */
     def saveMessages(Message[] messages){
                 
-       messages.each({ // iterate over all messages
-           saveMessage(it)            
-       })
+        messages.each({ // iterate over all messages
+                saveMessage(it)            
+            })
         
     }
     
@@ -730,7 +727,7 @@ class MessagingService {
         msg.properties = props // assign properties to the message object
         msg = setParts(msg,it) // set the body and attachment parts of the message
         MessageIn.withNewSession{ // save message with new session because ... 
-                //for some strange reason it does not save with current session (probably because of download delay...;)
+            //for some strange reason it does not save with current session (probably because of download delay...;)
            
             msg.save(flush:true) 
         }
@@ -752,8 +749,8 @@ class MessagingService {
         msg.properties = props // assign properties to the message object
         msg = setParts(msg,it) // set the body and attachment parts of the message
         MessageIn.withNewSession{ // save message with new session because ... 
-                //for some strange reason it does not save with current session (probably because of download delay...;)
-             //log.debug "message is valid: ${msg.validate()}" 
+            //for some strange reason it does not save with current session (probably because of download delay...;)
+            //log.debug "message is valid: ${msg.validate()}" 
             
             if(msg.save(flush:true)){
                 //log.debug "saved ;)"
@@ -789,12 +786,12 @@ class MessagingService {
      * @param part: Message object from which we want to extract properties
      * 
      **/
-   public MessageIn setTextPart(MessageIn novaMsg,Part part){
-       log.debug "text part begin"
-       String content = getText(part)
-       novaMsg.addToBody(new Body(contentType:part?.getContentType(),content:content?.toString()))//addToBody(new Body(fileType:part.getContentType(),body:content))
-       return novaMsg
-   }
+    public MessageIn setTextPart(MessageIn novaMsg,Part part){
+        log.debug "text part begin"
+        String content = getText(part)
+        novaMsg.addToBody(new Body(contentType:part?.getContentType(),content:content?.toString()))//addToBody(new Body(fileType:part.getContentType(),body:content))
+        return novaMsg
+    }
    
     /**
      * This method is used to extract and bind text and attachments from incoming
@@ -818,7 +815,7 @@ class MessagingService {
                 String disp = bp.getDisposition();
                 if (disp?.equalsIgnoreCase(Part.ATTACHMENT)){ // if this part is an attachment ...
                     log.debug "part ${i} of type ${contentType} is an attachment"
-                   novaMsg = setAttachment(novaMsg,bp)                   
+                    novaMsg = setAttachment(novaMsg,bp)                   
                 }
                 else{
                     log.debug "part ${i} of type ${contentType} is not an attachment"
@@ -876,9 +873,9 @@ class MessagingService {
         //def hostProps = grailsApplication.config.novamail.hostProps
         def hostProps = [:]
         switch(hostName) {
-            case "Gmail":
+        case "Gmail":
             //log.debug "Provider is gmail"
-                hostProps = [
+            hostProps = [
                     "mail.smtp.starttls.enable": "true",
                     "mail.smtp.host": "smtp.gmail.com",
                     "mail.smtp.auth": "true",
@@ -887,17 +884,17 @@ class MessagingService {
                     "mail.smtp.socketFactory.fallback": "false"]
             break
 
-            case "Hotmail":
-             //log.debug "Provider is hotmail"
-                hostProps = [
+        case "Hotmail":
+            //log.debug "Provider is hotmail"
+            hostProps = [
                     "mail.smtp.host": "smtp.live.com",
                     "mail.smtp.starttls.enable": "true",
                     "mail.smtp.port":"587"]
             break
 
-            case "Yahoo" :
-             //log.debug "Provider is yahoo"
-                hostProps = [
+        case "Yahoo" :
+            //log.debug "Provider is yahoo"
+            hostProps = [
                     "mail.smtp.host": "smtp.correo.yahoo.es",
                     "mail.smtp.auth": "true",
                     "mail.smtp.socketFactory.port": "465",
@@ -905,8 +902,8 @@ class MessagingService {
                     "mail.smtp.socketFactory.fallback":"false"]
             break
 
-            default: // overide with user defined settings
-                hostProps = [:]
+        default: // overide with user defined settings
+            hostProps = [:]
             break
         }
         return hostProps
@@ -920,9 +917,9 @@ class MessagingService {
     private Map getPOP3Props(String hostName){
         def hostProps =  [:]
         switch(hostName) { 
-            case "Gmail":
+        case "Gmail":
             log.debug "Provider is gmail"
-                hostProps = [
+            hostProps = [
                     "Host":"pop3.gmail.com",
                     "mail.store.protocol": "pops",
                     "mail.pop3.auth":"true",
@@ -930,9 +927,9 @@ class MessagingService {
             ]
             break
 
-            case "Hotmail":
-             //log.debug "Provider is hotmail"
-                hostProps = [
+        case "Hotmail":
+            //log.debug "Provider is hotmail"
+            hostProps = [
                     "Host": "pop-mail.outlook.com",
                     "mail.store.protocol": "pops",
                     "mail.pop3.auth":"true",
@@ -940,9 +937,9 @@ class MessagingService {
             ]
             break
 
-            case "Yahoo" :
-             //log.debug "Provider is yahoo"
-                hostProps = [
+        case "Yahoo" :
+            //log.debug "Provider is yahoo"
+            hostProps = [
                     "Host": "plus.pop.mail.yahoo.com",
                     "mail.store.protocol": "pops",
                     "mail.pop3.auth":"true",
@@ -951,8 +948,8 @@ class MessagingService {
             ]
             break
 
-            default: // overide with user defined settings
-                hostProps = grailsApplication.config.novamail.hostProps
+        default: // overide with user defined settings
+            hostProps = grailsApplication.config.novamail.hostProps
             break
         }
         return hostProps
@@ -968,9 +965,9 @@ class MessagingService {
         
         def hostProps =  [:]
         switch(hostName) {
-            case "Gmail":
+        case "Gmail":
             //log.debug "Provider is gmail"
-                hostProps = [
+            hostProps = [
                     "Host":"pop3.gmail.com",
                     "mail.pop3.host":"pop3.gmail.com",
                     "mail.store.protocol": "pop3s"//,
@@ -978,18 +975,18 @@ class MessagingService {
             ]
             break
 
-            case "Hotmail":
-             //log.debug "Provider is hotmail"
-                hostProps = [:]
+        case "Hotmail":
+            //log.debug "Provider is hotmail"
+            hostProps = [:]
             break
 
-            case "Yahoo" :
-             //log.debug "Provider is yahoo"
-                hostProps = [:]
+        case "Yahoo" :
+            //log.debug "Provider is yahoo"
+            hostProps = [:]
             break
 
-            default: // overide with user defined settings
-                hostProps = grailsApplication.config.novamail.hostProps
+        default: // overide with user defined settings
+            hostProps = grailsApplication.config.novamail.hostProps
             break
         }
         return hostProps
@@ -1004,37 +1001,37 @@ class MessagingService {
         
         def hostProps =  [:]
         switch(hostName) {
-            case "Gmail":
+        case "Gmail":
             //log.debug "Provider is gmail"
-                hostProps = [
+            hostProps = [
                     "Host":"imap.gmail.com",
                     "mail.imap.host":"imap.gmail.com",
                     "mail.store.protocol": "imaps",
                     "mail.imap.socketFactory.class": "javax.net.ssl.SSLSocketFactory",
                     "mail.imap.socketFactory.fallback": "false",
                     "mail.imaps.partialfetch": "false"
-                    ]
+            ]
             break
 
-            case "Hotmail":
-             //log.debug "Provider is hotmail"
-                hostProps = [
+        case "Hotmail":
+            //log.debug "Provider is hotmail"
+            hostProps = [
                     "Host":" imap-mail.outlook.com",
                     "mail.imap.host":" imap-mail.outlook.com",
                     "mail.store.protocol": "imaps",
                     "mail.smtp.socketFactory.class": "javax.net.ssl.SSLSocketFactory",
                     "mail.imap.socketFactory.fallback": "false",
                     "mail.imaps.partialfetch": "false"
-                ]
+            ]
             break
 
-            case "Yahoo" :
-             //log.debug "Provider is yahoo"
-                hostProps = [:]
+        case "Yahoo" :
+            //log.debug "Provider is yahoo"
+            hostProps = [:]
             break
 
-            default: // overide with user defined settings
-                hostProps = grailsApplication.config.novamail.hostProps
+        default: // overide with user defined settings
+            hostProps = grailsApplication.config.novamail.hostProps
             break
         }
         return hostProps
@@ -1049,35 +1046,35 @@ class MessagingService {
     private Map getIMAPProps(String hostName){
         def hostProps =  [:]
         switch(hostName) {
-            case "Gmail":
+        case "Gmail":
             //log.debug "Provider is gmail"
-                hostProps = [
+            hostProps = [
                     "Host":"imap.gmail.com",
                     "mail.imap.host":"imap.gmail.com",
                     "mail.store.protocol": "imaps",
                     "mail.imaps.partialfetch": "false"
-                    ]
+            ]
             break
 
-            case "Hotmail":
-             //log.debug "Provider is hotmail"
-                hostProps = [
+        case "Hotmail":
+            //log.debug "Provider is hotmail"
+            hostProps = [
                     
-                ]
+            ]
             break
 
-            case "Yahoo" :
-             //log.debug "Provider is yahoo"
-                hostProps = [
+        case "Yahoo" :
+            //log.debug "Provider is yahoo"
+            hostProps = [
                     "Host":"imap.mail.yahoo.com",
                     "mail.imap.host":"imap.mail.yahoo.com",
                     "mail.store.protocol": "imaps",
                     "mail.imaps.partialfetch": "false"
-                ]
+            ]
             break
 
-            default: // overide with user defined settings
-                hostProps = grailsApplication.config.novamail.hostProps
+        default: // overide with user defined settings
+            hostProps = grailsApplication.config.novamail.hostProps
             break
         }
         return hostProps
@@ -1091,8 +1088,8 @@ class MessagingService {
      * @Params: javax.mail.Message p
      * @param p: message object from which we want to extract 'body' text
      */
-   public String getText(Part p) throws
-                MessagingException, IOException {
+    public String getText(Part p) throws
+    MessagingException, IOException {
         if (p.isMimeType("text/*")) {
             String s = null
             try{
@@ -1114,12 +1111,12 @@ class MessagingService {
                 Part bp = mp.getBodyPart(i);
                 if (bp.isMimeType("text/plain")) {
                     if (text == null)
-                        text = getText(bp);
+                    text = getText(bp);
                     continue;
                 } else if (bp.isMimeType("text/html")) {
                     String s = getText(bp);
                     if (s != null)
-                        return s;
+                    return s;
                 } else {
                     return getText(bp);
                 }
@@ -1130,7 +1127,7 @@ class MessagingService {
             for (int i = 0; i < mp.getCount(); i++) {
                 String s = getText(mp.getBodyPart(i));
                 if (s != null)
-                    return s;
+                return s;
             }
         }
 

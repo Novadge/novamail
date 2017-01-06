@@ -324,7 +324,7 @@ class PostMan {
             auth = new NovadgeAuthenticator(emailProps.username, emailProps.password)// create auth
         }
         
-        Session session = Session.getDefaultInstance(properties, auth)
+        Session session = Session.getInstance(properties, auth)
 //        log.debug "created session"
         MimeMessage message = new MimeMessage(session)
         String sourceAddr = emailProps.from

@@ -456,8 +456,9 @@ class MessagingService {
      * @param password: *************   
      * @param hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"]
      */
-     Message[] getMessages(String provider, String store,String username,String password,Map hostProps){
-        return getMessages(provider,store,username,password,null,hostProps)
+     Message[] getMessages(String provider,String username,String password,Map hostProps){
+
+        return getMessages(provider,username,password,null,hostProps)
                 
     }
         
@@ -471,27 +472,28 @@ class MessagingService {
      * @param term: search term used to specify which messages to retrieve 
      * @param hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"]    
      */
-    Message[] getMessages(String provider, String store,String username,String password,SearchTerm term,Map hostProps){
-        
-        return getMessages(provider,store,username,password,term,Folder.READ_ONLY,hostProps)
+    Message[] getMessages(String provider, String username,String password,SearchTerm term,Map hostProps){
+
+        return getMessages(provider,username,password,term,Folder.READ_ONLY,hostProps)
         
     }
     
     /**
      * Receive emails. 
      * @param provider: name of the host eg Gmail,yahoo,hotmail,etc
-     * @param store: IMAP,POP
+     *
      * @param username: john@yahoo.com
      * @param password: *************
      * @param term: search term used to specify which messages to retrieve 
      * @param folder_rw: Folder.READ_ONLY, Folder.READ_WRITE  
      * @param hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"] 
      */
-    Message[] getMessages(String provider, String store,String username,String password,SearchTerm term,int folder_rw, Map hostProps){
-        
+    Message[] getMessages(String provider, String username,String password,SearchTerm term,int folder_rw, Map hostProps){
+
         Map emailProps = [:]
         emailProps.hostName = provider; emailProps.username = username; emailProps.password = password;
-        return doGetMessages(emailProps,store,term,folder_rw,hostProps)
+
+        return doGetMessages(emailProps,term,folder_rw,hostProps)
     }
     
     
@@ -502,12 +504,12 @@ class MessagingService {
      */
     Message[] getMessages(SearchTerm term,int folder_rw){
         
-        String store = grailsApplication.config.novamail.store
+
         String provider = grailsApplication.config.novamail.hostname
         String username = grailsApplication.config.novamail.username
         String password = grailsApplication.config.novamail.password
         Map hostProps = grailsApplication.config.novamail.hostProps
-        return getMessages(provider,store,username,password,term,folder_rw,hostProps)
+        return getMessages(provider,username,password,term,folder_rw,hostProps)
     }
     
     
@@ -548,42 +550,16 @@ class MessagingService {
      * @param folder_rw: Folder.READ_WRITE, Folder.READ_ONLY, etc 
      * @param hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"]
      **/
-    Message[] doGetMessages(Map emailProps, String store,SearchTerm term,int folder_rw, Map hostProps){
+    Message[] doGetMessages(Map emailProps,SearchTerm term,int folder_rw, Map hostProps){
         
         if(!hostProps){
-            hostProps = grailsApplication.config.novamail.hostProps // try to get from custom config
+            throw new Exception("No host properties configured") // try to get from custom config
         }
-        
-        log.debug "Store is ${store}"
-        
-        if(hostProps?.keySet().size()==0 ){// if user has not declared custom hostProps
-            // try to get host props from novamail
-            log.debug "did not find custom properties"
-            switch(store){
-                case 'pop3':
-
-                    hostProps = getPOP3Props(emailProps.hostName)
-
-                    break
-
-                case 'pop3s':
-                    hostProps = getPOP3SProps(emailProps.hostName)
-
-                    break 
-
-                case 'imap':
-                    hostProps = getIMAPProps(emailProps.hostName)
-                    break
-
-                case 'imaps':
-                    hostProps = getIMAPSProps(emailProps.hostName)
-                    break
 
 
-            }
-        }
-        
-        def postman = new PostMan(emailProps,hostProps)
+        println "Creating post man "
+        PostMan postman = new PostMan(emailProps,hostProps)
+        println "Created post man ${postman}"
         if(term){ // if search term is specified and folder flag is set...
            log.debug "search term is set as ${term}"
            return postman.getInbox(term,folder_rw)

@@ -46,7 +46,7 @@ class PostMan {
     PostMan(String incomingMailServer, String store, String username, String password) {
         //throw new UnsupportedOperationException("Not yet implemented");
         System.out.log.debugln("Executing post man");
-        props = new Properties();
+        def props = new Properties();
 
         auth = new NovadgeAuthenticator(username,password);// not yet useful
         session = Session.getDefaultInstance(props, auth); // instantiate the session object for javamail
@@ -76,6 +76,7 @@ class PostMan {
      * 
      */
     PostMan(Map emailProps,Map props){
+
         properties = new Properties()
         // Setup mail server
         props.each { key, value ->
@@ -91,10 +92,12 @@ class PostMan {
 
         auth = new NovadgeAuthenticator(emailProps.username, emailProps.password)
 
-        session = Session.getInstance(properties, auth)
+        session = Session.getDefaultInstance(properties, auth)
+//        println("getting store : ${props['mail.store.protocol']}")
         getStore(props['mail.store.protocol'])
         // mail.store.protocol eg pop3, imap, etc
-        storeConnect(props['Host'],emailProps.username, emailProps.password)
+//        println "Host = > ${props['host']}"
+        storeConnect(props['host'],emailProps.username, emailProps.password)
     }
 
     
@@ -107,11 +110,11 @@ class PostMan {
      **/
     void storeConnect(String host, String username, String password) {
         try {
-//            log.debug "trying to connect to store......at ${host}\n"
+            println "trying to connect to store......at ${host}\n"
             store.connect(host, username, password)
         }
         catch(e) {
-//            log.error "Unable to connect to store because $e.message", e
+            println "Unable to connect to store because $e.message", e
         }
     }
 
@@ -126,7 +129,7 @@ class PostMan {
             store = session.getStore(string)
         }
         catch (e) {
-//            log.error e.message, e
+            println e.message, e
         }
     }
 
@@ -136,14 +139,14 @@ class PostMan {
      **/
     void getInbox() {
         try {
-//            log.debug "trying to get inbox......\n"
+//            println "trying to get inbox..def....\n"
             
             inbox = store.getFolder("INBOX")
             inbox.open(Folder.READ_ONLY)
             messages =  inbox.getMessages()
         }
         catch (e) {
-//            log.error "Unable to get inbox because $e.message", e
+            println "Unable to get inbox because $e.message", e
         }
     }
     
@@ -159,7 +162,7 @@ class PostMan {
      */
     Message[] getInbox(SearchTerm term, int folder_rw) {
         try {
-//            log.debug "trying to get inbox......\n"
+//            println "trying to get inbox......\n"
             inbox = store.getFolder("INBOX")
             if(folder_rw){
                 inbox.open(folder_rw)
@@ -174,9 +177,9 @@ class PostMan {
             
         }
         catch (e) {
-//            log.error "Unable to get inbox because $e.message", e
+            println "Unable to get inbox because $e.message", e
         }
-         
+
         return messages
     }
     

@@ -47,8 +47,7 @@ class PostMan {
         //throw new UnsupportedOperationException("Not yet implemented");
         System.out.log.debugln("Executing post man");
         props = new Properties();
-        //this.setProperties("mail.pop3.host", incomingMailServer);
-        //this.setProperties("mail.store.protocol","pop3");
+
         auth = new NovadgeAuthenticator(username,password);// not yet useful
         session = Session.getDefaultInstance(props, auth); // instantiate the session object for javamail
         getStore(store);// eg pop3, imap, etc
@@ -85,15 +84,14 @@ class PostMan {
                 //do nothing :(
             }
             else{
-//               log.debug "setting ${key} to ${value}"
                properties.setProperty(key,value) 
             }
             
         }
         auth = new NovadgeAuthenticator(emailProps.username, emailProps.password)
         session = Session.getInstance(properties, auth)
-        getStore(props["mail.store.protocol"])// eg pop3, imap, etc
-        storeConnect(props["Host"],emailProps.username, emailProps.password)
+        getStore(props['store'])// mail.store.protocol eg pop3, imap, etc
+        storeConnect(props['Host'],emailProps.username, emailProps.password)
     }
 
     
@@ -305,39 +303,24 @@ class PostMan {
 //        log.debug "setting properties ${props}"
         // Setup mail server
         props.each { key, value ->
-            
             properties.setProperty(key,value)
         }
-//        log.debug "creating auth"
-        Authenticator auth = null;
+
         String usernameAddr = emailProps.username
-        // check if the username contains personal name
-//        log.debug "username = ${usernameAddr}"
-        if(emailProps.username?.contains("<") && emailProps.username?.contains(">")){
-            int start = emailProps.username.indexOf("<") // find the index
-            int end = emailProps.username.indexOf(">")// find the index
-            String username =  emailProps.username.substring(start+1,end) // get the string between
-//            log.debug username
-            auth = new NovadgeAuthenticator(username, emailProps.password)// create auth
-        }
-        else{
-            auth = new NovadgeAuthenticator(emailProps.username, emailProps.password)// create auth
-        }
-        
-        Session session = Session.getDefaultInstance(properties, auth)
+
+        Authenticator auth = new NovadgeAuthenticator(getAddress(usernameAddr), emailProps.password)// create auth
+
+
+        Session session = Session.getInstance(properties, auth)
 //        log.debug "created session"
         MimeMessage message = new MimeMessage(session)
         String sourceAddr = emailProps.from
 //        log.debug "Source addr = ${sourceAddr}"
         if(sourceAddr.contains("<") && sourceAddr.contains(">")){
-            
-            int start = sourceAddr.indexOf("<")
-            int end = sourceAddr.indexOf(">")
-
-            String address =  sourceAddr.substring(start+1,end)
-            String name = sourceAddr.substring(0,start-1)
-//            log.debug address
-            message.setFrom(new InternetAddress(address,name))
+            // from John <john@doe.com>
+            // get the address eg john@doe.com
+            // get the name eg  John
+            message.setFrom(new InternetAddress(getAddress(sourceAddr),getName(sourceAddr)))
         }
         else{
             message.setFrom(new InternetAddress(emailProps.from))
@@ -394,6 +377,40 @@ class PostMan {
 //        log.debug "trying to send message with transport ${message}"
         Transport.send(message)
 //        log.debug "Sent message successfully...."
+    }
+
+    /**
+     * Extract the address part from a source address like John <john@doe.com>
+     * @param sourceAddr
+     * @return
+     */
+    String getAddress(String sourceAddr){
+        if(sourceAddr.contains("<") && sourceAddr.contains(">")) {
+
+            int start = sourceAddr.indexOf("<")
+            int end = sourceAddr.indexOf(">")
+
+            return sourceAddr.substring(start + 1, end)
+
+        }
+
+        return sourceAddr
+    }
+
+    /**
+     * Extract the name part from a source address like John <john@doe.com>
+     * @param sourceAddr
+     * @return
+     */
+    String getName(String sourceAddr){
+        if(sourceAddr.contains("<") && sourceAddr.contains(">")) {
+
+            int start = sourceAddr.indexOf("<")
+            return sourceAddr.substring(0, start - 1) // the name part
+            // eg John <john@doe.com>
+        }
+
+        return sourceAddr
     }
     
     

@@ -90,7 +90,7 @@ class PostMan {
         }
         auth = new NovadgeAuthenticator(emailProps.username, emailProps.password)
         session = Session.getInstance(properties, auth)
-        getStore(props['store'])// mail.store.protocol eg pop3, imap, etc
+        getStore(props['mail.store.protocol'])// mail.store.protocol eg pop3, imap, etc
         storeConnect(props['Host'],emailProps.username, emailProps.password)
     }
 

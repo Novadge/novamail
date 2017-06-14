@@ -6,7 +6,7 @@ import javax.mail.search.*
 
 import com.sun.mail.imap.*
 import javax.activation.DataHandler
-
+import static grails.async.Promises.*
 import javax.mail.Message.RecipientType
 class MessagingService {
    def grailsApplication 
@@ -556,16 +556,15 @@ class MessagingService {
             throw new Exception("No host properties configured") // try to get from custom config
         }
 
-
-        println "Creating post man "
         PostMan postman = new PostMan(emailProps,hostProps)
-        println "Created post man ${postman}"
+
         if(term){ // if search term is specified and folder flag is set...
            log.debug "search term is set as ${term}"
            return postman.getInbox(term,folder_rw)
         }
         else{
             log.debug "No search term is set"
+
             return postman.getAllInbox()
         }
         
@@ -585,8 +584,8 @@ class MessagingService {
     }
     
     /*
-     * Get message body in a prefered format 
-     * messageIn object and prefered format
+     * Get message body in a preferred format
+     * messageIn object and preferred format
      * @param message: message from which to extract body
      * @param prefFormat: format in which to return message body
      * note: many messages will contain text/plain and text/html formats
@@ -644,7 +643,6 @@ class MessagingService {
      * @param messages: An array of messages
      */
     def saveMessages(Message[] messages){
-                
        messages.each({ // iterate over all messages
            saveMessage(it)            
        })
@@ -707,14 +705,17 @@ class MessagingService {
      * 
      **/
     public MessageIn setParts(MessageIn novaMsg,Part part){
-        log.debug "content type ${part.getContentType()} "
+
         if (part.isMimeType("text/*")) {
+
             return setTextPart(novaMsg,part)
         }
 
         if (part.isMimeType("multipart/*")) {
+
             return setMultipart(novaMsg,part)
         }
+
     }
    
     /**
@@ -748,7 +749,7 @@ class MessagingService {
             Multipart mp = (Multipart)part.getContent();
             
             for (int i = 0; i < mp.getCount(); i++){ // go through all body parts
-                log.debug "processing part ${i} of ${mp.getCount()}"
+
                 Part bp = mp.getBodyPart(i);
                 String contentType = bp.getContentType()
                 String disp = bp.getDisposition();
@@ -757,11 +758,11 @@ class MessagingService {
                    novaMsg = setAttachment(novaMsg,bp)                   
                 }
                 else{
-                    log.debug "part ${i} of type ${contentType} is not an attachment"
                     def content = getText(part)
                     def body = new Body(contentType:contentType,content:content)
-                    log.debug body.getErrors()
+                    println body.getErrors()
                     novaMsg.addToBody(body)
+
                 }
                 
             }

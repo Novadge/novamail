@@ -35,7 +35,7 @@ class PostMan {
     PostMan() {
     }
 
-    /*
+    /**
      *  Instantiate the Postman object with state properties 
      *  @params : State properties for postman
      *  incomingMailServer : eg imap.gmail.com
@@ -45,7 +45,7 @@ class PostMan {
      */
     PostMan(String incomingMailServer, String store, String username, String password) {
         //throw new UnsupportedOperationException("Not yet implemented");
-        System.out.log.debugln("Executing post man");
+
         def props = new Properties();
 
         auth = new NovadgeAuthenticator(username,password);// not yet useful
@@ -56,7 +56,7 @@ class PostMan {
         getInbox();
     }
     
-    /*
+    /**
      * Instantiate the postman with state properties 
      * @Params: maps containing email body, email host properties
      * props: map of email host properties: eg
@@ -93,15 +93,15 @@ class PostMan {
         auth = new NovadgeAuthenticator(emailProps.username, emailProps.password)
 
         session = Session.getDefaultInstance(properties, auth)
-//        println("getting store : ${props['mail.store.protocol']}")
+
         getStore(props['mail.store.protocol'])
         // mail.store.protocol eg pop3, imap, etc
-//        println "Host = > ${props['host']}"
+
         storeConnect(props['host'],emailProps.username, emailProps.password)
     }
 
     
-    /*
+    /**
      * Connect to email server store 
      * @params : host , username and password
      * host: email server host property
@@ -110,15 +110,15 @@ class PostMan {
      **/
     void storeConnect(String host, String username, String password) {
         try {
-            println "trying to connect to store......at ${host}\n"
+
             store.connect(host, username, password)
         }
         catch(e) {
-            println "Unable to connect to store because $e.message", e
+            println "Unable to connect to store ${host} because $e.message", e
         }
     }
 
-    /*
+    /**
      * Retrieve email store from email server
      * @params :store type
      * string: imap,pop
@@ -133,13 +133,14 @@ class PostMan {
         }
     }
 
-    /*
+
+    /**
      * Retrieve messages from email server
      * and store them in the message array
-     **/
+     */
     void getInbox() {
         try {
-//            println "trying to get inbox..def....\n"
+
             
             inbox = store.getFolder("INBOX")
             inbox.open(Folder.READ_ONLY)
@@ -161,20 +162,40 @@ class PostMan {
      * 
      */
     Message[] getInbox(SearchTerm term, int folder_rw) {
+        getBox(term,folder_rw,"INBOX")
+    }
+
+    /*
+     * Get messages from inbox
+     * @params: search term and folder flag
+     * term: search criteria for retrieving messages
+     * folder_rw: used to specify whethere message objects would be readable
+     * or writable --1 or 2 for Folder.READ_ONLY and Folder.READ_WRITE respectively
+     *
+     */
+
+    /**
+     * Get messages from inbox
+     * @param term search term
+     * @param folder_rw used to specify whether message objects would be readable or writable
+     * --1 or 2 for Folder.READ_ONLY and Folder.READ_WRITE
+     * @param folder folder to get eg. "INBOX"
+     * @return
+     */
+    Message[] getBox(SearchTerm term, int folder_rw, String folder) {
         try {
-//            println "trying to get inbox......\n"
-            inbox = store.getFolder("INBOX")
+            inbox = store.getFolder(folder)
             if(folder_rw){
                 inbox.open(folder_rw)
             }
-                        
+
             if(term){
-               messages = inbox.search(term); 
+                messages = inbox.search(term);
             }
             else{
-               messages =  inbox.getMessages() 
+                messages =  inbox.getMessages()
             }
-            
+
         }
         catch (e) {
             println "Unable to get inbox because $e.message", e

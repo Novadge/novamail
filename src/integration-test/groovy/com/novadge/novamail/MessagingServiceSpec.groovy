@@ -13,9 +13,9 @@ class MessagingServiceSpec extends Specification {
 
     static doWithConfig(c) {
         c.novamail.hostname = 'Gmail'
-        c.novamail.username = 'testuser@gmail.com'
-        c.novamail.password = 'password'
-        c.novamail.from = 'testuser@gmail.com'
+        c.novamail.username = 'omasiri@gmail.com'
+        c.novamail.password = '$r95-b73google'
+        c.novamail.from = 'omasiri@gmail.com'
         
     }
     def setup() {

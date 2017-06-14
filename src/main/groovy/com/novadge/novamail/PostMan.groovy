@@ -377,9 +377,7 @@ class PostMan {
         
         if (files) {
             BodyPart messageBodyPart = new MimeBodyPart()
-//            log.debug "mail has attachments"
-//            log.debug "adding attachments"
-            
+
             messageBodyPart.setContent(emailProps.body, TEXT_HTML)
 
             Multipart multipart = new MimeMultipart()

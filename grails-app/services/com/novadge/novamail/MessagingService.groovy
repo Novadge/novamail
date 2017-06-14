@@ -1,5 +1,7 @@
 package com.novadge.novamail
 
+import grails.core.GrailsApplication
+
 import javax.mail.*;
 import javax.mail.search.*
 
@@ -9,7 +11,7 @@ import javax.activation.DataHandler
 import static grails.async.Promises.*
 import javax.mail.Message.RecipientType
 class MessagingService {
-   def grailsApplication 
+   GrailsApplication grailsApplication
     //-----------------------------------------------------------------------
     //-----------internal email sending -------------------------
 
@@ -62,148 +64,10 @@ class MessagingService {
     }
     
     
-    /**
-     * Send email
-     * @param messageOut : messageOut instance
-     */
-    void sendEmail(MessageOut messageOut) {        
-        
-            String subject = "${messageOut.subject}"
-            String to = "${messageOut?.recipients}"
 
-            if (!messageOut?.attachments) {
-                List<File> files = []
-                
-                messageOut?.attachments?.each{att -> // all attachments
-                   log.debug "creating files"
-                   File f = new File("${att?.name}")
-                   def fout = new FileOutputStream(f)
-                   fout.write(att.data)
-                   files.add(f) // extract data
-                   
-                }
-                
-               //(String hostname, String username, String password, String from, String to, String subject, String body)
-                sendHTMLEmail(messageOut?.hostname, messageOut?.username, messageOut?.password, messageOut?.senders, messageOut?.recipients,messageOut?.cc,messageOut?.bcc, messageOut?.subject, messageOut?.body, files,messageOut?.hostProperties)
-                
-                 
-            }
-            else{
-               // log.debug "Sending Message....complete..."
-               //(String hostname, String username, String password, String from, String to, String subject, String body)
-               sendHTMLEmail(messageOut?.hostname, messageOut?.username, messageOut?.password, messageOut?.senders, messageOut?.recipients, messageOut?.cc,messageOut?.bcc, messageOut?.subject, messageOut?.body,messageOut?.hostProperties)
-                   
-               
-               
-                 
-            }
-            
-        
-    }
+
     
-    
-    
-    /**
-     * Sends emails with quarts job.
-     * @param messageOut: messageOut object
-     **/
-    def queueEmail(MessageOut messageOut){
-        queueEmail(messageOut,[])
-        
-    }
-    
-    /**
-     * Sends emails with quarts job.
-     * @param messageOut: messageOut object
-     * @param attachments: A list of File objects (optional)
-     * 
-     */
-    def queueEmail(MessageOut messageOut, List<File> attachments){
-        
-        messageOut = addAttachments(messageOut,attachments)        
-        messageOut.save(flush:true)
-        
-    }
-    
-    
-    /**
-     * Sends emails with quarts job.
-     * @param to: email recipient
-     * @param subject: email subject
-     * @param body: email body
-     */
-    def queueEmail(String to, String subject, String body){
-        queueEmail(to,subject,body,[])
-        
-    }
-    
-    /**
-     * Sends emails with quarts job.
-     * @param to: Recipients email address
-     * @param subject: Message subject
-     * @param body: Email message
-     * attachments: A list of File objects (optional)
-     **/
-    def queueEmail(String to, String subject, String body,List<File> attachments){
-        Map map = getAccountDetails()
-        queueEmail(map.hostname,map.username,map.password,map.from,to,"","",subject,body.toString(),attachments,map.hostProps)
-                
-    }
-    
-    /**
-     * Sends emails with quarts job.
-     * @param hostName: name of the host eg Gmail
-     * @param username: email username
-     * @param password: email password
-     * @param from: Senders email address
-     * @param to: Recipients email address
-     * @param subject: Message subject
-     * @param body: Email message
-     * @param hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"] 
-     **/
-    def queueEmail(String hostname, String username, String password, String from, String to, String subject, String body,Map hostProps){
-        queueEmail(hostname,username,password,from,to,"","",subject,body,null,hostProps)        
-    }
-    
-   
-    
-    /**
-     * Sends emails with quarts job.
-     *
-      *@param hostname: name of the host eg Gmail
-     * @param username: email username
-     * @param password: email password
-     * @param from: Senders email address
-     * @param to: Comma separated list of recipients email address
-     * @param cc: Comma separated list of email address to send a carbon copy
-     * @param bcc: Comma separated list of email addresses to send a blind carbon copy
-     * @param subject: Message subject
-     * @param body: Email message
-     * @param hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"] 
-     */
-    def queueEmail(String hostname, String username, String password, String from, String to, String cc,String bcc, String subject, String body,List<File> attachments,Map hostProps){
-        MessageOut messageOut = new MessageOut(hostname:hostname,username:username,password:password,senders:from,recipients:to,cc:cc,bcc:bcc,subject:subject,body:body.toString(),hostProperties:hostProps)
-        queueEmail(messageOut,attachments)        
-        
-    }
-    
-    
-    
-    /**Add attachments to a message
-     * @params messageOut: Message object to which attachments will be added
-     * @params attachments: List of file objects to attach
-     **/
-    private MessageOut addAttachments(MessageOut messageOut, List<File> attachments){
-        Attachment attachment = null
-        FileInputStream fis = null
-        attachments?.each{
-            attachment = new Attachment(name:it.getName(),data:it.getBytes())
-            messageOut.addToAttachments(attachment)
-            // delete the file
-        }
-        return messageOut
-    }
-    
+
     
     
     
@@ -398,8 +262,8 @@ class MessagingService {
         }
         
         //log.debug "Inside message service obj ${properties}"
-        
-       def postman = new PostMan()
+
+        PostMan postman = new PostMan()
        
             if (!attachments) {
                 if(html){
@@ -429,20 +293,7 @@ class MessagingService {
     }
 
     
-    /**
-     * Retrive and attempt to send out 'pending' and 'not sent' emails
-     * from db message_out.
-     */
-    void processMailQueue() {
-        log.debug "inside message process queue"
-        def pendingMsgs = MessageOut.where { status == 'Pending' || status == 'Not sent' }.list()
-        
-        pendingMsgs.each {
-            sendEmail(it)
-            
-            
-        }
-    }
+
 
     
     
@@ -570,72 +421,13 @@ class MessagingService {
         
     }
     
-    /**
-     * Get message body 
-     * @param: messageOut object
-     * note: many messages will contain text/plain and text/html formats
-     * where both are available this method will return the first in the list
-     */
-    String getMessageBody(MessageOut message){
-       // log.debug "message = ${message}"
-       if(!message.body){return "NO CONTENT"}
-        
-        return message.body// return the first available content
-    }
+
     
-    /*
-     * Get message body in a preferred format
-     * messageIn object and preferred format
-     * @param message: message from which to extract body
-     * @param prefFormat: format in which to return message body
-     * note: many messages will contain text/plain and text/html formats
-     * where both are available this method will return the first in the list
-     */
-    String getMessageBody(MessageIn message,String prefFormat){
-       // log.debug "message = ${message}"
-       if(!message.body){return "NO CONTENT"}
-        if(prefFormat == null){
-           return message?.body[0]?.content 
-        }
-        //log.debug message.body
-        int num = message?.body?.size() // get number of items in message body
-        if(num >1){
-           // log.debug "message has more than one body"
-            message.body.each{
-                if(it.contentType =~ prefFormat){
-                    return it?.content
-                }
-            }
-           // return messageIn.body[0].content // return available content
-        }
-        return message.body[0]?.content// return the first available content
-    }
+
     
     
-    
-    /**
-     * Get message body 
-     * @params message object
-     * message: message from which to extract body
-     * note: many messages will contain text/plain and text/html formats
-     * where both are available this method will return the first in the list
-     **/
-    String getMessageBody(MessageIn message){
-        return getMessageBody(message,null)
-    }
-    
-    
-    /**
-     * Get message attachments in a prefered format 
-     * @param message: message from which to extract attachments     
-     **/
-    List<byte[]> getMessageAttachments(MessageIn message){
-        List<byte[]> bytes = []
-        message?.attachments.each{
-            bytes.add(it?.data)
-        }
-        return bytes        
-    }
+
+
     
     
     /**
@@ -650,159 +442,7 @@ class MessagingService {
     }
     
     
-    /**
-     * Persist a message to the database
-     * @param message: A message object
-     */
-    def saveMessage(Message message){
-        
-        MessageIn msg = null;
-        Map props = [:]
-        msg = new MessageIn() // create a new message object
-        Message it = message // reference handle... too lazy to do anything more... ;)
-        props =[contentType:it?.getContentType(),senders:it?.getFrom()[0].toString(),recipients:it?.getRecipients(RecipientType.TO).toString(),subject:it.getSubject(),dateSent:it.getSentDate(),dateReceived:it.getReceivedDate(),status:"Unread"]
-        msg.properties = props // assign properties to the message object
-        msg = setParts(msg,it) // set the body and attachment parts of the message
-        MessageIn.withNewSession{ // save message with new session because ... 
-                //for some strange reason it does not save with current session (probably because of download delay...;)
-           
-            msg.save(flush:true) 
-        }
-        
-    }
-    
-    
-    /**
-     * Persist a message to the database
-     * @param message: incoming javamail message
-     * @param msg: local database store object
-     */
-    def saveMessage(Message message,MessageIn msg){
-        
-        Map props = [:]
-        
-        Message it = message // reference handle... too lazy to do anything more... ;)
-        props =[contentType:it.getContentType(),senders:it.getFrom()[0].toString(),recipients:it.getRecipients(RecipientType.TO).toString(),subject:it.getSubject(),dateSent:it.getSentDate(),dateReceived:it.getReceivedDate(),status:"Unread"]
-        msg.properties = props // assign properties to the message object
-        msg = setParts(msg,it) // set the body and attachment parts of the message
-        MessageIn.withNewSession{ // save message with new session because ... 
-                //for some strange reason it does not save with current session (probably because of download delay...;)
-             //log.debug "message is valid: ${msg.validate()}" 
-            
-            if(msg.save(flush:true)){
-                //log.debug "saved ;)"
-            } 
-        }
-        
-    }
-    
-    /**
-     * This method is used to separtate the body and attachment parts of 
-     * a Part(javax.mail.Message) object and bind it to a com.novamail.MessageIn
-     * Object for database persistence.
-     * @param novaMsg: The object to which you want to bind incomming message properties
-     * @param part: Message object from which we want to extract properties
-     * 
-     **/
-    public MessageIn setParts(MessageIn novaMsg,Part part){
 
-        if (part.isMimeType("text/*")) {
-
-            return setTextPart(novaMsg,part)
-        }
-
-        if (part.isMimeType("multipart/*")) {
-
-            return setMultipart(novaMsg,part)
-        }
-
-    }
-   
-    /**
-     * This method is used to extract and bind text from incoming message
-     * Part(javax.mail.Message) to a com.novamail.MessageIn
-     * Object for database persistence. 
-     * @param novaMsg: The object to which you want to bind incoming message text
-     * @param part: Message object from which we want to extract properties
-     * 
-     **/
-   public MessageIn setTextPart(MessageIn novaMsg,Part part){
-       log.debug "text part begin"
-       String content = getText(part)
-       novaMsg.addToBody(new Body(contentType:part?.getContentType(),content:content?.toString()))//addToBody(new Body(fileType:part.getContentType(),body:content))
-       return novaMsg
-   }
-   
-    /**
-     * This method is used to extract and bind text and attachments from incoming
-     * messages Part(javax.mail.Message) to a com.novamail.MessageIn
-     * Object for database persistence.
-     * @Params: com.novamail.MessageIn object, javax.mail.Message 
-     * @param novaMsg: The object to which you want to bind incomming message properties
-     * @param part: Message object from which we want to extract properties
-     * 
-     **/
-    public MessageIn setMultipart(MessageIn novaMsg,Part part){
-        log.debug "multipart begin...."
-        if (part.isMimeType("multipart/*")) {
-            
-            Multipart mp = (Multipart)part.getContent();
-            
-            for (int i = 0; i < mp.getCount(); i++){ // go through all body parts
-
-                Part bp = mp.getBodyPart(i);
-                String contentType = bp.getContentType()
-                String disp = bp.getDisposition();
-                if (disp?.equalsIgnoreCase(Part.ATTACHMENT)){ // if this part is an attachment ...
-                    log.debug "part ${i} of type ${contentType} is an attachment"
-                   novaMsg = setAttachment(novaMsg,bp)                   
-                }
-                else{
-                    def content = getText(part)
-                    def body = new Body(contentType:contentType,content:content)
-                    println body.getErrors()
-                    novaMsg.addToBody(body)
-
-                }
-                
-            }
-            //return setBody(novaMsg,)
-        }
-        log.debug "multipart ...end\n\n\n"
-        return novaMsg
-    }
-    
-    /**
-     * This method is used to extract and bind attachements from incoming 
-     * messages(javax.mail.Message)objects to a com.novamail.MessageIn
-     * Object for database persistence.
-     * @Params: com.novamail.MessageIn object, javax.mail.Message 
-     * @param novaMsg: The object to which you want to bind incomming message properties
-     * @param part: Message object from which we want to extract properties
-     * 
-     **/
-    public MessageIn setAttachment(MessageIn novaMsg,Part bp){
-        log.debug "attachment begin..."
-        log.debug bp.getContentType()
-        
-        InputStream input = bp.getInputStream()
-        try{
-            def attachment = new Attachment(name:bp.getFileName(),data:input.getBytes())
-            log.debug "Attachment errors = ${attachment.getErrors()} " 
-            novaMsg.addToAttachments(attachment)
-        }
-        catch(Exception ex){
-            log.debug "Exception occured...${ex.toString()}"
-        }
-        
-        return novaMsg
-    }
-    
-    
-    
-    
-    
-    
     
     /**
      * Retrieve predefined SMTP properties
@@ -888,7 +528,7 @@ class MessagingService {
             ]
             break
 
-            default: // overide with user defined settings
+            default: // override with user defined settings
                 hostProps = grailsApplication.config.novamail.hostProps
             break
         }
@@ -1075,110 +715,14 @@ class MessagingService {
     }
     
     
+
     
+
     
-    /**
-     * Sends emails.
-     * @param hostName: name of the host eg Gmail
-     * @param username: email username
-     * @param password: email password
-     * @param from: senders email address
-     * @param to: a comma separated list of recipients email address
-     * @param subject: email subject
-     * @param body: email body
-     * @param attachments: A list of File objects 
-     * @param hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"]
-     */
-    @Deprecated
-    boolean sendEmail(String hostname, String username, String password, String from, String to, String subject, String body,List<File> attachments,Map hostProps) throws Exception {
-        sendEmail(hostname, username, password, from, to, subject, body,false, attachments,hostProps)
-    }
+
     
-    //-----------------------------------------------------------------------
-    
-    /**
-     * Sends email.
-     * @param hostname: name of the host eg Gmail, Hotmail, Yahoo, etc
-     * @param username: email username
-     * @param password: email password
-     * @param from: senders email address
-     * @param to: a comma separated list of recipients email addresses
-     * @param subject: email subject
-     * @param body: email body
-     * @param attachments: a list of File objects (optional)
-     * @param hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"]
-     */
-    @Deprecated
-    boolean sendEmail(String hostname, String username, String password, String from, String to, String subject, String body,boolean html, List<File> attachments,Map hostProps) throws Exception{
-        
-        doSendEmail([
-            from: from,
-            to: to,
-            subject: subject,
-            body: body,
-            hostName: hostname,
-            username: username,
-            password: password,
-        ],html, attachments,hostProps)
-    }
-    
-    /**
-     * Sends emails.
-     *
-     * @params : email attributes such as
-     * @param hostName: name of the host eg Gmail
-     * @param username: email username
-     * @param password: email password
-     * @param from: senders email address
-     * @param to: recipients email address
-     * @param subject: email subject
-     * @param body: email body
-     * @param hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"]
-     */
-    @Deprecated
-    boolean sendEmail(String hostname, String username, String password, String from, String to, String subject, String body,Map hostProps) throws Exception{
-        sendEmail(hostname, username, password, from, to, subject, body,false, null,hostProps)
-    }
-    
-    /**
-     * Sends emails.
-     *
-     * @params : email attributes such as
-     * hostName: name of the host eg Gmail
-     * username: email username
-     * password: email password
-     * from: The sender
-     * to: comma separated list of recipient email addresses
-     * subject: Your message subject
-     * body: The body of your message
-     * attachments: A list of File object (optional)
-     * hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"]
-     */
-    @Deprecated
-    boolean sendHTMLEmail(String hostname, String username, String password, String from, String to, String subject, String body, List<File> attachments,Map hostProps) throws Exception{
-        
-        sendEmail(hostname, username, password, from, to, subject, body,true, attachments,hostProps)
-    }
-    
-    
-     /**
-     * Sends emails with quarts job.
-     *
-      *@param hostname: name of the host eg Gmail
-     * @param username: email username
-     * @param password: email password
-     * @param from: Senders email address
-     * @param to: Recipients email address
-     * @param subject: Message subject
-     * @param body: Email message
-     * @param hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"] 
-     */
-    @Deprecated
-    def queueEmail(String hostname, String username, String password, String from, String to, String subject, String body,List<File> attachments,Map hostProps){
-        List<MessageOut> messageOut = new MessageOut(hostname:hostname,username:username,password:password,senders:from,recipients:to,subject:subject,body:body.toString(),hostProperties:hostProps)
-        queueEmail(messageOut,attachments)        
-        
-    }
+
+
     
     
         

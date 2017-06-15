@@ -2,4 +2,4 @@ language: groovy
 
 before_script:
 - rm -rf target
-script: ./travis-build.sh
+script: ./travis_build.sh

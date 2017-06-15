@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Value
 /**
  * See the API for {@link grails.test.mixin.services.ServiceUnitTestMixin} for usage instructions
  */
-@Mock([MessageOut,MessageIn])
+@Mock([])
 @TestFor(MessagingService)
 class MessagingServiceSpec extends Specification {
 
@@ -41,17 +41,14 @@ class MessagingServiceSpec extends Specification {
     def cleanup() {
     }
 
-    void "test sendHTMLEmail(String to, String subject, String body)"(){
+//    void "test sendHTMLEmail(String to, String subject, String body)"(){
+//
+//        when:" send html is called with the correct parameters"
+//         def result = service.sendHTMLEmail("support@novadge.com","Test from novamail","It works!")
+//        then:"Send the email"
+//            assert result
+//    }
 
-        when:" send html is called with the correct parameters"
-         def result = service.sendHTMLEmail("support@novadge.com","Test from novamail","It works!")
-        then:"Send the email"
-            assert result
-    }
-
-    void "test sendEmail(Map map)"(){
-
-    }
 
     
 }

@@ -11,7 +11,7 @@ import javax.activation.DataHandler
 import static grails.async.Promises.*
 import javax.mail.Message.RecipientType
 class MessagingService {
-   GrailsApplication grailsApplication
+   def grailsApplication
     //-----------------------------------------------------------------------
     //-----------internal email sending -------------------------
 
@@ -23,11 +23,18 @@ class MessagingService {
      **/
     Map getAccountDetails(){
         Map map = [:]
+        Map hostConfig = [:]
         map.hostname = grailsApplication.config.novamail.hostname
         map.username = grailsApplication.config?.novamail?.username
         map.password = grailsApplication.config?.novamail?.password
         map.from = grailsApplication.config.novamail?.username
-        map.hostProps = grailsApplication.config?.novamail?.hostProps
+        List hostProps = grailsApplication.config?.novamail?.hostProps
+
+        for(Map item : hostProps){
+            hostConfig += item
+        }
+        map.hostProps = hostConfig
+
         return map
     }
     
@@ -58,22 +65,12 @@ class MessagingService {
            return sendEmail(props.hostname, props.username, props.password, props.username, map.to, map.cc,map.bcc,map.subject, map.body,html, map.attachments,hostProps)
         }
         else{// use user provided credentials
+
            return sendEmail(map.hostname, map.username, map.password, map.username, map.to, map.cc,map.bcc, map.subject, map.body,html, map.attachments,hostProps) 
         }
         
     }
-    
-    
 
-
-    
-
-    
-    
-    
-    
-    
-    
     
     
         
@@ -88,11 +85,11 @@ class MessagingService {
      * @returns boolean
      **/
     boolean sendHTMLEmail(String to, String subject, String body) throws Exception{
-        
+
         List<File> attachments = []// empty list of attachments
         sendHTMLEmail(to,subject,body,attachments)
     }
-    
+
     /**
      * Sends emails.
      *
@@ -106,10 +103,8 @@ class MessagingService {
     
     boolean sendHTMLEmail(String to, String subject, String body,List<File> attachments) throws Exception{
         Map map = getAccountDetails()
-        
-        Map hostProps = map.hostProps//grailsApplication.config.novamail.hostProps
-        
-        sendHTMLEmail(map.hostname, map.username, map.password, map.from, to,"","", subject, body, attachments,hostProps)
+
+        sendHTMLEmail(map.hostname, map.username, map.password, map.from, to,"","", subject, body, attachments,map.hostProps)
     }
     
     
@@ -132,7 +127,7 @@ class MessagingService {
      */
     
     boolean sendHTMLEmail(String hostname, String username, String password, String from, String to, String cc, String bcc,String subject, String body, List<File> attachments,Map hostProps) throws Exception{
-        
+
         sendEmail(hostname, username, password, from, to, cc, bcc, subject, body,true, attachments,hostProps)
     }
 
@@ -178,8 +173,7 @@ class MessagingService {
     boolean sendEmail(String to, String subject, String body,List<File> attachments) throws Exception{
         Map map = getAccountDetails()
         Map hostProps = map.hostProps//grailsApplication.config.novamail.hostProps
-//        log.debug map
-//        log.debug hostProps
+
         sendEmail(map.hostname, map.username, map.password, map.from, to,"","", subject, body,false, attachments,hostProps)
     }
     
@@ -251,7 +245,7 @@ class MessagingService {
      * @param hostProps: Map of host properties eg: ["mail.imap.host":"imap.gmail.com"]
      */
     private boolean doSendEmail(Map properties, boolean html, List<File> attachments,Map hostProps) throws Exception{
-        
+
         if(!hostProps){
             hostProps = grailsApplication.config.novamail.hostProps // try to get from custom config
         }
@@ -264,7 +258,6 @@ class MessagingService {
         //log.debug "Inside message service obj ${properties}"
 
         PostMan postman = new PostMan()
-       
             if (!attachments) {
                 if(html){
                     log.debug"sending html email without attachments 353"
@@ -287,8 +280,6 @@ class MessagingService {
                 }
                 
             }
-
-            return true
     
     }
 

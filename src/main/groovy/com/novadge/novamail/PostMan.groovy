@@ -80,14 +80,11 @@ class PostMan {
         properties = new Properties()
         // Setup mail server
         props.each { key, value ->
-            
-            if(key == 'Host'){ 
-                //do nothing :(
+            if(props[key] instanceof java.lang.String){
+                properties.setProperty(key,value)
             }
-            else{
-               properties.setProperty(key,value) 
-            }
-            
+
+
         }
 
         auth = new NovadgeAuthenticator(emailProps.username, emailProps.password)
@@ -114,7 +111,7 @@ class PostMan {
             store.connect(host, username, password)
         }
         catch(e) {
-            println "Unable to connect to store ${host} because $e.message", e
+            println "Unable to connect to store ${host} because ${e.message}, ${e}"
         }
     }
 
@@ -129,7 +126,7 @@ class PostMan {
             store = session.getStore(string)
         }
         catch (e) {
-            println e.message, e
+            println "${e.message}, ${e}"
         }
     }
 
@@ -147,7 +144,7 @@ class PostMan {
             messages =  inbox.getMessages()
         }
         catch (e) {
-            println "Unable to get inbox because $e.message", e
+            println "Unable to get inbox because ${e.message}, ${e}"
         }
     }
     
@@ -198,7 +195,7 @@ class PostMan {
 
         }
         catch (e) {
-            println "Unable to get inbox because $e.message", e
+            println "Unable to get inbox because ${e.message}, ${e}"
         }
 
         return messages
@@ -325,13 +322,20 @@ class PostMan {
      * file: file object to send as attachment
      */
     private void doSendEmail(Map emailProps, Map props, boolean html, List<File> files) {
-//        log.debug "inside postman with ${files}"
+
         Properties properties = System.getProperties()
-//        log.debug "setting properties ${props}"
+
         // Setup mail server
         props.each { key, value ->
-            properties.setProperty(key,value)
+
+            if(props[key] instanceof java.lang.String){
+
+                properties.setProperty(key,value)
+            }
+
+
         }
+
 
         String usernameAddr = emailProps.username
 

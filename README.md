@@ -14,31 +14,32 @@ I recommend you add the following to application.groovy config file. Please crea
 Add your email provider properties to grails configuration file: Example
 Assuming you want to add config for a gmail account for 'john@gmail.com' then add the following to your grails config file.
 
-<code>
-novamail.hostProps = [
-    ["host":'imap.gmail.com'],
-    ["mail.imap.host":"imap.gmail.com"],
-    ["mail.store.protocol": "imaps"],
-    ["mail.imap.socketFactory.class": "javax.net.ssl.SSLSocketFactory"],
-    ["mail.imap.socketFactory.fallback": "false"],
-    ["mail.imaps.partialfetch":"false"],
-    ["mail.mime.address.strict": "false"],
-    ["mail.smtp.starttls.enable": "true"],
-    ["mail.smtp.host": "smtp.gmail.com"],
-    ["mail.smtp.auth": "true"],
-    ["mail.smtp.socketFactory.port": "465"],
-    ["mail.smtp.socketFactory.class": "javax.net.ssl.SSLSocketFactory"],
-    ["mail.smtp.socketFactory.fallback": "false"]
-]
-novamail{
-    hostname= System.getenv("CS_HOSTNAME")
-    username= System.getenv("CS_USERNAME")
-    password= System.getenv("CS_PASSWORD")
-    store= System.getenv("CS_STORE")
-    }    
-</code>
+`novamail.hostProps = [
+     ["host":'imap.gmail.com'],
+     ["mail.imap.host":"imap.gmail.com"],
+     ["mail.store.protocol": "imaps"],
+     ["mail.imap.socketFactory.class": "javax.net.ssl.SSLSocketFactory"],
+     ["mail.imap.socketFactory.fallback": "false"],
+     ["mail.imaps.partialfetch":"false"],
+     ["mail.mime.address.strict": "false"],
+     ["mail.smtp.starttls.enable": "true"],
+     ["mail.smtp.host": "smtp.gmail.com"],
+     ["mail.smtp.auth": "true"],
+     ["mail.smtp.socketFactory.port": "465"],
+     ["mail.smtp.socketFactory.class": "javax.net.ssl.SSLSocketFactory"],
+     ["mail.smtp.socketFactory.fallback": "false"]
+ ]` 
+ 
+ `novamail{
+           hostname= System.getenv("CS_HOSTNAME")
+           username= System.getenv("CS_USERNAME")
+           password= System.getenv("CS_PASSWORD")
+           store= System.getenv("CS_STORE")
+           }  `
+   
 
-<small>Always try to avoid having passwords in your code. Store them as Environment variables. </small>
+
+<small>Avoid having passwords in your code. Store them as Environment variables. </small>
 
 <h3>Side note </h3>
 Novamail will try to use predefined host props for some popular email providers if you do not provide hostProps

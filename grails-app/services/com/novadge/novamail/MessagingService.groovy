@@ -46,6 +46,8 @@ class MessagingService {
      * @param map.password (optional: defaults to conf attribute)
      * @param map.hostname (optional: defaults to conf attribute)
      * @param map.to : Recipients address
+     * @param map.cc : carbon copy
+     * @param map.bcc : blind carbon copy
      * @param map.subject : Message subject
      * @param map.body : Message body
      * @param map.html (optional: defaults to true)

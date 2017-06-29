@@ -14,28 +14,35 @@ I recommend you add the following to application.groovy config file. Please crea
 Add your email provider properties to grails configuration file: Example
 Assuming you want to add config for a gmail account for 'john@gmail.com' then add the following to your grails config file.
 
-`novamail.hostProps = [
-     ["host":'imap.gmail.com'],
-     ["mail.imap.host":"imap.gmail.com"],
-     ["mail.store.protocol": "imaps"],
-     ["mail.imap.socketFactory.class": "javax.net.ssl.SSLSocketFactory"],
-     ["mail.imap.socketFactory.fallback": "false"],
-     ["mail.imaps.partialfetch":"false"],
-     ["mail.mime.address.strict": "false"],
-     ["mail.smtp.starttls.enable": "true"],
-     ["mail.smtp.host": "smtp.gmail.com"],
-     ["mail.smtp.auth": "true"],
-     ["mail.smtp.socketFactory.port": "465"],
-     ["mail.smtp.socketFactory.class": "javax.net.ssl.SSLSocketFactory"],
-     ["mail.smtp.socketFactory.fallback": "false"]
- ]` 
+<code>novamail.hostProps = [
+
+      ["host":'imap.gmail.com'],
+      ["mail.imap.host":"imap.gmail.com"],
+      ["mail.store.protocol": "imaps"],
+      ["mail.imap.socketFactory.class": "javax.net.ssl.SSLSocketFactory"],
+      ["mail.imap.socketFactory.fallback": "false"],
+      ["mail.imaps.partialfetch":"false"],
+      ["mail.mime.address.strict": "false"],
+      ["mail.smtp.starttls.enable": "true"],
+      ["mail.smtp.host": "smtp.gmail.com"],
+      ["mail.smtp.auth": "true"],
+      ["mail.smtp.socketFactory.port": "465"],
+      ["mail.smtp.socketFactory.class": "javax.net.ssl.SSLSocketFactory"],
+      ["mail.smtp.socketFactory.fallback": "false"]
+      
+  ]
+  </code>
  
- `novamail{
+ <code>
+ novamail{
+ 
            hostname= System.getenv("CS_HOSTNAME")
            username= System.getenv("CS_USERNAME")
            password= System.getenv("CS_PASSWORD")
            store= System.getenv("CS_STORE")
-           }  `
+           
+           }
+  </code>         
    
 
 
@@ -89,20 +96,38 @@ An example usage can be seen below.
 </code>
 
 
-Novamail with Mapped parameters
+Second form
 ==============================
 
 <h2>Requirements</h2>
 
 To use the <code>messagingService</code> with mapped parameters, you need to declare a 
-map with the required variables. These are, <code>hostname, username, password, 
-from, to, subject, body, html, attachments, hostProps</code>.
-<br />
+map with the required variables. These are, 
+<code>
+hostname, username, password, 
+from, to, subject, body, html, attachments, hostProps
+
+</code>.
+
  
-<code>hostname, username, password, from, to, subject, body</code> are string variables. 
-<code>html</code> is boolean that defaults to <code>true</code>, 
+<ul>
+<li>hostname : String</li>
+<li>username: Stiring</li>
+<li>password : String</li>
+<li>from : String </li>
+<li>to : String </li>
+<li>subject : String </li>
+<li>body : String </li>
+<li>html : boolean </li>
+<li> attachments : List<File> </li>
+</ul>
+
+<code>html</code> is boolean that defaults to <code>true</code>,
+
 <code>attachments</code> is a List of type File (for file attachments) and is optional, 
-while <code>hostProps</code> is a map of host properties (see above). <br />
+and 
+ 
+ <code>hostProps</code> is a map of host properties (see above). <br />
 
 If <code>hostname, username, password, from, hostProps</code> have been set in the 
 Config.groovy file, they do not have to be added to your map parameter. 
@@ -118,7 +143,7 @@ omitted as well except when set explicitly (your choice). <br />
         
         def myMethod() {
             ...
-            def map = [to: "recepeitn@gmail.com", subject: "Hello there!", body: "Just to test out awesome Novamail"]
+            def map = [username:"john@doe.com", password:"john_password", from:"JOHN Doe<john@doe.com>", to: "recepeitn@gmail.com", subject: "Hello there!", body: "Just to test out awesome Novamail"]
             messagingService.sendEmail(map) // Call the messagingService sendEmail method passing in the map
         }
     }
